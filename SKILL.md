@@ -2,7 +2,7 @@
 name: mini-program-engineering-suite
 description: >-
   Orchestrate evidence-first engineering for WeChat and other mini programs from a vague idea or existing repository through project discovery, product specification, architecture, implementation, debugging, device adaptation, verification, and release readiness. Use when users ask to build a mini program from zero to one, take over an existing mini-program project, deliver a cross-stage feature, diagnose project status, coordinate development and testing, or judge whether a mini program is ready to upload or release. Enforces fact discovery, change boundaries, stage gates, evidence-calibrated status, sensitive-information redaction, and continuity after side questions.
-license: UNLICENSED
+license: MIT
 compatibility: Requires Python 3.9+ for bundled scripts; framework adapters are optional and discovered read-only.
 metadata:
   version: "1.1.0"

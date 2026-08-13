@@ -8,7 +8,7 @@
 
 # Mini Program Engineering Skill Suite
 
-**Mini Program Engineering Skill Suite** is a private Agent Skill suite for evidence-first mini-program development. It helps an agent take a WeChat or other mini-program project from unclear intent to reliable engineering action: project intake, product specification, architecture, implementation, UI and device adaptation, debugging, verification, and release readiness.
+**Mini Program Engineering Skill Suite** is an Agent Skill suite for evidence-first mini-program development. It helps an agent take a WeChat or other mini-program project from unclear intent to reliable engineering action: project intake, product specification, architecture, implementation, UI and device adaptation, debugging, verification, and release readiness.
 
 中文名：**小程序开发工程技能套件**。
 
@@ -16,7 +16,7 @@
 
 ## Status
 
-This repository is currently a private project page and working home for the suite. It is **not an open-source release at this time**. Source availability, redistribution rights, and public licensing will be announced separately if the project is opened later.
+This repository is the public project home for the suite, released under the **MIT License**. Anyone may view, use, modify, and redistribute it. See [LICENSE](LICENSE) for the full terms.
 
 ---
 
@@ -109,6 +109,6 @@ Current working version: **1.1.0**.
 
 ---
 
-## License And Availability
+## License
 
-This project is not currently distributed as open source. Unless a public license is explicitly published later, all rights are reserved by the project owner.
+This project is released under the **MIT License**. See [LICENSE](LICENSE) for details. You are free to use, modify, distribute, and commercially use it, provided you retain the copyright notice and permission notice.

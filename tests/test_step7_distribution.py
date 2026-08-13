@@ -41,9 +41,8 @@ class DistributionContractTests(unittest.TestCase):
         for term in ("Python 3.9", "原生微信小程序", "Taro", "uni-app", "可选", "不自动安装"):
             self.assertIn(term, compatibility)
         license_text = (ROOT / "LICENSE").read_text(encoding="utf-8")
-        self.assertIn("All rights reserved", license_text)
-        self.assertIn("not distributed as open source", license_text)
-        self.assertNotIn("MIT License", license_text)
+        self.assertIn("MIT License", license_text)
+        self.assertIn("Permission is hereby granted", license_text)
 
     def test_validator_and_exporter_accept_distribution_files(self) -> None:
         validation = subprocess.run(

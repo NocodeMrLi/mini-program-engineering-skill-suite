@@ -15,6 +15,7 @@ from typing import Iterable, Sequence
 
 SKIP_DIRS = {".git", ".planning", "__pycache__", "tests"}
 SKIP_NAMES = {".DS_Store"}
+BINARY_ASSET_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico"}
 
 
 @dataclass(frozen=True)
@@ -79,6 +80,8 @@ def scan_files(paths: Iterable[Path], root: Path) -> list[Finding]:
     findings: list[Finding] = []
     for path in sorted(paths):
         display_path = path.name if root.is_file() else path.relative_to(root).as_posix()
+        if path.suffix.lower() in BINARY_ASSET_SUFFIXES:
+            continue
         try:
             raw_content = path.read_bytes()
         except OSError:

@@ -13,10 +13,11 @@ from typing import Sequence
 
 REQUIRED_FILES = (
     "README.md",
+    "README.en.md",
     "LICENSE",
     "CHANGELOG.md",
     "COMPATIBILITY.md",
-    "assets/readme-cover.svg",
+    "assets/readme-cover.png",
     "SKILL.md",
     "agents/openai.yaml",
     "references/routing-and-state-machine.md",
@@ -122,8 +123,8 @@ def validate_skill(path: Path, expected_name: str, *, root_skill: bool = False) 
     if not 80 <= len(description) <= 1024:
         errors.append(f"{path}: description length must be between 80 and 1024 characters")
     if root_skill:
-        if frontmatter.get("license") != "UNLICENSED":
-            errors.append(f"{path}: root license must be UNLICENSED")
+        if frontmatter.get("license") != "MIT":
+            errors.append(f"{path}: root license must be MIT")
         compatibility = frontmatter.get("compatibility", "")
         if not 10 <= len(compatibility) <= 500:
             errors.append(f"{path}: compatibility length must be between 10 and 500 characters")
