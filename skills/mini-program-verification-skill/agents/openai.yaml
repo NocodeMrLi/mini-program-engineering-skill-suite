@@ -1,0 +1,4 @@
+interface:
+  display_name: "小程序工程验证"
+  short_description: "分层执行小程序验证并输出证据边界、残余风险与下一项检查"
+  default_prompt: "使用 $mini-program-verification-skill 分层验证这个小程序，并报告已检查、未检查和残余风险。"

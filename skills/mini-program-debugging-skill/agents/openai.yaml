@@ -1,0 +1,4 @@
+interface:
+  display_name: "小程序问题调试"
+  short_description: "从稳定复现和完整证据链定位根因并覆盖同类状态回归验证"
+  default_prompt: "使用 $mini-program-debugging-skill 复现并定位这个小程序问题的根因，再以回归证据验证修复。"

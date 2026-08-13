@@ -1,0 +1,4 @@
+interface:
+  display_name: "小程序工程实现"
+  short_description: "在明确边界内小步实现代码并保护用户现有改动与已验收行为"
+  default_prompt: "使用 $mini-program-implementation-skill 在明确边界内实现这个小程序改动，并提供匹配的测试证据。"

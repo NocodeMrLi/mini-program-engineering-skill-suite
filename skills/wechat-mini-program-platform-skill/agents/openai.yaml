@@ -1,0 +1,4 @@
+interface:
+  display_name: "微信小程序平台适配"
+  short_description: "核对微信小程序工具、构建、权限、隐私及各发布证据层级"
+  default_prompt: "使用 $wechat-mini-program-platform-skill 只读核对当前项目的微信平台配置和证据层级。"

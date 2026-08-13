@@ -1,0 +1,156 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Mini Program Engineering Skill Suite</title>
+  <desc id="desc">A dark technical README cover showing a mini-program engineering workflow with nine evidence gates.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101820"/>
+      <stop offset="0.46" stop-color="#18232c"/>
+      <stop offset="1" stop-color="#f5f7f8"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#d7dde3" stop-opacity="0.84"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.17"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.05"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+    <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#ffffff" stroke-opacity="0.07" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#grid)"/>
+
+  <g opacity="0.52">
+    <circle cx="1320" cy="140" r="180" fill="#72e3d1" opacity="0.08"/>
+    <circle cx="188" cy="702" r="210" fill="#62a8ff" opacity="0.08"/>
+    <path d="M108 236 C 310 120, 492 144, 684 264 S 1052 492, 1488 296" fill="none" stroke="#8cefd4" stroke-opacity="0.18" stroke-width="2"/>
+    <path d="M148 636 C 364 548, 516 574, 730 676 S 1118 780, 1458 590" fill="none" stroke="#63a9ff" stroke-opacity="0.14" stroke-width="2"/>
+  </g>
+
+  <g transform="translate(170 168)" filter="url(#shadow)">
+    <rect x="0" y="0" width="320" height="518" rx="28" fill="url(#glass)" stroke="#ffffff" stroke-opacity="0.18"/>
+    <rect x="34" y="58" width="252" height="18" rx="9" fill="#d8e0e7" opacity="0.18"/>
+    <rect x="34" y="112" width="190" height="16" rx="8" fill="#d8e0e7" opacity="0.12"/>
+    <rect x="34" y="156" width="242" height="52" rx="16" fill="#ffffff" opacity="0.08"/>
+    <rect x="34" y="238" width="242" height="52" rx="16" fill="#ffffff" opacity="0.08"/>
+    <rect x="34" y="320" width="242" height="52" rx="16" fill="#ffffff" opacity="0.08"/>
+    <g fill="none" stroke="#74e5c6" stroke-width="4" opacity="0.82">
+      <path d="M58 182 l14 14 26 -31"/>
+      <path d="M58 264 l14 14 26 -31"/>
+      <path d="M58 346 l14 14 26 -31"/>
+    </g>
+    <circle cx="70" cy="438" r="18" fill="#f7b84b"/>
+    <path d="M70 426 L70 444" stroke="#19232d" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="70" cy="453" r="3" fill="#19232d"/>
+    <rect x="108" y="428" width="130" height="14" rx="7" fill="#d8e0e7" opacity="0.14"/>
+    <rect x="108" y="456" width="168" height="14" rx="7" fill="#d8e0e7" opacity="0.10"/>
+  </g>
+
+  <g transform="translate(560 112)" filter="url(#shadow)">
+    <rect x="0" y="0" width="480" height="610" rx="38" fill="url(#panel)" stroke="#ffffff" stroke-opacity="0.66"/>
+    <rect x="0" y="0" width="480" height="80" rx="38" fill="#17212b" opacity="0.14"/>
+    <circle cx="48" cy="40" r="8" fill="#2f3a45" opacity="0.78"/>
+    <circle cx="78" cy="40" r="8" fill="#2f3a45" opacity="0.46"/>
+    <circle cx="108" cy="40" r="8" fill="#2f3a45" opacity="0.30"/>
+    <rect x="394" y="31" width="50" height="18" rx="9" fill="#2f3a45" opacity="0.45"/>
+
+    <circle cx="240" cy="226" r="104" fill="#e7ecf1" stroke="#b6c0c9"/>
+    <circle cx="240" cy="226" r="68" fill="#f7fafc" stroke="#c9d2da"/>
+    <g fill="#9ba8b3">
+      <rect x="205" y="192" width="28" height="28" rx="8"/>
+      <rect x="247" y="192" width="28" height="28" rx="8"/>
+      <rect x="205" y="234" width="28" height="28" rx="8"/>
+      <rect x="247" y="234" width="28" height="28" rx="8"/>
+    </g>
+
+    <rect x="56" y="378" width="166" height="120" rx="20" fill="#ffffff" opacity="0.68"/>
+    <rect x="258" y="378" width="166" height="120" rx="20" fill="#ffffff" opacity="0.68"/>
+    <rect x="82" y="412" width="92" height="12" rx="6" fill="#93a1ad"/>
+    <rect x="82" y="444" width="116" height="12" rx="6" fill="#b8c2ca"/>
+    <rect x="82" y="474" width="72" height="12" rx="6" fill="#c7d0d7"/>
+    <rect x="292" y="414" width="98" height="62" rx="12" fill="#dde4ea"/>
+    <rect x="322" y="432" width="38" height="28" rx="8" fill="#3d8cff"/>
+  </g>
+
+  <g stroke="#bdeee4" stroke-width="3" stroke-linecap="round" opacity="0.76">
+    <path d="M490 250 H560"/>
+    <path d="M490 392 H560"/>
+    <path d="M490 534 H560"/>
+    <path d="M1040 250 H1110"/>
+    <path d="M1040 392 H1110"/>
+    <path d="M1040 534 H1110"/>
+  </g>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+    <g transform="translate(410 176)">
+      <rect width="150" height="92" rx="20" fill="#18242e" stroke="#ffffff" stroke-opacity="0.18"/>
+      <circle cx="122" cy="22" r="18" fill="#5fd17a"/>
+      <path d="M113 22 l7 7 16 -19" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <text x="22" y="54" fill="#e9f1f6" font-size="19" font-weight="700">Intake</text>
+    </g>
+    <g transform="translate(410 318)">
+      <rect width="150" height="92" rx="20" fill="#18242e" stroke="#ffffff" stroke-opacity="0.18"/>
+      <circle cx="122" cy="22" r="18" fill="#5fd17a"/>
+      <path d="M113 22 l7 7 16 -19" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <text x="22" y="54" fill="#e9f1f6" font-size="19" font-weight="700">Spec</text>
+    </g>
+    <g transform="translate(410 460)">
+      <rect width="150" height="92" rx="20" fill="#18242e" stroke="#ffffff" stroke-opacity="0.18"/>
+      <circle cx="122" cy="22" r="18" fill="#5fd17a"/>
+      <path d="M113 22 l7 7 16 -19" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <text x="22" y="54" fill="#e9f1f6" font-size="19" font-weight="700">Build</text>
+    </g>
+    <g transform="translate(1110 176)">
+      <rect width="150" height="92" rx="20" fill="#18242e" stroke="#ffffff" stroke-opacity="0.18"/>
+      <circle cx="122" cy="22" r="18" fill="#5fd17a"/>
+      <path d="M113 22 l7 7 16 -19" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <text x="22" y="54" fill="#e9f1f6" font-size="19" font-weight="700">UI</text>
+    </g>
+    <g transform="translate(1110 318)">
+      <rect width="150" height="92" rx="20" fill="#18242e" stroke="#ffffff" stroke-opacity="0.18"/>
+      <circle cx="122" cy="22" r="18" fill="#5fd17a"/>
+      <path d="M113 22 l7 7 16 -19" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <text x="22" y="54" fill="#e9f1f6" font-size="19" font-weight="700">Debug</text>
+    </g>
+    <g transform="translate(1110 460)">
+      <rect width="150" height="92" rx="20" fill="#18242e" stroke="#ffffff" stroke-opacity="0.18"/>
+      <circle cx="122" cy="22" r="18" fill="#5fd17a"/>
+      <path d="M113 22 l7 7 16 -19" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round"/>
+      <text x="22" y="54" fill="#e9f1f6" font-size="19" font-weight="700">Release</text>
+    </g>
+  </g>
+
+  <g transform="translate(274 760)" filter="url(#softGlow)">
+    <line x1="0" y1="0" x2="1052" y2="0" stroke="#d9f8ef" stroke-opacity="0.52" stroke-width="4"/>
+    <g>
+      <circle cx="0" cy="0" r="22" fill="#3d8cff"/>
+      <circle cx="132" cy="0" r="22" fill="#25323d" stroke="#74e5c6" stroke-width="3"/>
+      <circle cx="264" cy="0" r="22" fill="#25323d" stroke="#74e5c6" stroke-width="3"/>
+      <circle cx="396" cy="0" r="22" fill="#25323d" stroke="#74e5c6" stroke-width="3"/>
+      <circle cx="528" cy="0" r="22" fill="#25323d" stroke="#74e5c6" stroke-width="3"/>
+      <circle cx="660" cy="0" r="22" fill="#25323d" stroke="#74e5c6" stroke-width="3"/>
+      <circle cx="792" cy="0" r="22" fill="#25323d" stroke="#74e5c6" stroke-width="3"/>
+      <circle cx="924" cy="0" r="22" fill="#25323d" stroke="#f7b84b" stroke-width="3"/>
+      <circle cx="1052" cy="0" r="26" fill="#55d66f"/>
+    </g>
+  </g>
+
+  <g font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif">
+    <text x="80" y="82" fill="#f6fbff" font-size="52" font-weight="760">Mini Program Engineering Skill Suite</text>
+    <text x="84" y="128" fill="#b9c9d4" font-size="24" font-weight="500">Evidence-first engineering gates for mini-program agents</text>
+    <text x="84" y="824" fill="#25323d" font-size="22" font-weight="650">Private suite · staged evidence · explicit authorization · release readiness</text>
+  </g>
+</svg>

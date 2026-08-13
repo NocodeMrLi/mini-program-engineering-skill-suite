@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "split": "held-out",
+  "cases": [
+    {"id":"hold-intake-zh","language":"zh","kind":"positive","prompt":"继续维护这个别人留下的小程序之前，先盘点规则文件、未提交改动、真实入口和未知风险。","expected":["mini-program-project-intake-skill"]},
+    {"id":"hold-intake-en","language":"en","kind":"positive","prompt":"Before resuming this inherited mini app, inventory repository rules, uncommitted work, actual entry points, and unknown risks read-only.","expected":["mini-program-project-intake-skill"]},
+    {"id":"hold-product-zh","language":"zh","kind":"positive","prompt":"这个需求只有一句话，请先明确用户、核心问题、版本一范围和各状态下的行为。","expected":["mini-program-product-spec-skill"]},
+    {"id":"hold-product-en","language":"en","kind":"positive","prompt":"This request is one sentence; clarify users, core problem, version-one scope, flows, and behavior in every state.","expected":["mini-program-product-spec-skill"]},
+    {"id":"hold-architecture-zh","language":"zh","kind":"positive","prompt":"已定稿的流程要落地，请给出页面、组件、服务、接口契约、失败策略和 ADR。","expected":["mini-program-architecture-skill"]},
+    {"id":"hold-architecture-en","language":"en","kind":"positive","prompt":"Map the finalized flow into pages, components, services, interface contracts, failure policy, and an ADR.","expected":["mini-program-architecture-skill"]},
+    {"id":"hold-platform-zh","language":"zh","kind":"positive","prompt":"核对微信小程序 project 配置、编译产物目录、授权拒绝路径和平台申报是否属于同一证据层。","expected":["wechat-mini-program-platform-skill"]},
+    {"id":"hold-platform-en","language":"en","kind":"positive","prompt":"Classify WeChat project configuration, compiled output roots, permission refusal paths, and platform declarations by evidence layer.","expected":["wechat-mini-program-platform-skill"]},
+    {"id":"hold-implementation-zh","language":"zh","kind":"positive","prompt":"按确认的接口契约修改现有小程序代码，保护当前改动并执行最小相关测试。","expected":["mini-program-implementation-skill"]},
+    {"id":"hold-implementation-en","language":"en","kind":"positive","prompt":"Modify the existing mini-program code to the confirmed interface contract while preserving current changes and running focused tests.","expected":["mini-program-implementation-skill"]},
+    {"id":"hold-ui-zh","language":"zh","kind":"positive","prompt":"评估这个小程序页面在窄屏、横屏、刘海屏和键盘弹起时的布局与手势冲突。","expected":["mini-program-ui-device-skill"]},
+    {"id":"hold-ui-en","language":"en","kind":"positive","prompt":"Assess this mini-program interface for narrow screens, landscape, notches, keyboard overlap, scrolling, and gesture conflicts.","expected":["mini-program-ui-device-skill"]},
+    {"id":"hold-debug-zh","language":"zh","kind":"positive","prompt":"接口偶尔成功但页面仍显示失败，不要吞错误，先用判别实验确认是竞态、缓存还是构建版本。","expected":["mini-program-debugging-skill"]},
+    {"id":"hold-debug-en","language":"en","kind":"positive","prompt":"The API sometimes succeeds while the page shows failure; use discriminating checks to distinguish races, cache, and build-version causes.","expected":["mini-program-debugging-skill"]},
+    {"id":"hold-verification-zh","language":"zh","kind":"positive","prompt":"验证这个功能是否真的完成，固定源码与构建指纹，并列出 passed、failed、blocked 和 not-run。","expected":["mini-program-verification-skill"]},
+    {"id":"hold-verification-en","language":"en","kind":"positive","prompt":"Verify whether this feature is truly complete, bind evidence to source and build fingerprints, and report passed, failed, blocked, and not-run layers.","expected":["mini-program-verification-skill"]},
+    {"id":"hold-release-zh","language":"zh","kind":"positive","prompt":"做一次只读发布预检，分清 push、build、upload、review、approval 和 production 的当前状态。","expected":["mini-program-release-skill"]},
+    {"id":"hold-release-en","language":"en","kind":"positive","prompt":"Run a read-only release preflight and distinguish push, build, upload, review, approval, production, and rollback evidence.","expected":["mini-program-release-skill"]},
+
+    {"id":"hold-boundary-intake-debug-en","language":"en","kind":"boundary","prompt":"There is no reproducible defect yet; first establish what this inherited repository contains and how it is built.","expected":["mini-program-project-intake-skill"]},
+    {"id":"hold-boundary-product-architecture-zh","language":"zh","kind":"boundary","prompt":"用户离线后是否保留进度还没决定，先把这个产品规则定清楚，不要直接选数据库。","expected":["mini-program-product-spec-skill"]},
+    {"id":"hold-boundary-architecture-implementation-en","language":"en","kind":"boundary","prompt":"Do not write code yet; compare two state-management designs and document migration and rollback tradeoffs.","expected":["mini-program-architecture-skill"]},
+    {"id":"hold-boundary-platform-release-zh","language":"zh","kind":"boundary","prompt":"只判断微信隐私接口、配置声明和平台申报是否一致，不判断整个版本能不能发布。","expected":["wechat-mini-program-platform-skill"]},
+    {"id":"hold-boundary-debug-verification-en","language":"en","kind":"boundary","prompt":"The cause of the regression is unknown, so reproduce and isolate it before running broad acceptance checks.","expected":["mini-program-debugging-skill"]},
+    {"id":"hold-boundary-release-verification-zh","language":"zh","kind":"boundary","prompt":"测试报告已有了，现在只核对版本号、正式构建、回滚材料和上传授权。","expected":["mini-program-release-skill"]},
+
+    {"id":"hold-negative-email-en","language":"en","kind":"negative","prompt":"Draft a polite follow-up email after a sales meeting.","expected":[]},
+    {"id":"hold-negative-calendar-zh","language":"zh","kind":"negative","prompt":"提醒我周五下午交水电费。","expected":[]},
+    {"id":"hold-negative-pdf-en","language":"en","kind":"negative","prompt":"Extract the tables from this annual-report PDF.","expected":[]},
+    {"id":"hold-negative-recipe-zh","language":"zh","kind":"negative","prompt":"给我一个番茄炖牛腩的食谱。","expected":[]},
+
+    {"id":"hold-collision-ui-verification-en","language":"en","kind":"collision","prompt":"Compare the screen with the approved reference across devices, then independently verify the implemented behavior and evidence layers.","expected":["mini-program-ui-device-skill","mini-program-verification-skill"]},
+    {"id":"hold-collision-debug-implementation-zh","language":"zh","kind":"collision","prompt":"先定位登录后状态回退的根因，再在证据成立后做最小修复和回归测试。","expected":["mini-program-debugging-skill","mini-program-implementation-skill"]},
+    {"id":"hold-collision-intake-release-en","language":"en","kind":"collision","prompt":"Read-only intake this unfamiliar repository and then report whether its existing artifacts are release-ready without uploading anything.","expected":["mini-program-project-intake-skill","mini-program-release-skill"]},
+    {"id":"hold-collision-architecture-platform-zh","language":"zh","kind":"collision","prompt":"设计权限与失败策略，同时核对这些能力在微信平台的配置、隐私声明和证据层。","expected":["mini-program-architecture-skill","wechat-mini-program-platform-skill"]}
+  ]
+}

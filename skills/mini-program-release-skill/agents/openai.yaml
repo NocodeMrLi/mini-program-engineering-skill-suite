@@ -1,0 +1,4 @@
+interface:
+  display_name: "小程序发布治理"
+  short_description: "核对小程序版本、构建、隐私与平台证据并形成发布就绪结论"
+  default_prompt: "使用 $mini-program-release-skill 对这个小程序执行只读发布就绪审查并区分各发布状态。"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "小程序工程架构"
+  short_description: "把确认的产品语义映射为小程序模块、数据、接口、权限和架构决策"
+  default_prompt: "使用 $mini-program-architecture-skill 为这份已确认的小程序规格设计可验证的工程架构。"

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "split": "development",
+  "cases": [
+    {"id":"dev-intake-zh","language":"zh","kind":"positive","prompt":"先只读接管这个已有小程序，告诉我技术栈、Git 状态、构建入口和改动边界。","expected":["mini-program-project-intake-skill"]},
+    {"id":"dev-intake-en","language":"en","kind":"positive","prompt":"Perform a read-only intake of this existing mini-program repository and map its framework, Git state, build path, risks, and change boundary.","expected":["mini-program-project-intake-skill"]},
+    {"id":"dev-product-zh","language":"zh","kind":"positive","prompt":"把这个模糊的小程序点子整理成 MVP、主流程、异常流程、页面职责和可验收标准。","expected":["mini-program-product-spec-skill"]},
+    {"id":"dev-product-en","language":"en","kind":"positive","prompt":"Turn this vague mini-program idea into an MVP scope, user flows, state matrix, page responsibilities, and testable acceptance criteria.","expected":["mini-program-product-spec-skill"]},
+    {"id":"dev-architecture-zh","language":"zh","kind":"positive","prompt":"产品语义已经确认，请设计模块划分、状态源、数据模型、接口、缓存、迁移和回滚方案。","expected":["mini-program-architecture-skill"]},
+    {"id":"dev-architecture-en","language":"en","kind":"positive","prompt":"The product behavior is confirmed; design modules, canonical state, APIs, caching, migration, concurrency, and rollback.","expected":["mini-program-architecture-skill"]},
+    {"id":"dev-platform-zh","language":"zh","kind":"positive","prompt":"只读核对微信开发者工具加载目录、隐私权限声明和源码到体验版的证据层。","expected":["wechat-mini-program-platform-skill"]},
+    {"id":"dev-platform-en","language":"en","kind":"positive","prompt":"Check WeChat Mini Program DevTools roots, privacy permissions, and source-to-trial evidence layers without changing anything.","expected":["wechat-mini-program-platform-skill"]},
+    {"id":"dev-implementation-zh","language":"zh","kind":"positive","prompt":"规格和架构已确认，请按现有项目规范实现这个范围明确的小功能并补测试。","expected":["mini-program-implementation-skill"]},
+    {"id":"dev-implementation-en","language":"en","kind":"positive","prompt":"The specification and architecture are approved; implement this bounded mini-program feature with tests.","expected":["mini-program-implementation-skill"]},
+    {"id":"dev-ui-zh","language":"zh","kind":"positive","prompt":"按已确认原型还原小程序页面，先给视觉预览，再处理安全区、键盘和触控热区适配。","expected":["mini-program-ui-device-skill"]},
+    {"id":"dev-ui-en","language":"en","kind":"positive","prompt":"Reproduce this approved mini-program screen, preview it first, then assess safe areas, keyboards, touch targets, and device layouts.","expected":["mini-program-ui-device-skill"]},
+    {"id":"dev-debug-zh","language":"zh","kind":"positive","prompt":"小程序偶发白屏且数值跳回旧值，请先复现、比较假设并定位根因。","expected":["mini-program-debugging-skill"]},
+    {"id":"dev-debug-en","language":"en","kind":"positive","prompt":"The mini program intermittently shows a white screen and stale values; reproduce it and establish the root cause before fixing.","expected":["mini-program-debugging-skill"]},
+    {"id":"dev-verification-zh","language":"zh","kind":"positive","prompt":"独立回归这个已完成修复，区分静态、单元、集成、真机、云端和未执行层。","expected":["mini-program-verification-skill"]},
+    {"id":"dev-verification-en","language":"en","kind":"positive","prompt":"Independently regression-test this completed fix and separate static, unit, integration, device, cloud, and not-run evidence.","expected":["mini-program-verification-skill"]},
+    {"id":"dev-release-zh","language":"zh","kind":"positive","prompt":"检查版本、构建包、敏感信息、回滚和上传前条件，判断是否达到 release-ready。","expected":["mini-program-release-skill"]},
+    {"id":"dev-release-en","language":"en","kind":"positive","prompt":"Assess versioning, build artifacts, secrets, rollback, and upload prerequisites to decide release readiness.","expected":["mini-program-release-skill"]},
+
+    {"id":"dev-boundary-intake-verification-zh","language":"zh","kind":"boundary","prompt":"我刚拿到一个陌生仓库，还没有改动，请先弄清楚它现在是什么情况。","expected":["mini-program-project-intake-skill"]},
+    {"id":"dev-boundary-product-architecture-en","language":"en","kind":"boundary","prompt":"We still do not know whether guests may save progress; define the behavior before discussing services or storage.","expected":["mini-program-product-spec-skill"]},
+    {"id":"dev-boundary-platform-release-zh","language":"zh","kind":"boundary","prompt":"解释为什么源码已经更新，但微信开发者工具里还是旧页面；先别做发布操作。","expected":["wechat-mini-program-platform-skill"]},
+    {"id":"dev-boundary-debug-implementation-en","language":"en","kind":"boundary","prompt":"A confirmed feature now fails only after a second login; do not patch it yet—identify why.","expected":["mini-program-debugging-skill"]},
+    {"id":"dev-boundary-ui-verification-zh","language":"zh","kind":"boundary","prompt":"根据截图比较当前页面的间距、层级和安全区偏差，不做功能回归。","expected":["mini-program-ui-device-skill"]},
+    {"id":"dev-boundary-verification-release-en","language":"en","kind":"boundary","prompt":"Run the existing test matrix and report which evidence layers pass; do not judge upload readiness.","expected":["mini-program-verification-skill"]},
+
+    {"id":"dev-negative-writing-zh","language":"zh","kind":"negative","prompt":"帮我把这篇旅行随笔改得更自然。","expected":[]},
+    {"id":"dev-negative-spreadsheet-en","language":"en","kind":"negative","prompt":"Create a spreadsheet formula that totals quarterly expenses.","expected":[]},
+    {"id":"dev-negative-weather-zh","language":"zh","kind":"negative","prompt":"查一下明天北京天气。","expected":[]},
+    {"id":"dev-negative-image-en","language":"en","kind":"negative","prompt":"Generate a watercolor illustration of a mountain cabin.","expected":[]},
+
+    {"id":"dev-collision-product-architecture-zh","language":"zh","kind":"collision","prompt":"先补齐奖励流程和状态矩阵，再把确认后的状态映射成数据模型与接口。","expected":["mini-program-product-spec-skill","mini-program-architecture-skill"]},
+    {"id":"dev-collision-intake-debug-en","language":"en","kind":"collision","prompt":"Take over this unfamiliar mini-program read-only, then diagnose the reported intermittent cache failure from current evidence.","expected":["mini-program-project-intake-skill","mini-program-debugging-skill"]},
+    {"id":"dev-collision-implementation-verification-zh","language":"zh","kind":"collision","prompt":"实现这个已确认的小改动，并由独立验证阶段完成回归和证据报告。","expected":["mini-program-implementation-skill","mini-program-verification-skill"]},
+    {"id":"dev-collision-platform-release-en","language":"en","kind":"collision","prompt":"Verify WeChat-specific privacy and DevTools evidence, then perform a read-only release-readiness preflight.","expected":["wechat-mini-program-platform-skill","mini-program-release-skill"]}
+  ]
+}

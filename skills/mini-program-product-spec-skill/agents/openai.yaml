@@ -1,0 +1,4 @@
+interface:
+  display_name: "小程序产品规格"
+  short_description: "把模糊想法收敛为可测试的小程序流程、状态矩阵与验收标准"
+  default_prompt: "使用 $mini-program-product-spec-skill 把这个小程序想法整理成不发明需求的产品规格。"

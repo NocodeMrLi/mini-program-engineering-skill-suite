@@ -1,0 +1,4 @@
+interface:
+  display_name: "小程序项目接管"
+  short_description: "只读建立小程序项目事实、风险、未知项以及明确改动边界"
+  default_prompt: "使用 $mini-program-project-intake-skill 只读接管当前小程序项目，并输出事实图和改动边界。"

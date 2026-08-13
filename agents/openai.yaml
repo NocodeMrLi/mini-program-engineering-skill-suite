@@ -1,0 +1,4 @@
+interface:
+  display_name: "小程序工程开发套件"
+  short_description: "规范智能体完成小程序从项目接管到验证发布的完整工程流程"
+  default_prompt: "使用 $mini-program-engineering-suite 接管这个小程序项目，先建立事实与改动边界，再按工程阶段推进。"

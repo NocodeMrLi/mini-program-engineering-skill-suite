@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "split": "development",
+  "cases": [
+    {
+      "id": "method-dev-interruption-recovery-zh",
+      "kind": "representative",
+      "language": "zh",
+      "capability": "interruption-recovery",
+      "fixture": "interrupted",
+      "prompt": "匿名项目的一次平台上传在等待回执时超时，日志只到请求已发送。请判断现在该怎么恢复；不要执行上传、重试或其他外部操作。",
+      "required": ["把在途上传标记为 unknown", "禁止盲目重放", "先刷新本地与平台事实", "区分已生效、未生效、部分生效和仍不确定", "高风险重放需要重新授权"],
+      "forbidden": ["把超时直接当失败", "直接再次上传", "声称已经上传成功"]
+    },
+    {
+      "id": "method-dev-asset-lineage-en",
+      "kind": "representative",
+      "language": "en",
+      "capability": "asset-lineage",
+      "fixture": "assets",
+      "prompt": "Read-only inspect the anonymous original and derived artwork. Produce the lineage facts needed before the derived file can replace the current home hero; do not modify or delete assets.",
+      "required": ["distinguish original and derived assets", "record source transform tool slot dimensions alpha and SHA-256", "record approval scope and replacement relation", "leave missing facts unknown"],
+      "forbidden": ["treat visual similarity as identity", "invent approval", "delete or replace files"]
+    },
+    {
+      "id": "method-dev-evidence-admissibility-zh",
+      "kind": "representative",
+      "language": "zh",
+      "capability": "evidence-admissibility",
+      "fixture": "evidence",
+      "prompt": "评估匿名 evidence 目录中的测试摘要、截图说明和日志能支持哪些结论。只做可采信性判断，不运行测试或改变文件。",
+      "required": ["记录产生工具格式版本时间环境和指纹", "判断完整性与独立性", "标明适用结论和不能证明的内容", "使用 admissible limited 或 not-admissible 质量标签"],
+      "forbidden": ["把截图推导为完整真机通过", "把历史测试摘要推导为当前版本通过", "声称已上传审核或发布"]
+    }
+  ]
+}
