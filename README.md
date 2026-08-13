@@ -1,90 +1,126 @@
-# Mini Program Engineering Skill Suite
+[English](./README.en.md) | **中文**
+
+---
 
 <p align="center">
-  <img src="assets/readme-cover.svg" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.png" alt="小程序开发工程技能套件 封面" width="100%">
 </p>
 
-**Mini Program Engineering Skill Suite** is a private Agent Skill suite for evidence-first mini-program development. It helps an agent take a WeChat or other mini-program project from unclear intent to reliable engineering action: project intake, product specification, architecture, implementation, UI and device adaptation, debugging, verification, and release readiness.
+# 小程序开发工程技能套件
 
-中文名：**小程序开发工程技能套件**。
+**小程序开发工程技能套件** 是一套面向 Agent 的私有技能套件，专为以「看得见的证据」为依据的小程序开发设计。它把从接手一个陌生项目，到把模糊想法变成可验证的产品规格，再到做出 MVP、调通真机、过审上线 —— 这一整条零碎、又容易踩坑的链路，沉淀成 Agent 可以直接执行的能力。
 
-## Status
+英文名：**Mini Program Engineering Skill Suite**。
 
-This repository is currently a private project page and working home for the suite. It is **not an open-source release at this time**. Source availability, redistribution rights, and public licensing will be announced separately if the project is opened later.
+---
 
-## What It Solves
+## 项目状态
 
-Mini-program development often fails in the gaps between stages: a preview is mistaken for acceptance, a local build is mistaken for a submitted package, or a pushed branch is mistaken for a released version. This suite makes those boundaries explicit.
+本仓库目前是这套套件的私有项目主页和工作台，**当前并未以开源形式发布**。如果后续决定开源，源码可用性、再分发权利和公开许可证会另行公布。
 
-It is designed to help an agent:
+---
 
-- understand an existing mini-program before editing it;
-- turn vague product ideas into testable specifications;
-- map stable product decisions into architecture, data, API, permission, and failure-handling choices;
-- implement scoped changes while preserving existing work;
-- treat UI preview, user confirmation, integration, device checks, and final acceptance as separate events;
-- diagnose issues from evidence instead of guessing;
-- report verification and release readiness without overstating what has been proven.
+## 它解决了什么问题
 
-## Component Map
+做小程序这件事，对没接触过的人来说远比看上去复杂。
 
-| Area | Purpose |
+工具链分散、平台规则琐碎、上线审核环环相扣。无论你是第一次做小程序的产品经理 / 创业者，还是临时接手老项目的开发者，往往要在「摸清现状、写清需求、做出 MVP、过审上线」这四件事上反复踩坑：
+
+- 环境装到一半报错、配置前后不一致；
+- 上线之后才发现权限漏配，临时补隐私协议；
+- UI 在不同机型上严重错位，真机表现和模拟器完全两个样子；
+- 提审版本和发布版本混淆，误把没验收的代码送审；
+- 误操作把没确认的改动推到了线上，要紧急回滚……
+
+**小程序开发工程技能套件** 把这些容易踩坑的环节打包成 Agent 可以直接执行的工程能力 —— 从接手一个陌生项目，到把模糊想法变成可验证的规格，再到控制变更范围、保证真机表现、守住上线每一步的「看得见的证据」。**它不替你做开发决定，但能让一个不懂小程序开发的人在 Agent 的辅助下走完从 0 到 1 的全程，少踩坑、少返工、不越权。**
+
+---
+
+## 它帮助 Agent 做到这些事
+
+- **接手项目**：先摸清现有的项目状态再动手改，避免破坏已有功能；
+- **澄清需求**：把模糊的产品想法转成可以验收的明确规格；
+- **沉淀决策**：把已经定了的产品决策落到架构、数据、接口、权限和兜底逻辑上；
+- **安全改代码**：在保留原有成果的前提下，做小颗粒、可回滚的改动；
+- **逐级验证**：把 UI 预览、用户确认、集成验证、机型适配、最终验收当成互相不等价的环节；
+- **用证据排错**：依据真实证据定位问题，而不是凭感觉猜；
+- **如实汇报**：老老实实报告当前验证到了哪一步，不夸大也不省略。
+
+---
+
+## 能力清单
+
+| 模块 | 作用 |
 | --- | --- |
-| Project intake | Read-only project discovery, fact map, risk map, and change boundary |
-| Product specification | MVP scope, user flow, state matrix, acceptance criteria |
-| Architecture | Module, data, API, permission, and failure strategy decisions |
-| Platform adaptation | WeChat mini-program tooling, privacy, permissions, and platform evidence |
-| Implementation | Small scoped changes with tests and user-change protection |
-| UI and device adaptation | Reference fidelity, preview-first changes, responsive/device checks |
-| Debugging | Reproduction, competing hypotheses, root-cause isolation, regression coverage |
-| Verification | Evidence tiers across static checks, unit tests, integration, simulator, device, cloud, and release layers |
-| Release readiness | Version, build, security, privacy, rollback, upload/review/release evidence governance |
+| 项目摸排 | 只读地摸清现有项目，输出事实清单、风险清单和变更边界 |
+| 产品规格 | MVP 范围、用户流程、状态矩阵、验收标准 |
+| 架构设计 | 模块、数据、接口、权限、异常处理策略的统一决策 |
+| 平台适配 | 微信小程序工具链、隐私、权限、平台方证据沉淀 |
+| 落地实现 | 小颗粒改动 + 测试 + 已验收成果保护 |
+| UI 与机型适配 | 设计稿还原、预览先行、响应式 / 多机型核验 |
+| 调试排错 | 复现、并列假设、根因定位、防回归验证 |
+| 验证 | 静态检查、单元、集成、模拟器、真机、云端、上线多层证据分级 |
+| 上线就绪 | 版本、构建、安全、隐私、回滚、上传 / 审核 / 发布证据治理 |
 
-## Design Principles
+---
 
-- Facts before action: no edits before the current project state is understood.
-- Evidence-calibrated status: report only the state that has actually been proven.
-- Stage gates stay separate: preview, implementation, build, upload, review, acceptance, release, and rollback are not interchangeable.
-- Authorization is explicit: external writes such as upload, review submission, release, cloud changes, and repository publishing require separate approval.
-- Private information stays out: public packages must pass redaction and sensitive-content checks.
-- Real devices still matter: local, static, and simulated checks cannot replace device, cloud, experience-version, or production evidence.
+## 设计原则
 
-## Intended Use
+- **事实先于动作**：没摸清现状，别动项目。
+- **证据对齐状态**：报什么状态，就得有什么状态被真实验证过。
+- **环节边界明确**：预览、实现、构建、上传、审核、验收、上线、回滚 —— 这些环节互相不可替代。
+- **外部动作独立授权**：上传、提交审核、发布、云端改动、仓库公开放开等外部写动作，分别独立授权。
+- **私有信息隔离**：对外分发的包，必须先过脱敏和敏感信息检查。
+- **真机才是真相**：本地检查、静态检查、模拟器都不能替代真机、体验版、生产环境的真实证据。
 
-The suite is intended for agents working with mini-program engineering tasks, especially when a project has accumulated product decisions, UI conventions, platform constraints, and release risk over time.
+---
 
-Typical use cases include:
+## 适用场景
 
-- taking over an unfamiliar mini-program repository;
-- planning a new mini-program from zero to one;
-- implementing a feature without disturbing existing accepted work;
-- checking whether a project is ready for upload, review, or release;
-- turning repeated engineering judgment into reusable agent behavior.
+这套套件适合在以下场景里辅助 Agent 完成小程序工程任务 —— 尤其是当项目已经累积了产品决策、UI 约定、平台约束和发布风险之后。
 
-## What It Does Not Do
+典型的使用场景包括：
 
-This suite does not automatically install project dependencies, create cloud resources, upload packages, submit review, publish releases, or modify production state. It can prepare evidence and instructions for those actions, but each external action remains separately authorized.
+- 接手一个陌生的小程序仓库；
+- 从零开始规划一个新小程序；
+- 在不破坏已有验收成果的前提下实现一个新功能；
+- 检查项目当前是否到了可以上传、提审或发布的状态；
+- 把反复出现的工程判断沉淀成可复用的 Agent 行为。
 
-## Verification
+---
 
-The current suite version uses structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, and independent final judgment before being treated as frozen.
+## 它不会做什么
 
-For a received package, integrity is checked through its `package-manifest.json`. For a source working copy, validation and sensitive scanning are run before distribution.
+这套套件不会自动安装项目依赖、创建云端资源、上传包、提交审核、发布版本，或改动线上状态。它可以准备好证据和操作指引，但每个外部动作都仍需独立授权。
 
-## Package Integrity
+---
 
-Use a 可信来源 (trusted source) for any distributed package, and do not mix files from different versions. `VERSION` is the version source of truth. A package that includes `package-manifest.json` can be checked by recomputing each file size and SHA-256 digest:
+## 验证
+
+当前套件版本在冻结前会经过：结构校验、敏感信息扫描、对公包导出的确定性检查、清单核对、路由评估、行为评估和独立终审。
+
+接收一个包时，通过它的 `package-manifest.json` 校验完整性；源码工作副本在分发前会先经过校验和敏感扫描。
+
+---
+
+## 包完整性
+
+请使用 **可信来源** 提供的发布包，不要混用不同版本的文件。`VERSION` 是版本号的唯一权威。一个包如果包含 `package-manifest.json`，可以通过重新计算每个文件的大小和 SHA-256 摘要来校验：
 
 ```bash
-python3 <package-dir>/scripts/verify_public_package.py <package-dir>
+python3 <包目录>/scripts/verify_public_package.py <包目录>
 ```
 
-The command confirms package integrity only; it does not prove publisher identity, device behavior, platform approval, or production release state. Keep the previous verified package and its manifest digest so rollback (回滚) remains possible if a later version regresses.
+这条命令只确认包本身的完整性，**不证明**发布者身份、平台审核结果或生产发布状态。请保留上一个已校验过的包及其清单摘要，以便后续版本回退。
 
-## Version
+---
 
-Current working version: **1.1.0**.
+## 当前版本
 
-## License And Availability
+当前工作版本：**1.1.0**。
 
-This project is not currently distributed as open source. Unless a public license is explicitly published later, all rights are reserved by the project owner.
+---
+
+## 许可证与可用性
+
+本项目当前并未以开源形式发布。除非后续明确公布公开许可证，否则所有权利均由项目所有者保留。
