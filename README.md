@@ -8,6 +8,12 @@
 
 # 小程序开发工程技能套件
 
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Platform: WeChat Mini Program](https://img.shields.io/badge/platform-WeChat%20Mini%20Program-1AAD19.svg)
+![Type: Agent Skills](https://img.shields.io/badge/type-Agent%20Skills-4F46E5.svg)
+![Language: 中文](https://img.shields.io/badge/lang-中文-orange.svg)
+![Python: 3.8+](https://img.shields.io/badge/python-3.8%2B-3776AB.svg)
+
 **小程序开发工程技能套件** 是一套面向 Agent 的技能套件，专为以「看得见的证据」为依据的小程序开发设计。它把从接手一个陌生项目，到把模糊想法变成可验证的产品规格，再到做出 MVP、调通真机、过审上线 —— 这一整条零碎、又容易踩坑的链路，沉淀成 Agent 可以直接执行的能力。
 
 英文名：**Mini Program Engineering Skill Suite**。

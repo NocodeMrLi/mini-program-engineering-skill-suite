@@ -8,6 +8,12 @@
 
 # Mini Program Engineering Skill Suite
 
+![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![Platform: WeChat Mini Program](https://img.shields.io/badge/platform-WeChat%20Mini%20Program-1AAD19.svg)
+![Type: Agent Skills](https://img.shields.io/badge/type-Agent%20Skills-4F46E5.svg)
+![Language: English](https://img.shields.io/badge/lang-English-blue.svg)
+![Python: 3.8+](https://img.shields.io/badge/python-3.8%2B-3776AB.svg)
+
 **Mini Program Engineering Skill Suite** is an Agent Skill suite for evidence-first mini-program development. It helps an agent take a WeChat or other mini-program project from unclear intent to reliable engineering action: project intake, product specification, architecture, implementation, UI and device adaptation, debugging, verification, and release readiness.
 
 中文名：**小程序开发工程技能套件**。
