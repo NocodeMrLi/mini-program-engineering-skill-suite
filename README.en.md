@@ -8,11 +8,17 @@
 
 # Mini Program Engineering Skill Suite
 
-![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
-![Platform: WeChat Mini Program](https://img.shields.io/badge/platform-WeChat%20Mini%20Program-1AAD19.svg)
-![Type: Agent Skills](https://img.shields.io/badge/type-Agent%20Skills-4F46E5.svg)
-![Language: English](https://img.shields.io/badge/lang-English-blue.svg)
-![Python: 3.8+](https://img.shields.io/badge/python-3.8%2B-3776AB.svg)
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
+  <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
+  <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
+  <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
+  <img src="https://img.shields.io/badge/stack-Taro%20%7C%20uni--app%20%7C%20native-4CAF50.svg" alt="Stack: Taro / uni-app / native">
+  <img src="https://img.shields.io/badge/runtime-Python%203.8%2B-3776AB.svg" alt="Runtime: Python 3.8+">
+  <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
+  <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
+  <img src="https://img.shields.io/badge/version-1.1.0-0EA5E9.svg" alt="Version: 1.1.0">
+</p>
 
 **Mini Program Engineering Skill Suite** is an Agent Skill suite for evidence-first mini-program development. It helps an agent take a WeChat or other mini-program project from unclear intent to reliable engineering action: project intake, product specification, architecture, implementation, UI and device adaptation, debugging, verification, and release readiness.
 
