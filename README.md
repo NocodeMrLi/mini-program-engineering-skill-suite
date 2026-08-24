@@ -1,7 +1,3 @@
-[English](./README.en.md) | **中文**
-
----
-
 <p align="center">
   <img src="assets/readme-cover.png" alt="小程序开发工程技能套件 封面" width="100%">
 </p>
@@ -18,6 +14,15 @@
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
   <img src="https://img.shields.io/badge/version-1.1.0-0EA5E9.svg" alt="Version: 1.1.0">
+</p>
+
+<p align="center">
+  <a href="./README.md">中文</a> ·
+  <a href="./README.zh-Hant.md">繁體中文</a> ·
+  <a href="./README.en.md">English</a> ·
+  <a href="./README.ja.md">日本語</a> ·
+  <a href="./README.th.md">ไทย</a> ·
+  <a href="./README.id.md">Bahasa Indonesia</a>
 </p>
 
 **小程序开发工程技能套件** 是一套面向 Agent 的技能套件，专为小程序从 0 到 1 开发、已有项目接管和上线前治理设计。它把「先弄清楚要做什么、怎么做、做到哪一步、有没有证据」这条链路拆成可执行的工程流程，帮助不熟悉小程序开发的人在 Agent 辅助下少踩坑、少返工、不越权。

@@ -1,7 +1,3 @@
-**[English](#)** | [中文](./README.md)
-
----
-
 <p align="center">
   <img src="assets/readme-cover.png" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
@@ -18,6 +14,15 @@
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
   <img src="https://img.shields.io/badge/version-1.1.0-0EA5E9.svg" alt="Version: 1.1.0">
+</p>
+
+<p align="center">
+  <a href="./README.md">中文</a> ·
+  <a href="./README.zh-Hant.md">繁體中文</a> ·
+  <a href="./README.en.md">English</a> ·
+  <a href="./README.ja.md">日本語</a> ·
+  <a href="./README.th.md">ไทย</a> ·
+  <a href="./README.id.md">Bahasa Indonesia</a>
 </p>
 
 **Mini Program Engineering Skill Suite** is an Agent Skill suite for zero-to-one mini-program development, existing project takeover, and release-readiness governance. It turns the hard parts of mini-program work into an executable agent workflow: clarifying what should be built, deciding how it should be built, proving what has been done, and keeping external actions explicitly authorized.

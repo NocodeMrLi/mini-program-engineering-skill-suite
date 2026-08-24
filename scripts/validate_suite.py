@@ -14,6 +14,10 @@ from typing import Sequence
 REQUIRED_FILES = (
     "README.md",
     "README.en.md",
+    "README.zh-Hant.md",
+    "README.ja.md",
+    "README.th.md",
+    "README.id.md",
     "LICENSE",
     "CHANGELOG.md",
     "COMPATIBILITY.md",
