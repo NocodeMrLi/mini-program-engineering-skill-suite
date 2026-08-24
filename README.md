@@ -107,6 +107,14 @@
 
 你可以把本仓库克隆到支持 `SKILL.md` 或项目规则的 Agent 应用目录中。不同应用的具体识别能力会随版本变化，下面是当前推荐的安装位置：
 
+如果你不想手动执行命令，可以先把下面这句话复制给自己正在使用的 Agent。只要它有联网、Git 和本地文件写入权限，它通常可以自动判断安装位置并完成安装：
+
+```text
+https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 帮我安装这个技能
+```
+
+如果 Agent 无法访问本地文件系统，或你想自己控制安装位置，再使用下面的命令行方式。
+
 | 应用 / 运行器 | 推荐安装位置 | 调用方式 |
 | --- | --- | --- |
 | Codex CLI / 通用 Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |

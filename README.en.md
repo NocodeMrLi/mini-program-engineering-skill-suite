@@ -95,6 +95,14 @@ Typical use cases include:
 
 Clone this repository into an application that supports `SKILL.md` or project rules. Exact discovery behavior depends on the app version, but these are the recommended locations:
 
+If you do not want to run commands manually, paste this request into the agent app you are using. If the agent has network, Git, and local filesystem write access, it can usually choose the right install location and install the skill for you:
+
+```text
+https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git Install this skill for me.
+```
+
+If the agent cannot access your local filesystem, or if you want to control the exact install location, use the command-line examples below.
+
 | App / runner | Recommended location | Invocation |
 | --- | --- | --- |
 | Codex CLI / universal Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
