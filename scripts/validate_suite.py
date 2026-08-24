@@ -18,8 +18,6 @@ REQUIRED_FILES = (
     "CHANGELOG.md",
     "COMPATIBILITY.md",
     "assets/readme-cover.png",
-    "assets/readme-promo.mp4",
-    "assets/readme-promo-poster.png",
     "assets/wordpet-origin-case.png",
     "SKILL.md",
     "agents/openai.yaml",

@@ -30,13 +30,9 @@
 
 If you want a quick overview of what this Skill solves, where it came from, and how it is meant to be used, start with this 32-second explainer video.
 
-<p align="center">
-  <a href="assets/readme-promo.mp4">
-    <img src="assets/readme-promo-poster.png" alt="Watch the Mini Program Engineering Skill Suite explainer video" width="100%">
-  </a>
-</p>
+https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 
-<sub>Click the cover image to open the video. The video only explains the suite positioning, origin, and usage boundaries.</sub>
+<sub>The video only explains the suite positioning, origin, and usage boundaries.</sub>
 
 ---
 
