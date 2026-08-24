@@ -14,13 +14,13 @@
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
   <img src="https://img.shields.io/badge/stack-Taro%20%7C%20uni--app%20%7C%20native-4CAF50.svg" alt="Stack: Taro / uni-app / native">
-  <img src="https://img.shields.io/badge/runtime-Python%203.8%2B-3776AB.svg" alt="Runtime: Python 3.8+">
+  <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
   <img src="https://img.shields.io/badge/version-1.1.0-0EA5E9.svg" alt="Version: 1.1.0">
 </p>
 
-**小程序开发工程技能套件** 是一套面向 Agent 的技能套件，专为以「看得见的证据」为依据的小程序开发设计。它把从接手一个陌生项目，到把模糊想法变成可验证的产品规格，再到做出 MVP、调通真机、过审上线 —— 这一整条零碎、又容易踩坑的链路，沉淀成 Agent 可以直接执行的能力。
+**小程序开发工程技能套件** 是一套面向 Agent 的技能套件，专为小程序从 0 到 1 开发、已有项目接管和上线前治理设计。它把「先弄清楚要做什么、怎么做、做到哪一步、有没有证据」这条链路拆成可执行的工程流程，帮助不熟悉小程序开发的人在 Agent 辅助下少踩坑、少返工、不越权。
 
 英文名：**Mini Program Engineering Skill Suite**。
 
@@ -34,9 +34,9 @@
 
 ## 它解决了什么问题
 
-做小程序这件事，对没接触过的人来说远比看上去复杂。
+做小程序这件事，对没接触过的人来说远比看上去复杂。真正难的往往不是写某一段代码，而是从一开始就不知道该先确认什么、哪些决策会影响后面、什么时候该停下来验证，以及上线前哪些事不能凭感觉跳过。
 
-工具链分散、平台规则琐碎、上线审核环环相扣。无论你是第一次做小程序的产品经理 / 创业者，还是临时接手老项目的开发者，往往要在「摸清现状、写清需求、做出 MVP、过审上线」这四件事上反复踩坑：
+工具链分散、平台规则琐碎、上线审核环环相扣。无论你是第一次做小程序的产品经理 / 创业者，还是临时接手老项目的开发者，往往会在这些地方反复踩坑：
 
 - 环境装到一半报错、配置前后不一致；
 - 上线之后才发现权限漏配，临时补隐私协议；
@@ -44,7 +44,7 @@
 - 提审版本和发布版本混淆，误把没验收的代码送审；
 - 误操作把没确认的改动推到了线上，要紧急回滚……
 
-**小程序开发工程技能套件** 把这些容易踩坑的环节打包成 Agent 可以直接执行的工程能力 —— 从接手一个陌生项目，到把模糊想法变成可验证的规格，再到控制变更范围、保证真机表现、守住上线每一步的「看得见的证据」。**它不替你做开发决定，但能让一个不懂小程序开发的人在 Agent 的辅助下走完从 0 到 1 的全程，少踩坑、少返工、不越权。**
+**小程序开发工程技能套件** 把这些容易踩坑的环节打包成 Agent 可以直接执行的工程能力：先梳理目标和边界，再形成产品规格和工程方案，然后小步实现、分层验证、收口发布风险。**它不替你做商业和产品决定，但能让一个不懂小程序开发的人在 Agent 的辅助下走完从 0 到 1 的关键路径，知道下一步该做什么、为什么做、做到什么程度才算有证据。**
 
 ---
 
@@ -98,6 +98,73 @@
 - 在不破坏已有验收成果的前提下实现一个新功能；
 - 检查项目当前是否到了可以上传、提审或发布的状态；
 - 把反复出现的工程判断沉淀成可复用的 Agent 行为。
+
+---
+
+## 使用方法
+
+### 1. 安装到支持 Agent Skill 的应用
+
+你可以把本仓库克隆到支持 `SKILL.md` 或项目规则的 Agent 应用目录中。不同应用的具体识别能力会随版本变化，下面是当前推荐的安装位置：
+
+| 应用 / 运行器 | 推荐安装位置 | 调用方式 |
+| --- | --- | --- |
+| Codex CLI / 通用 Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| Claude Code | `~/.claude/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| GitHub Copilot Coding Agent | `.github/skills/mini-program-engineering-suite` | 在仓库任务中按 Skill 说明触发 |
+| Cursor | `.cursor/rules/mini-program-engineering-suite` | 作为项目规则 / Skill 说明使用 |
+| Windsurf / Cline / Roo Code / Gemini CLI / Kiro / Trae / Goose / OpenCode | 对应应用的 skills 或 rules 目录 | 按该应用的 Skill / Rules 机制触发 |
+
+通用安装示例：
+
+```bash
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
+  ~/.agents/skills/mini-program-engineering-suite
+```
+
+Claude Code 示例：
+
+```bash
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
+  ~/.claude/skills/mini-program-engineering-suite
+```
+
+GitHub Copilot 项目级安装示例：
+
+```bash
+mkdir -p .github/skills
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
+  .github/skills/mini-program-engineering-suite
+```
+
+### 2. 在新会话中调用
+
+安装后重新打开一个 Agent 会话，直接描述任务即可。支持显式调用主 Skill：
+
+```text
+/mini-program-engineering-suite 我想从 0 到 1 做一个微信小程序，请先帮我梳理产品范围和开发步骤。
+```
+
+也可以直接描述阶段任务，让 Agent 路由到对应组件：
+
+```text
+帮我接手这个小程序项目，先只读看清现状，不要改代码。
+```
+
+```text
+这个小程序准备提审了，帮我做发布前检查，但不要上传、不要提交审核。
+```
+
+### 3. 按阶段交付
+
+推荐把任务拆成「产品规格 → 架构方案 → 实现 → UI / 真机适配 → 验证 → 发布准备」几个阶段推进。每一阶段都要求 Agent 说明：
+
+- 当前结论是什么；
+- 依据哪些文件、测试、截图、日志或平台证据；
+- 哪些内容还没有验证；
+- 下一步需要你确认什么。
+
+已有项目一定先做只读项目摸排，再决定是否修改。上传、提交审核、发布、云端改动、仓库权限变更等外部动作，都需要单独授权。
 
 ---
 

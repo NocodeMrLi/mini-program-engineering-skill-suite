@@ -14,13 +14,13 @@
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
   <img src="https://img.shields.io/badge/stack-Taro%20%7C%20uni--app%20%7C%20native-4CAF50.svg" alt="Stack: Taro / uni-app / native">
-  <img src="https://img.shields.io/badge/runtime-Python%203.8%2B-3776AB.svg" alt="Runtime: Python 3.8+">
+  <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
   <img src="https://img.shields.io/badge/version-1.1.0-0EA5E9.svg" alt="Version: 1.1.0">
 </p>
 
-**Mini Program Engineering Skill Suite** is an Agent Skill suite for evidence-first mini-program development. It helps an agent take a WeChat or other mini-program project from unclear intent to reliable engineering action: project intake, product specification, architecture, implementation, UI and device adaptation, debugging, verification, and release readiness.
+**Mini Program Engineering Skill Suite** is an Agent Skill suite for zero-to-one mini-program development, existing project takeover, and release-readiness governance. It turns the hard parts of mini-program work into an executable agent workflow: clarifying what should be built, deciding how it should be built, proving what has been done, and keeping external actions explicitly authorized.
 
 中文名：**小程序开发工程技能套件**。
 
@@ -34,17 +34,17 @@ This repository is the public project home for the suite, released under the **M
 
 ## What It Solves
 
-Mini-program development often fails in the gaps between stages: a preview is mistaken for acceptance, a local build is mistaken for a submitted package, or a pushed branch is mistaken for a released version. This suite makes those boundaries explicit.
+Mini-program development is harder than it looks for people who have never shipped one before. The challenge is not just writing code; it is knowing what to confirm first, which decisions affect later work, when to stop and verify, and which release steps should never be skipped by assumption.
 
-It is designed to help an agent:
+The suite helps an agent guide that process from zero to one, or take over an existing project without damaging accepted work:
 
-- understand an existing mini-program before editing it;
-- turn vague product ideas into testable specifications;
-- map stable product decisions into architecture, data, API, permission, and failure-handling choices;
+- clarify product intent, users, scope, and acceptance criteria before building;
+- turn vague ideas into testable specifications and engineering plans;
+- map stable decisions into architecture, data, API, permission, and failure-handling choices;
 - implement scoped changes while preserving existing work;
-- treat UI preview, user confirmation, integration, device checks, and final acceptance as separate events;
+- check UI, device behavior, permissions, and release risks step by step;
 - diagnose issues from evidence instead of guessing;
-- report verification and release readiness without overstating what has been proven.
+- report only what has actually been verified.
 
 ---
 
@@ -86,6 +86,73 @@ Typical use cases include:
 - implementing a feature without disturbing existing accepted work;
 - checking whether a project is ready for upload, review, or release;
 - turning repeated engineering judgment into reusable agent behavior.
+
+---
+
+## How To Use
+
+### 1. Install Into An Agent App
+
+Clone this repository into an application that supports `SKILL.md` or project rules. Exact discovery behavior depends on the app version, but these are the recommended locations:
+
+| App / runner | Recommended location | Invocation |
+| --- | --- | --- |
+| Codex CLI / universal Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| Claude Code | `~/.claude/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| GitHub Copilot Coding Agent | `.github/skills/mini-program-engineering-suite` | Trigger through the repository task and Skill instructions |
+| Cursor | `.cursor/rules/mini-program-engineering-suite` | Use as project rules / Skill instructions |
+| Windsurf / Cline / Roo Code / Gemini CLI / Kiro / Trae / Goose / OpenCode | The app's skills or rules directory | Trigger through that app's Skill / Rules mechanism |
+
+Universal install example:
+
+```bash
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
+  ~/.agents/skills/mini-program-engineering-suite
+```
+
+Claude Code example:
+
+```bash
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
+  ~/.claude/skills/mini-program-engineering-suite
+```
+
+GitHub Copilot project-level example:
+
+```bash
+mkdir -p .github/skills
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
+  .github/skills/mini-program-engineering-suite
+```
+
+### 2. Invoke It In A New Session
+
+After installation, open a new agent session and describe the task. You can explicitly call the root Skill:
+
+```text
+/mini-program-engineering-suite I want to build a WeChat mini program from zero to one. Please help me clarify scope and development steps first.
+```
+
+You can also describe a stage-specific task and let the agent route to the right component:
+
+```text
+Take over this mini-program project read-only first. Inspect the current state, but do not change code yet.
+```
+
+```text
+This mini program is preparing for review. Run a release-readiness check, but do not upload or submit review.
+```
+
+### 3. Work In Stages
+
+The recommended flow is product specification, architecture, implementation, UI/device adaptation, verification, and release readiness. At each stage, ask the agent to report:
+
+- the current conclusion;
+- the files, tests, screenshots, logs, or platform evidence behind it;
+- what has not been verified yet;
+- what needs your confirmation next.
+
+For existing projects, start with read-only project intake before changing anything. External actions such as upload, review submission, release, cloud changes, and repository permission changes require separate authorization.
 
 ---
 
