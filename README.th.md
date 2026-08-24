@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.2-0EA5E9.svg" alt="Version: 1.1.2">
+  <img src="https://img.shields.io/badge/version-1.1.3-0EA5E9.svg" alt="Version: 1.1.3">
 </p>
 
 <p align="center">
@@ -33,7 +33,7 @@
 
 ---
 
-## เข้าใจ Skill นี้ใน 30 วินาที
+## เข้าใจ Skill นี้ใน 32 วินาที
 
 ถ้าต้องการดูภาพรวมว่าสิ่งนี้แก้ปัญหาอะไร มาจากโปรเจกต์จริงแบบไหน และควรใช้อย่างไร ให้เริ่มจาก[วิดีโออธิบาย 32 วินาที](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)นี้
 
@@ -142,4 +142,4 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-เวอร์ชันปัจจุบัน: **1.1.2**. License: **MIT License**.
+เวอร์ชันปัจจุบัน: **1.1.3**. License: **MIT License**.

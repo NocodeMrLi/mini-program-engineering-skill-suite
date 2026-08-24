@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.2-0EA5E9.svg" alt="Version: 1.1.2">
+  <img src="https://img.shields.io/badge/version-1.1.3-0EA5E9.svg" alt="Version: 1.1.3">
 </p>
 
 <p align="center">
@@ -31,7 +31,7 @@
 
 ---
 
-## 30 秒看懂这套 Skill
+## 32 秒看懂这套技能
 
 如果你想先快速了解这套 Skill 解决什么问题、从哪里沉淀出来、适合怎么用，可以先看这个 [32 秒说明视频](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)。
 
@@ -231,7 +231,7 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前工作版本：**1.1.2**。
+当前工作版本：**1.1.3**。
 
 ---
 

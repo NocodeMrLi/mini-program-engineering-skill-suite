@@ -88,6 +88,7 @@ REQUIRED_FILES = (
 )
 EXCLUDED_PARTS = {".git", ".planning", "__pycache__", "tests"}
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
+DURATION_CLAIM = re.compile(r"(?<!\d)(\d{1,3})\s*(?:[-‑–—]\s*)?(秒|seconds?|วินาที|detik)", re.IGNORECASE)
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, str], list[str]]:
@@ -216,6 +217,67 @@ def validate_version_consistency(root: Path) -> list[str]:
     return errors
 
 
+def read_mp4_duration_seconds(path: Path) -> float | None:
+    """Read the MP4 mvhd duration without external media tools."""
+    data = path.read_bytes()
+    marker = data.find(b"mvhd")
+    if marker < 0:
+        return None
+    version = data[marker + 4]
+    if version == 0:
+        if marker + 24 > len(data):
+            return None
+        timescale = int.from_bytes(data[marker + 16 : marker + 20], "big")
+        duration = int.from_bytes(data[marker + 20 : marker + 24], "big")
+    elif version == 1:
+        if marker + 36 > len(data):
+            return None
+        timescale = int.from_bytes(data[marker + 24 : marker + 28], "big")
+        duration = int.from_bytes(data[marker + 28 : marker + 36], "big")
+    else:
+        return None
+    if timescale <= 0:
+        return None
+    return duration / timescale
+
+
+def validate_public_media_copy(root: Path) -> list[str]:
+    """Check public README claims against bundled media facts."""
+    errors: list[str] = []
+    promo = root / "assets" / "readme-promo.mp4"
+    if not promo.is_file():
+        return errors
+    duration = read_mp4_duration_seconds(promo)
+    if duration is None:
+        errors.append(f"{promo}: unable to read MP4 duration metadata")
+        return errors
+    expected_seconds = round(duration)
+
+    for readme_name in (
+        "README.md",
+        "README.en.md",
+        "README.zh-Hant.md",
+        "README.ja.md",
+        "README.th.md",
+        "README.id.md",
+    ):
+        readme_path = root / readme_name
+        if not readme_path.is_file():
+            continue
+        text = readme_path.read_text(encoding="utf-8")
+        claims = [int(match.group(1)) for match in DURATION_CLAIM.finditer(text)]
+        if not claims:
+            errors.append(f"{readme_path}: README promo video duration copy is missing")
+            continue
+        for claim in claims:
+            if claim != expected_seconds:
+                errors.append(
+                    f"{readme_path}: README promo video duration says {claim}, "
+                    f"but assets/readme-promo.mp4 is {expected_seconds} seconds"
+                )
+    return errors
+
+
 def validate(root: Path) -> dict[str, object]:
     """Return a machine-readable validation report."""
     errors: list[str] = []
@@ -238,6 +300,7 @@ def validate(root: Path) -> dict[str, object]:
     if root_skill.is_file():
         errors.extend(validate_skill(root_skill, "mini-program-engineering-suite", root_skill=True))
     errors.extend(validate_version_consistency(root))
+    errors.extend(validate_public_media_copy(root))
     errors.extend(validate_openai_yaml(root / "agents/openai.yaml", "mini-program-engineering-suite"))
     for child_name in child_names:
         child_root = root / "skills" / child_name

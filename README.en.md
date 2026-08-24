@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.2-0EA5E9.svg" alt="Version: 1.1.2">
+  <img src="https://img.shields.io/badge/version-1.1.3-0EA5E9.svg" alt="Version: 1.1.3">
 </p>
 
 <p align="center">
@@ -31,7 +31,7 @@
 
 ---
 
-## Understand the Skill in 30 Seconds
+## Understand the Skill in 32 Seconds
 
 If you want a quick overview of what this Skill solves, where it came from, and how it is meant to be used, start with this [32-second explainer video](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4).
 
@@ -219,7 +219,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current working version: **1.1.2**.
+Current working version: **1.1.3**.
 
 ---
 
