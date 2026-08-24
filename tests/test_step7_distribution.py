@@ -68,8 +68,15 @@ class DistributionContractTests(unittest.TestCase):
 
     def test_public_docs_do_not_contain_private_project_or_user_paths(self) -> None:
         content = "\n".join((ROOT / name).read_text(encoding="utf-8") for name in ROOT_DOCS)
-        for forbidden in ("语宠精灵", "/Users/", ".planning/", "tests/evals/"):
+        for forbidden in ("/Users/", ".planning/", "tests/evals/"):
             self.assertNotIn(forbidden, content)
+
+    def test_readme_may_show_authorized_origin_case_without_private_material(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        self.assertIn("真实项目来源：语宠精灵", readme)
+        self.assertIn("assets/wordpet-origin-case.png", readme)
+        for phrase in ("不包含该小程序源码", "AppID", "云资源", "私有配置", "业务数据", "审核状态"):
+            self.assertIn(phrase, readme)
 
 
 if __name__ == "__main__":

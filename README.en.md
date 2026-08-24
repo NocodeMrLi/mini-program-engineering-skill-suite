@@ -164,6 +164,18 @@ For existing projects, start with read-only project intake before changing anyth
 
 ---
 
+## Real Project Origin: WordPet
+
+This Skill suite was not written from an abstract tutorial. It was distilled from long-running collaboration on the real WeChat mini program **WordPet（语宠精灵）**. What this repository preserves is the reusable engineering method: product decomposition, scoped implementation, verification, acceptance evidence, release readiness, and status discipline for mini-program work.
+
+<p align="center">
+  <img src="assets/wordpet-origin-case.png" alt="WordPet real project origin case: learning card, read practice, growth map, and mini program QR code" width="100%">
+</p>
+
+WordPet（语宠精灵）is shown only as the real-origin case behind the method. This repository publishes reusable mini-program engineering practices only. It does not include the app source code, AppID, cloud resources, private configuration, business data, review status, or internal development records. The QR code is provided only for experiencing the real case, and scan results depend on the current WeChat platform state.
+
+---
+
 ## What It Does Not Do
 
 This suite does not automatically install project dependencies, create cloud resources, upload packages, submit review, publish releases, or modify production state. It can prepare evidence and instructions for those actions, but each external action remains separately authorized.

@@ -125,12 +125,13 @@ class FourthBatchIntegrationTests(unittest.TestCase):
         guardrails = (ROOT / "shared/engineering-guardrails.md").read_text(encoding="utf-8")
         for phrase in ("来源项目", "循环验证", "匿名夹具", "隔离副本"):
             self.assertIn(phrase, guardrails)
-        public_text = "\n".join(
-            path.read_text(encoding="utf-8")
-            for path in ROOT.rglob("*.md")
-            if ".planning" not in path.parts and "tests" not in path.parts
-        )
-        self.assertNotIn("语宠精灵", public_text)
+        for path in ROOT.rglob("*.md"):
+            if ".planning" in path.parts or "tests" in path.parts:
+                continue
+            if path.name in {"README.md", "README.en.md"}:
+                continue
+            with self.subTest(path=path.relative_to(ROOT).as_posix()):
+                self.assertNotIn("语宠精灵", path.read_text(encoding="utf-8"))
 
     def test_export_is_deterministic_redacted_and_excludes_private_material(self) -> None:
         exporter = ROOT / "scripts/export_public_package.py"
