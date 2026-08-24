@@ -35,18 +35,9 @@
 
 ## เข้าใจ Skill นี้ใน 30 วินาที
 
-ถ้าต้องการดูภาพรวมว่าสิ่งนี้แก้ปัญหาอะไร มาจากโปรเจกต์จริงแบบไหน และควรใช้อย่างไร ให้เริ่มจากวิดีโออธิบาย 32 วินาทีนี้
-
-[ดูหรือดาวน์โหลดวิดีโออธิบาย 32 วินาที](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)
-
-<details>
-<summary>Video player บน desktop web</summary>
-
-หาก GitHub mobile app แสดงเป็นลิงก์หรือเปิดแล้วเป็น 404 ให้ใช้ลิงก์ที่เสถียรด้านบน
+ถ้าต้องการดูภาพรวมว่าสิ่งนี้แก้ปัญหาอะไร มาจากโปรเจกต์จริงแบบไหน และควรใช้อย่างไร ให้เริ่มจาก[วิดีโออธิบาย 32 วินาที](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)นี้
 
 https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
-
-</details>
 
 <sub>วิดีโอนี้ใช้เพื่ออธิบายตำแหน่งของชุด Skill ที่มา และขอบเขตการใช้งานเท่านั้น</sub>
 

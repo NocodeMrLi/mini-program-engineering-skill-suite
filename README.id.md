@@ -35,18 +35,9 @@ Nama Tionghoa: **小程序开发工程技能套件**.
 
 ## Pahami Skill Ini dalam 30 Detik
 
-Jika Anda ingin melihat gambaran singkat tentang masalah yang diselesaikan, asal-usulnya, dan cara penggunaannya, mulai dari video penjelasan 32 detik ini.
-
-[Tonton atau unduh video penjelasan 32 detik](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)
-
-<details>
-<summary>Video player di desktop web</summary>
-
-Jika GitHub mobile app hanya menampilkan link atau membuka halaman 404, gunakan link stabil di atas.
+Jika Anda ingin melihat gambaran singkat tentang masalah yang diselesaikan, asal-usulnya, dan cara penggunaannya, mulai dari [video penjelasan 32 detik](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4) ini.
 
 https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
-
-</details>
 
 <sub>Video ini hanya menjelaskan posisi suite, asal-usul, dan batas penggunaannya.</sub>
 

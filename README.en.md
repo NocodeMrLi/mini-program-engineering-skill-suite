@@ -33,18 +33,9 @@
 
 ## Understand the Skill in 30 Seconds
 
-If you want a quick overview of what this Skill solves, where it came from, and how it is meant to be used, start with this 32-second explainer video.
-
-[Watch or download the 32-second explainer video](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)
-
-<details>
-<summary>Desktop web video player</summary>
-
-If the GitHub mobile app shows a link or opens a 404 page, use the stable link above.
+If you want a quick overview of what this Skill solves, where it came from, and how it is meant to be used, start with this [32-second explainer video](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4).
 
 https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
-
-</details>
 
 <sub>The video only explains the suite positioning, origin, and usage boundaries.</sub>
 

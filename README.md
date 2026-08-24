@@ -33,18 +33,9 @@
 
 ## 30 秒看懂这套 Skill
 
-如果你想先快速了解这套 Skill 解决什么问题、从哪里沉淀出来、适合怎么用，可以先看这个 32 秒说明视频。
-
-[点击播放 / 下载 32 秒说明视频](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)
-
-<details>
-<summary>PC 网页端视频播放器</summary>
-
-如果你在 GitHub App 中看到链接或打开 404，请使用上面的稳定入口。
+如果你想先快速了解这套 Skill 解决什么问题、从哪里沉淀出来、适合怎么用，可以先看这个 [32 秒说明视频](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)。
 
 https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
-
-</details>
 
 <sub>视频仅用于说明这套 Skill 的定位、来源和使用边界。</sub>
 
