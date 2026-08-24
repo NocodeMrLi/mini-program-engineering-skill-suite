@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.1-0EA5E9.svg" alt="Version: 1.1.1">
+  <img src="https://img.shields.io/badge/version-1.1.2-0EA5E9.svg" alt="Version: 1.1.2">
 </p>
 
 <p align="center">
@@ -144,4 +144,4 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 幫我安
 python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 ```
 
-目前版本：**1.1.1**。本專案採用 **MIT License**。
+目前版本：**1.1.2**。本專案採用 **MIT License**。

@@ -176,6 +176,46 @@ def validate_openai_yaml(path: Path, skill_name: str) -> list[str]:
     return errors
 
 
+def validate_version_consistency(root: Path) -> list[str]:
+    """Check public version facts that must move together."""
+    errors: list[str] = []
+    version_path = root / "VERSION"
+    if not version_path.is_file():
+        return ["missing required file: VERSION"]
+    version = version_path.read_text(encoding="utf-8").strip()
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        errors.append(f"{version_path}: VERSION must use MAJOR.MINOR.PATCH")
+
+    changelog_path = root / "CHANGELOG.md"
+    if changelog_path.is_file():
+        changelog = changelog_path.read_text(encoding="utf-8")
+        if f"## {version} - " not in changelog:
+            errors.append(f"{changelog_path}: CHANGELOG must include current VERSION")
+
+    readme_files = (
+        "README.md",
+        "README.en.md",
+        "README.zh-Hant.md",
+        "README.ja.md",
+        "README.th.md",
+        "README.id.md",
+    )
+    badge = f"version-{version}-0EA5E9.svg"
+    alt = f"Version: {version}"
+    for readme_name in readme_files:
+        readme_path = root / readme_name
+        if not readme_path.is_file():
+            continue
+        readme = readme_path.read_text(encoding="utf-8")
+        if badge not in readme:
+            errors.append(f"{readme_path}: version badge must match VERSION")
+        if alt not in readme:
+            errors.append(f"{readme_path}: version badge alt text must match VERSION")
+        if version not in readme:
+            errors.append(f"{readme_path}: README body must mention current VERSION")
+    return errors
+
+
 def validate(root: Path) -> dict[str, object]:
     """Return a machine-readable validation report."""
     errors: list[str] = []
@@ -197,6 +237,7 @@ def validate(root: Path) -> dict[str, object]:
     )
     if root_skill.is_file():
         errors.extend(validate_skill(root_skill, "mini-program-engineering-suite", root_skill=True))
+    errors.extend(validate_version_consistency(root))
     errors.extend(validate_openai_yaml(root / "agents/openai.yaml", "mini-program-engineering-suite"))
     for child_name in child_names:
         child_root = root / "skills" / child_name
