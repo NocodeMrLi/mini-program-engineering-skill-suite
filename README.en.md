@@ -48,6 +48,18 @@ The suite helps an agent guide that process from zero to one, or take over an ex
 
 ---
 
+## Real Project Origin: WordPet
+
+This Skill suite was not written from an abstract tutorial. It was distilled from long-running collaboration on the real WeChat mini program **WordPet（语宠精灵）**. What this repository preserves is the reusable engineering method: product decomposition, scoped implementation, verification, acceptance evidence, release readiness, and status discipline for mini-program work.
+
+<p align="center">
+  <img src="assets/wordpet-origin-case.png" alt="WordPet real project origin case: learning card, read practice, growth map, and mini program QR code" width="100%">
+</p>
+
+<sub>WordPet（语宠精灵）is shown only as the real-origin case behind the method. This repository publishes reusable mini-program engineering practices only. It does not include the app source code, AppID, cloud resources, private configuration, business data, review status, or internal development records. The QR code is provided only for experiencing the real case, and scan results depend on the current WeChat platform state.</sub>
+
+---
+
 ## Component Map
 
 | Area | Purpose |
@@ -161,18 +173,6 @@ The recommended flow is product specification, architecture, implementation, UI/
 - what needs your confirmation next.
 
 For existing projects, start with read-only project intake before changing anything. External actions such as upload, review submission, release, cloud changes, and repository permission changes require separate authorization.
-
----
-
-## Real Project Origin: WordPet
-
-This Skill suite was not written from an abstract tutorial. It was distilled from long-running collaboration on the real WeChat mini program **WordPet（语宠精灵）**. What this repository preserves is the reusable engineering method: product decomposition, scoped implementation, verification, acceptance evidence, release readiness, and status discipline for mini-program work.
-
-<p align="center">
-  <img src="assets/wordpet-origin-case.png" alt="WordPet real project origin case: learning card, read practice, growth map, and mini program QR code" width="100%">
-</p>
-
-WordPet（语宠精灵）is shown only as the real-origin case behind the method. This repository publishes reusable mini-program engineering practices only. It does not include the app source code, AppID, cloud resources, private configuration, business data, review status, or internal development records. The QR code is provided only for experiencing the real case, and scan results depend on the current WeChat platform state.
 
 ---
 
