@@ -26,6 +26,20 @@
 
 ---
 
+## Understand the Skill in 30 Seconds
+
+If you want a quick overview of what this Skill solves, where it came from, and how it is meant to be used, start with this 32-second explainer video.
+
+<p align="center">
+  <a href="assets/readme-promo.mp4">
+    <img src="assets/readme-promo-poster.png" alt="Watch the Mini Program Engineering Skill Suite explainer video" width="100%">
+  </a>
+</p>
+
+<sub>Click the cover image to open the video. The video only explains the suite positioning, origin, and usage boundaries.</sub>
+
+---
+
 ## Status
 
 This repository is the public project home for the suite, released under the **MIT License**. Anyone may view, use, modify, and redistribute it. See [LICENSE](LICENSE) for the full terms.

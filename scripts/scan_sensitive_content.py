@@ -15,7 +15,7 @@ from typing import Iterable, Sequence
 
 SKIP_DIRS = {".git", ".planning", "__pycache__", "tests"}
 SKIP_NAMES = {".DS_Store"}
-BINARY_ASSET_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico"}
+BINARY_ASSET_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico", ".mp4"}
 
 
 @dataclass(frozen=True)

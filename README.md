@@ -26,6 +26,20 @@
 
 ---
 
+## 30 秒看懂这套 Skill
+
+如果你想先快速了解这套 Skill 解决什么问题、从哪里沉淀出来、适合怎么用，可以先看这个 32 秒说明视频。
+
+<p align="center">
+  <a href="assets/readme-promo.mp4">
+    <img src="assets/readme-promo-poster.png" alt="观看小程序开发工程技能套件说明视频" width="100%">
+  </a>
+</p>
+
+<sub>点击封面可打开视频。视频仅用于说明这套 Skill 的定位、来源和使用边界。</sub>
+
+---
+
 ## 项目状态
 
 本仓库是这套套件的公开项目主页，已通过 **MIT License** 开源发布。任何人都可以查看、使用、修改和再分发，具体条款见 [LICENSE](LICENSE)。
