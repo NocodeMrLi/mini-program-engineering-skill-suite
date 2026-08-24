@@ -14,11 +14,12 @@ JUDGE = ROOT / "tests/evals/judge_final_release.py"
 
 
 class FinalReleaseSignerTests(unittest.TestCase):
-    def test_public_version_is_1_1_0_and_changelog_is_frozen(self) -> None:
-        self.assertEqual((ROOT / "VERSION").read_text(encoding="utf-8").strip(), "1.1.0")
+    def test_public_version_is_1_1_1_and_changelog_keeps_history(self) -> None:
+        self.assertEqual((ROOT / "VERSION").read_text(encoding="utf-8").strip(), "1.1.1")
         frontmatter = (ROOT / "SKILL.md").read_text(encoding="utf-8").split("---\n", 2)[1]
-        self.assertIn('version: "1.1.0"', frontmatter)
+        self.assertIn('version: "1.1.1"', frontmatter)
         changelog = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8")
+        self.assertIn("## 1.1.1 - 2026-08-25", changelog)
         self.assertIn("## 1.1.0 - 2026-08-13", changelog)
         self.assertNotIn("## Unreleased", changelog)
 
@@ -65,7 +66,7 @@ class FinalReleaseSignerTests(unittest.TestCase):
         runner = (ROOT / "tests/evals/run_evaluations.py").read_text(encoding="utf-8")
         self.assertIn('"behavior-v3"', runner)
 
-    def make_evidence(self, root: Path, *, verdict: str = "PASS", version: str = "1.1.0") -> list[str]:
+    def make_evidence(self, root: Path, *, verdict: str = "PASS", version: str = "1.1.1") -> list[str]:
         documents = {
             "tier1.json": {"verdict": verdict},
             "routing-dev.json": {"verdict": "PASS", "accuracy": 1.0},

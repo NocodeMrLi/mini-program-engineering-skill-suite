@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.0-0EA5E9.svg" alt="Version: 1.1.0">
+  <img src="https://img.shields.io/badge/version-1.1.1-0EA5E9.svg" alt="Version: 1.1.1">
 </p>
 
 <p align="center">
@@ -219,7 +219,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current working version: **1.1.0**.
+Current working version: **1.1.1**.
 
 ---
 
