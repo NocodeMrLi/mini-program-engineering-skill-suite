@@ -37,7 +37,16 @@
 
 この Skill が何を解決し、どの実プロジェクトから生まれ、どのように使うのかを 32 秒で確認できます。
 
+[32 秒の説明動画を再生 / ダウンロード](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)
+
+<details>
+<summary>PC Web 版の動画プレイヤー</summary>
+
+GitHub モバイルアプリでリンク表示または 404 になる場合は、上の安定リンクを使用してください。
+
 https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
+
+</details>
 
 <sub>この動画は、スイートの位置づけ、由来、利用境界を説明するためのものです。</sub>
 

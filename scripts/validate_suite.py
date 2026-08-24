@@ -22,6 +22,7 @@ REQUIRED_FILES = (
     "CHANGELOG.md",
     "COMPATIBILITY.md",
     "assets/readme-cover.png",
+    "assets/readme-promo.mp4",
     "assets/wordpet-origin-case.png",
     "SKILL.md",
     "agents/openai.yaml",
