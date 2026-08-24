@@ -73,7 +73,7 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
   <img src="assets/wordpet-origin-case.png" alt="WordPet real project origin case" width="100%">
 </p>
 
-<sub>WordPet は方法の由来を示す実例としてのみ掲載しています。このリポジトリには、アプリのソースコード、AppID、クラウド資源、非公開設定、業務データ、審査状態、内部開発記録は含まれません。</sub>
+<sub>WordPet は方法の由来を示す実例としてのみ掲載しています。このリポジトリには、アプリのソースコード、AppID、クラウド資源、非公開設定、業務データ、審査状態、内部開発記録は含まれません。QR コードは実例を体験するためだけに提供しており、スキャン結果は現在の WeChat プラットフォームの状態に依存します。</sub>
 
 ---
 

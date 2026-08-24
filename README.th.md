@@ -73,7 +73,7 @@ Skill นี้ไม่ได้เขียนจาก tutorial เชิง�
   <img src="assets/wordpet-origin-case.png" alt="WordPet real project origin case" width="100%">
 </p>
 
-<sub>WordPet แสดงเป็นกรณีต้นทางเท่านั้น repository นี้ไม่รวม source code, AppID, cloud resources, private configuration, business data, review status หรือ internal development records ของ mini program ดังกล่าว</sub>
+<sub>WordPet แสดงเป็นกรณีต้นทางเท่านั้น repository นี้ไม่รวม source code, AppID, cloud resources, private configuration, business data, review status หรือ internal development records ของ mini program ดังกล่าว QR code มีไว้เพื่อทดลองกรณีจริงเท่านั้น และผลการสแกนขึ้นอยู่กับสถานะปัจจุบันของแพลตฟอร์ม WeChat</sub>
 
 ---
 

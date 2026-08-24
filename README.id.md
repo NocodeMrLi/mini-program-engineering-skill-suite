@@ -73,7 +73,7 @@ Skill ini tidak ditulis dari tutorial abstrak. Ia disarikan dari kolaborasi jang
   <img src="assets/wordpet-origin-case.png" alt="WordPet real project origin case" width="100%">
 </p>
 
-<sub>WordPet ditampilkan hanya sebagai contoh asal-usul metode. Repository ini tidak menyertakan source code aplikasi, AppID, cloud resources, konfigurasi privat, data bisnis, status review, atau catatan pengembangan internal.</sub>
+<sub>WordPet ditampilkan hanya sebagai contoh asal-usul metode. Repository ini tidak menyertakan source code aplikasi, AppID, cloud resources, konfigurasi privat, data bisnis, status review, atau catatan pengembangan internal. Kode QR hanya disediakan untuk mencoba contoh nyata, dan hasil pemindaian bergantung pada status platform WeChat saat ini.</sub>
 
 ---
 
