@@ -27,7 +27,7 @@
 
 - 只导出验证器声明的公共路径 allowlist；私有开发目录（`.planning`、`tests`、缓存和版本控制元数据）始终排除。
 - 私有开发目录之外的未知文件默认拒绝，不因文件名看似无害、后缀陌生或扫描未命中而复制。
-- allowlist 内所有候选都必须扫描，包括无后缀文件；二进制和非 UTF-8 候选必须进入扫描路径，不能静默跳过；真正无法读取的候选按失败处理。
+- allowlist 内所有候选都必须扫描，包括无后缀文件；二进制和非 UTF-8 候选必须进入扫描路径，不能静默跳过；命中结果会以 `binary-file:<rule_id>` 形式提示文件类型；真正无法读取的候选按失败处理。
 - 运行 `python3 scripts/scan_sensitive_content.py <public-path> --format json`，逐项人工判断命中内容。扫描通过只能证明已覆盖规则未命中，不能代替人工匿名化复核。
 - 使用 `python3 scripts/export_public_package.py <source> --output <new-directory>` 出包；若要公开新增文件，必须先经过审查并加入验证器的明确公共清单。
 - 收到公共包后，在包外运行 `python3 <package>/scripts/verify_public_package.py <package>`；该入口不读取原始源码目录，并对 manifest、文件集合、大小和 SHA-256 进行复验。

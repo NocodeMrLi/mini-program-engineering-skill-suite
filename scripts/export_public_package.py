@@ -17,7 +17,7 @@ from verify_public_package import verify_package
 
 
 EXCLUDED_PARTS = {".git", ".planning", "tests", "__pycache__", ".pytest_cache"}
-IGNORED_NAMES = {".DS_Store", ".gitignore", "task_plan.md", "findings.md", "progress.md"}
+IGNORED_NAMES = {".DS_Store", ".gitignore"}
 PUBLIC_PATHS = frozenset(REQUIRED_FILES)
 
 

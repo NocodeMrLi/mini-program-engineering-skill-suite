@@ -14,7 +14,7 @@ from typing import Iterable, Sequence
 
 
 SKIP_DIRS = {".git", ".planning", "__pycache__", "tests"}
-SKIP_NAMES = {".DS_Store", "task_plan.md", "findings.md", "progress.md"}
+SKIP_NAMES = {".DS_Store"}
 
 
 @dataclass(frozen=True)
@@ -33,8 +33,10 @@ class Finding:
     path: str
     line: int
     rule_id: str
+    display_rule_id: str
     message: str
     fingerprint: str
+    source_kind: str
 
 
 @dataclass(frozen=True)
@@ -102,25 +104,47 @@ def scan_files_with_summary(paths: Iterable[Path], root: Path) -> tuple[list[Fin
             unreadable_file_count += 1
             fingerprint = hashlib.sha256(display_path.encode("utf-8")).hexdigest()[:12]
             findings.append(
-                Finding(display_path, 0, "unreadable-file", "File could not be safely scanned", fingerprint)
+                Finding(
+                    display_path,
+                    0,
+                    "unreadable-file",
+                    "unreadable-file",
+                    "File could not be safely scanned",
+                    fingerprint,
+                    "unreadable",
+                )
             )
             continue
         try:
             content = raw_content.decode("utf-8")
             text_file_count += 1
+            source_kind = "text"
         except UnicodeDecodeError:
             content = raw_content.decode("latin-1")
             binary_like_count += 1
+            source_kind = "binary-like"
         else:
             if "\x00" in content:
                 binary_like_count += 1
+                source_kind = "binary-like"
+            else:
+                source_kind = "text"
+        display_rule_prefix = "binary-file:" if source_kind == "binary-like" else ""
         scanned_count += 1
         for line_number, line in enumerate(content.splitlines(), start=1):
             for rule in RULES:
                 for match in rule.pattern.finditer(line):
                     fingerprint = hashlib.sha256(match.group(0).encode("utf-8")).hexdigest()[:12]
                     findings.append(
-                        Finding(display_path, line_number, rule.rule_id, rule.message, fingerprint)
+                        Finding(
+                            display_path,
+                            line_number,
+                            rule.rule_id,
+                            f"{display_rule_prefix}{rule.rule_id}",
+                            rule.message,
+                            fingerprint,
+                            source_kind,
+                        )
                     )
     return findings, ScanSummary(
         candidate_count=candidate_count,
@@ -178,7 +202,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             f"({summary.binary_like_count} binary-like, {summary.unreadable_file_count} unreadable)."
         )
         for finding in findings:
-            print(f"{finding.path}:{finding.line} [{finding.rule_id}] {finding.message} ({finding.fingerprint})")
+            print(
+                f"{finding.path}:{finding.line} "
+                f"[{finding.display_rule_id}] {finding.message} ({finding.fingerprint})"
+            )
     else:
         print(
             "Scanned "

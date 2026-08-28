@@ -181,6 +181,40 @@ class PublicExportFailClosedTests(unittest.TestCase):
                     self.assertIn("public allowlist", result.stdout)
                     self.assertNotIn("fixture binary", result.stdout)
 
+    def test_root_planning_debris_is_not_silently_ignored(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            source = base / "source"
+            copy_public_source(source)
+            (source / "task_plan.md").write_text("local planning debris\n", encoding="utf-8")
+
+            result = run_export(source, base / "output")
+
+        self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("public allowlist", result.stdout)
+
+    def test_single_planning_named_file_is_still_scanned(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            fixture = Path(temp_dir) / "task_plan.md"
+            credential_name = "to" + "ken"
+            secret_marker = "fixture_secret_value"
+            fixture.write_text(f"{credential_name}='{secret_marker}'\n", encoding="utf-8")
+
+            result = subprocess.run(
+                [sys.executable, str(SCANNER), str(fixture), "--format", "json"],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["candidate_count"], 1)
+        self.assertEqual(report["scanned_count"], 1)
+        self.assertEqual(report["finding_count"], 1)
+        self.assertEqual(report["findings"][0]["path"], "task_plan.md")
+        self.assertNotIn(secret_marker, result.stdout)
+
     def test_private_development_boundaries_remain_excluded(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             base = Path(temp_dir)
@@ -243,6 +277,13 @@ class PublicExportFailClosedTests(unittest.TestCase):
             found_paths = {finding["path"] for finding in report["findings"]}
             self.assertEqual(found_paths, set(candidates))
             self.assertEqual(report["finding_count"], len(candidates))
+            by_path = {finding["path"]: finding for finding in report["findings"]}
+            self.assertEqual(by_path["payload.bin"]["rule_id"], "credential-assignment")
+            self.assertEqual(
+                by_path["payload.bin"]["display_rule_id"],
+                "binary-file:credential-assignment",
+            )
+            self.assertEqual(by_path["payload.bin"]["source_kind"], "binary-like")
             self.assertNotIn("fixture_secret_value", result.stdout)
 
     def test_capability_doctor_survives_unreadable_root_entries(self) -> None:
