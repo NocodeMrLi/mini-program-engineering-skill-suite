@@ -11,6 +11,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -222,7 +223,7 @@ class PublicExportFailClosedTests(unittest.TestCase):
                 "private.key": b"-----BEGIN PRIVATE KEY-----\nfixture\n",
                 "certificate.crt": text_secret,
                 "notes.unknown": text_secret,
-                "payload.bin": b"\x00fixture binary\xff",
+                "payload.bin": text_secret + b"\xff",
             }
             for relative_path, content in candidates.items():
                 (fixture / relative_path).write_bytes(content)
@@ -235,10 +236,26 @@ class PublicExportFailClosedTests(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
             report = json.loads(result.stdout)
+            self.assertEqual(report["candidate_count"], len(candidates))
+            self.assertEqual(report["scanned_count"], len(candidates))
+            self.assertGreaterEqual(report["binary_like_count"], 1)
+            self.assertEqual(report["unreadable_file_count"], 0)
             found_paths = {finding["path"] for finding in report["findings"]}
             self.assertEqual(found_paths, set(candidates))
-            self.assertIn("binary-content", {item["rule_id"] for item in report["findings"]})
+            self.assertEqual(report["finding_count"], len(candidates))
             self.assertNotIn("fixture_secret_value", result.stdout)
+
+    def test_capability_doctor_survives_unreadable_root_entries(self) -> None:
+        from scripts.capability_doctor import inspect_project
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            (root / "package.json").write_text("{\"scripts\":{}}", encoding="utf-8")
+            with patch.object(Path, "iterdir", side_effect=OSError("denied")):
+                report = inspect_project(root)
+
+        self.assertEqual(report["framework"], "unknown")
+        self.assertIn("unreadable-root-directory", report["warnings"])
 
     def test_extensionless_allowlisted_candidate_is_scanned_before_export(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

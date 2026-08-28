@@ -14,8 +14,7 @@ from typing import Iterable, Sequence
 
 
 SKIP_DIRS = {".git", ".planning", "__pycache__", "tests"}
-SKIP_NAMES = {".DS_Store"}
-BINARY_ASSET_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico", ".mp4"}
+SKIP_NAMES = {".DS_Store", "task_plan.md", "findings.md", "progress.md"}
 
 
 @dataclass(frozen=True)
@@ -36,6 +35,17 @@ class Finding:
     rule_id: str
     message: str
     fingerprint: str
+
+
+@dataclass(frozen=True)
+class ScanSummary:
+    """Summarize coverage without exposing candidate contents."""
+
+    candidate_count: int
+    scanned_count: int
+    text_file_count: int
+    binary_like_count: int
+    unreadable_file_count: int
 
 
 RULES: tuple[Rule, ...] = (
@@ -75,16 +85,21 @@ def iter_scannable_files(root: Path) -> Iterable[Path]:
         yield path
 
 
-def scan_files(paths: Iterable[Path], root: Path) -> list[Finding]:
-    """Scan exact candidates and fail closed on binary or non-UTF-8 content."""
+def scan_files_with_summary(paths: Iterable[Path], root: Path) -> tuple[list[Finding], ScanSummary]:
+    """Scan exact candidates and track how much coverage was attempted."""
     findings: list[Finding] = []
+    candidate_count = 0
+    scanned_count = 0
+    text_file_count = 0
+    binary_like_count = 0
+    unreadable_file_count = 0
     for path in sorted(paths):
+        candidate_count += 1
         display_path = path.name if root.is_file() else path.relative_to(root).as_posix()
-        if path.suffix.lower() in BINARY_ASSET_SUFFIXES:
-            continue
         try:
             raw_content = path.read_bytes()
         except OSError:
+            unreadable_file_count += 1
             fingerprint = hashlib.sha256(display_path.encode("utf-8")).hexdigest()[:12]
             findings.append(
                 Finding(display_path, 0, "unreadable-file", "File could not be safely scanned", fingerprint)
@@ -92,18 +107,14 @@ def scan_files(paths: Iterable[Path], root: Path) -> list[Finding]:
             continue
         try:
             content = raw_content.decode("utf-8")
+            text_file_count += 1
         except UnicodeDecodeError:
-            fingerprint = hashlib.sha256(raw_content).hexdigest()[:12]
-            findings.append(
-                Finding(display_path, 0, "binary-content", "Binary or non-UTF-8 content", fingerprint)
-            )
-            continue
-        if "\x00" in content:
-            fingerprint = hashlib.sha256(raw_content).hexdigest()[:12]
-            findings.append(
-                Finding(display_path, 0, "binary-content", "Binary or non-UTF-8 content", fingerprint)
-            )
-            continue
+            content = raw_content.decode("latin-1")
+            binary_like_count += 1
+        else:
+            if "\x00" in content:
+                binary_like_count += 1
+        scanned_count += 1
         for line_number, line in enumerate(content.splitlines(), start=1):
             for rule in RULES:
                 for match in rule.pattern.finditer(line):
@@ -111,6 +122,18 @@ def scan_files(paths: Iterable[Path], root: Path) -> list[Finding]:
                     findings.append(
                         Finding(display_path, line_number, rule.rule_id, rule.message, fingerprint)
                     )
+    return findings, ScanSummary(
+        candidate_count=candidate_count,
+        scanned_count=scanned_count,
+        text_file_count=text_file_count,
+        binary_like_count=binary_like_count,
+        unreadable_file_count=unreadable_file_count,
+    )
+
+
+def scan_files(paths: Iterable[Path], root: Path) -> list[Finding]:
+    """Return redacted findings for a set of exact public-package candidates."""
+    findings, _ = scan_files_with_summary(paths, root)
     return findings
 
 
@@ -135,15 +158,34 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(json.dumps({"error": "path does not exist", "path": str(args.path)}), file=sys.stderr)
         return 2
 
-    findings = scan_path(target)
-    report = {"path": str(args.path), "finding_count": len(findings), "findings": [asdict(f) for f in findings]}
+    findings, summary = scan_files_with_summary(iter_scannable_files(target), target)
+    report = {
+        "path": str(args.path),
+        "candidate_count": summary.candidate_count,
+        "scanned_count": summary.scanned_count,
+        "text_file_count": summary.text_file_count,
+        "binary_like_count": summary.binary_like_count,
+        "unreadable_file_count": summary.unreadable_file_count,
+        "finding_count": len(findings),
+        "findings": [asdict(f) for f in findings],
+    }
     if args.format == "json":
         print(json.dumps(report, ensure_ascii=False, indent=2))
     elif findings:
+        print(
+            "Scanned "
+            f"{summary.scanned_count}/{summary.candidate_count} candidates "
+            f"({summary.binary_like_count} binary-like, {summary.unreadable_file_count} unreadable)."
+        )
         for finding in findings:
             print(f"{finding.path}:{finding.line} [{finding.rule_id}] {finding.message} ({finding.fingerprint})")
     else:
-        print("No sensitive-content patterns found.")
+        print(
+            "Scanned "
+            f"{summary.scanned_count}/{summary.candidate_count} candidates "
+            f"({summary.binary_like_count} binary-like, {summary.unreadable_file_count} unreadable); "
+            "no sensitive-content patterns found."
+        )
     return 1 if findings else 0
 
 

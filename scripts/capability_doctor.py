@@ -52,12 +52,17 @@ def detect_framework(root: Path, package: dict[str, Any], warnings: list[str]) -
     deps = dependency_names(package)
     scripts = package.get("scripts", {}) if isinstance(package.get("scripts", {}), dict) else {}
     script_names = {item for item in scripts if isinstance(item, str)}
+    try:
+        root_entries = {item.name for item in root.iterdir() if item.is_file()}
+    except OSError:
+        warnings.append("unreadable-root-directory")
+        root_entries = set()
     taro = any(item.startswith("@tarojs/") for item in deps) or (root / "config/index.js").is_file() or (
         root / "config/index.ts"
     ).is_file()
     uni_app = (
         any(item.startswith("@dcloudio/") for item in deps)
-        or ("manifest.json" in {item.name for item in root.iterdir() if item.is_file()} and (root / "pages.json").is_file())
+        or ("manifest.json" in root_entries and (root / "pages.json").is_file())
         or any("mp-weixin" in item for item in script_names)
     )
     native = (root / "app.json").is_file() or (root / "project.config.json").is_file()
