@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
+  <img src="https://img.shields.io/badge/version-1.3.1-0EA5E9.svg" alt="Version: 1.3.1">
 </p>
 
 <p align="center">
@@ -133,7 +133,8 @@ If the agent cannot access your local filesystem, or if you want to control the 
 
 | App / runner | Recommended location | Invocation |
 | --- | --- | --- |
-| Codex CLI / universal Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| Codex App / Codex local skills | `~/.codex/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| Universal Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
 | Claude Code | `~/.claude/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
 | GitHub Copilot Coding Agent | `.github/skills/mini-program-engineering-suite` | Trigger through the repository task and Skill instructions |
 | Cursor | `.cursor/rules/mini-program-engineering-suite` | Use as project rules / Skill instructions |
@@ -150,9 +151,13 @@ bash install.sh --target auto
 For project-level GitHub Copilot or Cursor installation, pass the project path explicitly:
 
 ```bash
+bash install.sh --target codex
+bash install.sh --target agents
 bash install.sh --target copilot --project /path/to/your-mini-program-project
 bash install.sh --target cursor --project /path/to/your-mini-program-project
 ```
+
+Here, `--target codex` maps to `~/.codex/skills`, while `--target agents` maps to `~/.agents/skills`.
 
 The installer does not overwrite existing directories by default. Use `--force` only when you want to replace an existing installation after creating a timestamped backup.
 
@@ -261,9 +266,9 @@ shasum -a 256 -c SHA256SUMS
 Then extract the archive and verify the package manifest:
 
 ```bash
-tar -xzf mini-program-engineering-suite-v1.3.0.tar.gz
-python3 mini-program-engineering-suite-v1.3.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v1.3.0
+tar -xzf mini-program-engineering-suite-v1.3.1.tar.gz
+python3 mini-program-engineering-suite-v1.3.1/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v1.3.1
 ```
 
 If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
@@ -278,7 +283,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current working version: **1.3.0**.
+Current working version: **1.3.1**.
 
 ---
 

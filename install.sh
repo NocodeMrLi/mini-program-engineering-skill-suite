@@ -20,8 +20,8 @@ Usage:
 Options:
   --target auto|agents|codex|claude|cursor|copilot|all
       auto   Install to existing user-level Agent skill directories.
-      agents Install to ~/.agents/skills.
-      codex  Install to ~/.codex/skills.
+      agents Install to ~/.agents/skills for generic Agent Skills runners.
+      codex  Install to ~/.codex/skills for Codex App / Codex local skills.
       claude Install to ~/.claude/skills.
       cursor Install to <project>/.cursor/rules.
       copilot Install to <project>/.github/skills.

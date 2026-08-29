@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
+  <img src="https://img.shields.io/badge/version-1.3.1-0EA5E9.svg" alt="Version: 1.3.1">
 </p>
 
 <p align="center">
@@ -124,12 +124,21 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git このスキルをインストールしてください
 ```
 
-一般的なインストール例：
+Codex App / Codex ローカルスキルの場合：
+
+```bash
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
+  ~/.codex/skills/mini-program-engineering-suite
+```
+
+汎用 Agent Skills ランナーの場合：
 
 ```bash
 git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
   ~/.agents/skills/mini-program-engineering-suite
 ```
+
+インストーラを使う場合、`--target codex` は `~/.codex/skills`、`--target agents` は `~/.agents/skills` に対応します。
 
 利用例：
 
@@ -174,7 +183,7 @@ python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 
 ## バージョン
 
-現在のバージョン：**1.3.0**。
+現在のバージョン：**1.3.1**。
 
 ---
 

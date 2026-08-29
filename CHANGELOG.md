@@ -2,6 +2,17 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 1.3.1 - 2026-08-29
+
+### Fixed
+
+- 修正 README 安装表中 Codex 与通用 Agent Skills 安装路径合并表达的问题：Codex App / Codex 本地 Skills 对应 `~/.codex/skills`，通用 Agent Skills 对应 `~/.agents/skills`。
+- 补充 `install.sh --help` 中 `codex` 与 `agents` 目标的差异说明，避免用户误以为两者安装到同一读取路径。
+
+### Changed
+
+- 多语言 README 同步当前版本号和 Codex / 通用 Agent 安装路径说明。
+
 ## 1.3.0 - 2026-08-29
 
 ### Added

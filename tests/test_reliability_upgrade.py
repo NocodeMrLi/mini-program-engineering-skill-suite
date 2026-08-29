@@ -441,6 +441,39 @@ class PublicExportFailClosedTests(unittest.TestCase):
             self.assertTrue((installed / "scripts" / "verify_public_package.py").is_file())
             self.assertFalse((installed / "package-manifest.json").exists())
 
+    def test_installer_codex_and_agents_targets_match_public_docs(self) -> None:
+        readme = (ROOT / "README.md").read_text(encoding="utf-8")
+        installer = INSTALLER.read_text(encoding="utf-8")
+        self.assertIn("~/.codex/skills/mini-program-engineering-suite", readme)
+        self.assertIn("~/.agents/skills/mini-program-engineering-suite", readme)
+        self.assertIn("codex  Install to ~/.codex/skills", installer)
+        self.assertIn("agents Install to ~/.agents/skills", installer)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            fake_home = Path(temp_dir) / "home"
+            for target, expected in (
+                ("codex", fake_home / ".codex" / "skills" / "mini-program-engineering-suite"),
+                ("agents", fake_home / ".agents" / "skills" / "mini-program-engineering-suite"),
+            ):
+                result = subprocess.run(
+                    [
+                        "bash",
+                        str(INSTALLER),
+                        "--target",
+                        target,
+                        "--home",
+                        str(fake_home),
+                        "--source",
+                        str(ROOT),
+                        "--dry-run",
+                    ],
+                    capture_output=True,
+                    check=False,
+                    text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                self.assertIn(str(expected), result.stdout)
+
 
 class PublicPackageIntegrityTests(unittest.TestCase):
     """Verify a received package without consulting its source directory."""

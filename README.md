@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
+  <img src="https://img.shields.io/badge/version-1.3.1-0EA5E9.svg" alt="Version: 1.3.1">
 </p>
 
 <p align="center">
@@ -145,7 +145,8 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 帮我安
 
 | 应用 / 运行器 | 推荐安装位置 | 调用方式 |
 | --- | --- | --- |
-| Codex CLI / 通用 Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| Codex App / Codex 本地 Skills | `~/.codex/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| 通用 Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
 | Claude Code | `~/.claude/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
 | GitHub Copilot Coding Agent | `.github/skills/mini-program-engineering-suite` | 在仓库任务中按 Skill 说明触发 |
 | Cursor | `.cursor/rules/mini-program-engineering-suite` | 作为项目规则 / Skill 说明使用 |
@@ -162,9 +163,13 @@ bash install.sh --target auto
 如果要安装到某个项目的 GitHub Copilot 或 Cursor 规则目录，请显式传入项目路径：
 
 ```bash
+bash install.sh --target codex
+bash install.sh --target agents
 bash install.sh --target copilot --project /path/to/your-mini-program-project
 bash install.sh --target cursor --project /path/to/your-mini-program-project
 ```
+
+其中 `--target codex` 对应 `~/.codex/skills`，`--target agents` 对应 `~/.agents/skills`。
 
 安装器默认不覆盖已有目录；需要替换时加 `--force`，旧目录会先移动为带时间戳的备份。
 
@@ -273,9 +278,9 @@ shasum -a 256 -c SHA256SUMS
 然后解压并复验包内清单：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v1.3.0.tar.gz
-python3 mini-program-engineering-suite-v1.3.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v1.3.0
+tar -xzf mini-program-engineering-suite-v1.3.1.tar.gz
+python3 mini-program-engineering-suite-v1.3.1/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v1.3.1
 ```
 
 如果你拿到的是其他渠道提供的包，也可以通过包内 `package-manifest.json` 重新计算每个文件的大小和 SHA-256 摘要：
@@ -290,7 +295,7 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前工作版本：**1.3.0**。
+当前工作版本：**1.3.1**。
 
 ---
 

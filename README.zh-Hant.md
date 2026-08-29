@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
+  <img src="https://img.shields.io/badge/version-1.3.1-0EA5E9.svg" alt="Version: 1.3.1">
 </p>
 
 <p align="center">
@@ -128,10 +128,13 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 幫我安
 
 | 應用 / 執行器 | 建議位置 | 調用方式 |
 | --- | --- | --- |
-| Codex CLI / 通用 Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| Codex App / Codex 本地 Skills | `~/.codex/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
+| 通用 Agent Skills | `~/.agents/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
 | Claude Code | `~/.claude/skills/mini-program-engineering-suite` | `/mini-program-engineering-suite` |
 | GitHub Copilot Coding Agent | `.github/skills/mini-program-engineering-suite` | 在倉庫任務中按 Skill 說明觸發 |
 | Cursor | `.cursor/rules/mini-program-engineering-suite` | 作為專案規則 / Skill 說明使用 |
+
+如果使用安裝器，`--target codex` 對應 `~/.codex/skills`，`--target agents` 對應 `~/.agents/skills`。
 
 安裝後重新開啟一個 Agent 會話，直接描述任務即可，例如：
 
@@ -176,7 +179,7 @@ python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 
 ## 目前版本
 
-目前版本：**1.3.0**。
+目前版本：**1.3.1**。
 
 ---
 

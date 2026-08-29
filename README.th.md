@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
+  <img src="https://img.shields.io/badge/version-1.3.1-0EA5E9.svg" alt="Version: 1.3.1">
 </p>
 
 <p align="center">
@@ -124,12 +124,21 @@ clone repository นี้ไปยัง directory ของ Agent app ที�
 https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git ช่วยติดตั้ง skill นี้ให้ฉัน
 ```
 
-ตัวอย่าง:
+สำหรับ Codex App / Codex local skills:
+
+```bash
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
+  ~/.codex/skills/mini-program-engineering-suite
+```
+
+สำหรับ universal Agent Skills runners:
 
 ```bash
 git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git \
   ~/.agents/skills/mini-program-engineering-suite
 ```
+
+ถ้าใช้ installer, `--target codex` จะติดตั้งไปที่ `~/.codex/skills` และ `--target agents` จะติดตั้งไปที่ `~/.agents/skills`
 
 หลังติดตั้ง ให้เปิด session ใหม่แล้วเรียกใช้:
 
@@ -174,7 +183,7 @@ python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 
 ## เวอร์ชัน
 
-เวอร์ชันปัจจุบัน: **1.3.0**.
+เวอร์ชันปัจจุบัน: **1.3.1**.
 
 ---
 
