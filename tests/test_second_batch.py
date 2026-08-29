@@ -42,10 +42,7 @@ SKILLS = {
         "assets/architecture-decision-record.md",
         "references/architecture-workflow.md",
     ),
-    "wechat-mini-program-platform-skill": (
-        "assets/wechat-platform-checklist.md",
-        "references/platform-evidence-layers.md",
-    ),
+    "wechat-mini-program-platform-skill": (),
 }
 
 
@@ -69,6 +66,26 @@ class SecondBatchStructureTests(unittest.TestCase):
                     path = skill_root / resource
                     self.assertTrue(path.is_file(), path)
                     self.assertGreater(len(path.read_text(encoding="utf-8").strip()), 300)
+
+    def test_wechat_platform_facts_live_in_platform_layer(self) -> None:
+        platform_dir = ROOT / "platforms" / "wechat"
+        for name in (
+            "platform-evidence-layers.md",
+            "wechat-platform-checklist.md",
+            "privacy-permission-matrix.md",
+            "facts.md",
+            "rule-map.json",
+        ):
+            path = platform_dir / name
+            self.assertTrue(path.is_file(), path)
+        skill = (ROOT / "skills/wechat-mini-program-platform-skill/SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("../../platforms/wechat/", skill)
+        rule_map = json.loads((platform_dir / "rule-map.json").read_text(encoding="utf-8"))
+        self.assertEqual(rule_map["format_version"], 1)
+        self.assertEqual(rule_map["platform"], "wechat")
+        for rule in rule_map["rules"]:
+            self.assertTrue(rule["official"]["url"].startswith("https://"))
+            self.assertGreaterEqual(rule["ttl_days"], 0)
 
     def test_product_spec_contract_prevents_invented_product_logic(self) -> None:
         content = (ROOT / "skills/mini-program-product-spec-skill/SKILL.md").read_text(encoding="utf-8")
@@ -117,9 +134,14 @@ class SecondBatchStructureTests(unittest.TestCase):
             self.assertIn(phrase, content)
 
     def test_each_reference_has_representative_and_non_trigger_scenarios(self) -> None:
-        for skill_name, (_, reference) in SKILLS.items():
+        references = {
+            "mini-program-product-spec-skill": "skills/mini-program-product-spec-skill/references/specification-workflow.md",
+            "mini-program-architecture-skill": "skills/mini-program-architecture-skill/references/architecture-workflow.md",
+            "wechat-mini-program-platform-skill": "platforms/wechat/platform-evidence-layers.md",
+        }
+        for skill_name, reference in references.items():
             with self.subTest(skill=skill_name):
-                content = (ROOT / "skills" / skill_name / reference).read_text(encoding="utf-8")
+                content = (ROOT / reference).read_text(encoding="utf-8")
                 for heading in ("正常场景", "边界场景", "失败场景", "不应触发"):
                     self.assertIn(heading, content)
                 self.assertGreaterEqual(content.count("### 场景"), 4)

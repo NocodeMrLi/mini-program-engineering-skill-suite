@@ -62,9 +62,11 @@ REQUIRED_FILES = (
     "skills/mini-program-architecture-skill/assets/architecture-decision-record.md",
     "skills/wechat-mini-program-platform-skill/SKILL.md",
     "skills/wechat-mini-program-platform-skill/agents/openai.yaml",
-    "skills/wechat-mini-program-platform-skill/references/platform-evidence-layers.md",
-    "skills/wechat-mini-program-platform-skill/assets/wechat-platform-checklist.md",
-    "skills/wechat-mini-program-platform-skill/assets/privacy-permission-matrix.md",
+    "platforms/wechat/platform-evidence-layers.md",
+    "platforms/wechat/wechat-platform-checklist.md",
+    "platforms/wechat/privacy-permission-matrix.md",
+    "platforms/wechat/facts.md",
+    "platforms/wechat/rule-map.json",
     "skills/mini-program-implementation-skill/SKILL.md",
     "skills/mini-program-implementation-skill/agents/openai.yaml",
     "skills/mini-program-implementation-skill/references/implementation-workflow.md",
@@ -245,6 +247,61 @@ def validate_version_consistency(root: Path) -> list[str]:
     return errors
 
 
+def validate_platform_rule_maps(root: Path) -> list[str]:
+    """Validate platforms/*/rule-map.json against the freshness-protocol schema."""
+    errors: list[str] = []
+    for path in sorted(root.glob("platforms/*/rule-map.json")):
+        platform = path.parent.name
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            errors.append(f"{path}: unreadable rule map")
+            continue
+        if not isinstance(data, dict) or data.get("format_version") != 1:
+            errors.append(f"{path}: format_version must be 1")
+            continue
+        if data.get("platform") != platform:
+            errors.append(f"{path}: platform must match directory name {platform}")
+        domains = data.get("allowed_domains")
+        domains_ok = (
+            isinstance(domains, list)
+            and bool(domains)
+            and all(isinstance(x, str) and x and "://" not in x and "/" not in x for x in domains)
+        )
+        if not domains_ok:
+            errors.append(f"{path}: allowed_domains must be non-empty domain strings")
+        rules = data.get("rules")
+        if not isinstance(rules, list) or not rules:
+            errors.append(f"{path}: rules must be a non-empty list")
+            continue
+        for rule in rules:
+            if not isinstance(rule, dict):
+                errors.append(f"{path}: rule must be an object")
+                continue
+            rule_id = rule.get("id")
+            if not isinstance(rule_id, str) or not rule_id:
+                errors.append(f"{path}: rule missing string id")
+                continue
+            ttl = rule.get("ttl_days")
+            if not isinstance(ttl, int) or isinstance(ttl, bool) or ttl < 0:
+                errors.append(f"{path}: {rule_id} ttl_days must be a non-negative integer")
+            official = rule.get("official")
+            url = official.get("url") if isinstance(official, dict) else None
+            if not isinstance(url, str) or not url.startswith("https://"):
+                errors.append(f"{path}: {rule_id} official.url must be https")
+            elif domains_ok:
+                parts = url.split("/")
+                if len(parts) > 2 and parts[2] not in domains:
+                    errors.append(f"{path}: {rule_id} url domain not in allowed_domains")
+            title = official.get("title") if isinstance(official, dict) else None
+            if not isinstance(title, str) or not title:
+                errors.append(f"{path}: {rule_id} official.title must be a non-empty string")
+            points = rule.get("verify_points")
+            if not isinstance(points, list) or not points or not all(isinstance(p, str) and p for p in points):
+                errors.append(f"{path}: {rule_id} verify_points must be non-empty strings")
+    return errors
+
+
 def read_mp4_duration_seconds(path: Path) -> float | None:
     """Read the MP4 mvhd duration without external media tools."""
     data = path.read_bytes()
@@ -338,6 +395,7 @@ def validate(root: Path) -> dict[str, object]:
         errors.extend(validate_skill(root_skill, "mini-program-engineering-suite", root_skill=True))
     i18n_report = check_i18n_readme_structure(root)
     errors.extend(str(error) for error in i18n_report["errors"])
+    errors.extend(validate_platform_rule_maps(root))
     errors.extend(validate_version_consistency(root))
     errors.extend(validate_public_media_copy(root))
     errors.extend(validate_openai_yaml(root / "agents/openai.yaml", "mini-program-engineering-suite"))

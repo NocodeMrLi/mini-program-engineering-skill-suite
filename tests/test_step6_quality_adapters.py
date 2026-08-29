@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DOCTOR = ROOT / "scripts/capability_doctor.py"
 ADAPTER = ROOT / "skills/mini-program-verification-skill/references/verification-capability-matrix.md"
 QUALITY = ROOT / "skills/mini-program-verification-skill/assets/quality-evidence-matrix.md"
-PRIVACY = ROOT / "skills/wechat-mini-program-platform-skill/assets/privacy-permission-matrix.md"
+PRIVACY = ROOT / "platforms/wechat/privacy-permission-matrix.md"
 ACCESSIBILITY = ROOT / "skills/mini-program-ui-device-skill/assets/accessibility-matrix.md"
 
 

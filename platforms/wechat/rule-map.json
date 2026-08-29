@@ -1,0 +1,54 @@
+{
+  "format_version": 1,
+  "platform": "wechat",
+  "allowed_domains": [
+    "developers.weixin.qq.com",
+    "mp.weixin.qq.com"
+  ],
+  "rules": [
+    {
+      "id": "release-review-operations",
+      "step_class": "upload/review/release",
+      "ttl_days": 0,
+      "official": {
+        "url": "https://developers.weixin.qq.com/miniprogram/product/",
+        "title": "微信小程序平台运营规范",
+        "section": "审核规范与发布要求"
+      },
+      "verify_points": [
+        "提审与发布流程要求",
+        "审核时限与驳回后的处理",
+        "行为规范与内容标准变化"
+      ]
+    },
+    {
+      "id": "privacy-protection-declarations",
+      "step_class": "privacy/permission",
+      "ttl_days": 30,
+      "official": {
+        "url": "https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/",
+        "title": "用户隐私保护指引填写说明",
+        "section": "隐私接口与声明配置"
+      },
+      "verify_points": [
+        "需申报的隐私接口清单",
+        "指引配置与生效条件",
+        "用户授权与撤回要求"
+      ]
+    },
+    {
+      "id": "toolchain-devtools",
+      "step_class": "toolchain/build",
+      "ttl_days": 90,
+      "official": {
+        "url": "https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html",
+        "title": "微信开发者工具文档与下载入口",
+        "section": "版本与下载"
+      },
+      "verify_points": [
+        "当前稳定版与最低环境要求",
+        "项目配置与构建行为兼容性变化"
+      ]
+    }
+  ]
+}
