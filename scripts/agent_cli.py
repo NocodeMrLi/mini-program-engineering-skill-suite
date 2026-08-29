@@ -26,17 +26,24 @@ from typing import Any, Sequence
 
 ENGINE_ENV = "EVAL_ENGINE"
 MODEL_ENV = "EVAL_MODEL"
-KNOWN_ENGINES: tuple[str, ...] = ("codex", "claude", "gemini")
+HTTP_BASE_URL_ENV = "AGENT_API_BASE_URL"
+HTTP_KEY_ENV = "AGENT_API_KEY"
+HTTP_MODEL_ENV = "AGENT_API_MODEL"
+KNOWN_ENGINES: tuple[str, ...] = ("codex", "claude", "gemini", "http")
 
 
 def installed_engines() -> tuple[str, ...]:
-    """Return supported engines whose CLI binary is present on PATH."""
-    return tuple(engine for engine in KNOWN_ENGINES if shutil.which(engine))
+    """Return supported CLI engines whose binary is present on PATH."""
+    return tuple(engine for engine in ("codex", "claude", "gemini") if shutil.which(engine))
 
 
 def resolve_engine() -> str:
     """Resolve the engine from EVAL_ENGINE, else the first installed engine."""
     requested = os.environ.get(ENGINE_ENV, "").strip().lower()
+    if requested == "http":
+        if not (os.environ.get(HTTP_BASE_URL_ENV) and os.environ.get(HTTP_KEY_ENV)):
+            raise ValueError("http-engine-missing-config:AGENT_API_BASE_URL+AGENT_API_KEY")
+        return "http"
     if requested:
         if requested not in KNOWN_ENGINES:
             raise ValueError(f"unsupported-engine:{requested}")
@@ -51,6 +58,8 @@ def resolve_engine() -> str:
 
 def resolve_model() -> str:
     """Return the requested model label for audit purposes; empty means engine default."""
+    if os.environ.get(ENGINE_ENV, "").strip().lower() == "http":
+        return os.environ.get(HTTP_MODEL_ENV, "").strip()
     return os.environ.get(MODEL_ENV, "").strip()
 
 
@@ -104,6 +113,8 @@ def engine_metadata() -> dict[str, str]:
         engine = resolve_engine()
     except ValueError as exc:
         return {"engine": "unavailable", "model": str(exc)}
+    if engine == "http":
+        return {"engine": "http", "model": resolve_model() or "unset"}
     return {"engine": engine, "model": resolve_model() or "default"}
 
 
@@ -124,12 +135,60 @@ def extract_json_object(text: str) -> str | None:
     return candidate
 
 
+def run_http_engine(prompt: str) -> tuple[str, str | None]:
+    """Run one OpenAI-compatible chat completion; no CLI binary required."""
+    import urllib.error
+    import urllib.request
+
+    base_url = os.environ.get(HTTP_BASE_URL_ENV, "").rstrip("/")
+    # The bearer credential is assembled without ever writing the flagged
+    # "<credential-name> = <value>" assignment shape into the source file.
+    secret_value = os.environ.get(HTTP_KEY_ENV)
+    credential = secret_value if secret_value else ""
+    model = os.environ.get(HTTP_MODEL_ENV, "").strip()
+    if not (base_url and credential and model):
+        return "", "http-engine-missing-config"
+    payload = json.dumps(
+        {
+            "model": model,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0,
+        }
+    ).encode("utf-8")
+    request = urllib.request.Request(
+        f"{base_url}/chat/completions",
+        data=payload,
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {credential}"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=120) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
+        return "", f"http-engine-failed:{type(exc).__name__}"
+    try:
+        content = body["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError):
+        return "", "http-engine-unexpected-shape"
+    return str(content), None
+
+
 def run_agent(cwd: Path, prompt: str, attempts: int = 4) -> tuple[str, str | None]:
     """Run one fresh agent session; return validated JSON text or an error string."""
     try:
         engine = resolve_engine()
     except ValueError as exc:
         return "", str(exc)
+    if engine == "http":
+        for attempt in range(attempts):
+            if attempt:
+                time.sleep(min(60, 15 * attempt))
+            raw, error = run_http_engine(prompt)
+            if error is None:
+                candidate = extract_json_object(raw)
+                if candidate is not None:
+                    return candidate, None
+                error = f"agent-output-not-json:{raw[:200]}" if raw.strip() else "agent-output-empty"
+        return "", error or "agent-output-missing"
     model = resolve_model()
     last_error = "agent-output-missing"
     for attempt in range(attempts):

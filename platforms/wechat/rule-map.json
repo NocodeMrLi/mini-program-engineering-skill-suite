@@ -42,7 +42,7 @@
       "ttl_days": 90,
       "official": {
         "url": "https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html",
-        "title": "微信开发者工具文档与下载入口",
+        "title": "微信开放文档",
         "section": "版本与下载"
       },
       "verify_points": [
