@@ -196,14 +196,14 @@ class ReleaseRecommendationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             repo = Path(temp)
             subprocess.run(["git", "init", "-q", str(repo)], check=True)
+            # CI runners have no global git identity; set a repo-local one so commits work anywhere.
+            subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+            subprocess.run(["git", "-C", str(repo), "config", "user.name", "test"], check=True)
             subprocess.run(["git", "-C", str(repo), "commit", "-q", "--allow-empty", "-m", "init"], check=True)
             (repo / "platforms").mkdir()
             (repo / "platforms" / "facts.md").write_text("fact", encoding="utf-8")
             subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
-            subprocess.run(
-                ["git", "-C", str(repo), "-c", "user.email=t@t", "-c", "user.name=t", "commit", "-q", "-m", "data"],
-                check=True,
-            )
+            subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "data"], check=True)
             report = recommendation.recommend(repo, min_data_changes=1)
         self.assertEqual(report["recommendation"], "RECOMMEND_RELEASE")
         self.assertEqual(report["level"], "patch")
