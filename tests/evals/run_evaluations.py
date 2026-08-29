@@ -20,17 +20,12 @@ from agent_cli import engine_metadata, run_agent  # noqa: E402
 
 
 EVAL_ROOT = Path(__file__).resolve().parent
-CHILD_NAMES = (
-    "mini-program-project-intake-skill",
-    "mini-program-product-spec-skill",
-    "mini-program-architecture-skill",
-    "wechat-mini-program-platform-skill",
-    "mini-program-implementation-skill",
-    "mini-program-ui-device-skill",
-    "mini-program-debugging-skill",
-    "mini-program-verification-skill",
-    "mini-program-release-skill",
-)
+def discover_child_names(suite: Path) -> list[str]:
+    """Enumerate child skills from the filesystem as the single source of truth."""
+    skills_dir = suite / "skills"
+    if not skills_dir.is_dir():
+        return []
+    return sorted(p.name for p in skills_dir.iterdir() if (p / "SKILL.md").is_file())
 ROUTING_MINIMUM = 0.90
 ROOT_TOKEN_BUDGET = 4000
 CHILD_TOKEN_BUDGET = 1800
@@ -98,6 +93,7 @@ def estimated_tokens(text: str) -> int:
 def run_tier1(suite: Path) -> dict[str, Any]:
     errors: list[str] = []
     checks = 0
+    child_names = discover_child_names(suite)
 
     validator = subprocess.run(
         [sys.executable, str(suite / "scripts" / "validate_suite.py"), str(suite)],
@@ -110,7 +106,7 @@ def run_tier1(suite: Path) -> dict[str, Any]:
         errors.append("public-structure-or-link-validation-failed")
 
     skill_paths = [suite / "SKILL.md"] + [
-        suite / "skills" / name / "SKILL.md" for name in CHILD_NAMES
+        suite / "skills" / name / "SKILL.md" for name in child_names
     ]
     descriptions: dict[str, str] = {}
     for index, path in enumerate(skill_paths):
@@ -129,7 +125,7 @@ def run_tier1(suite: Path) -> dict[str, Any]:
     if len(set(descriptions.values())) != len(descriptions):
         errors.append("duplicate-skill-descriptions")
 
-    for name in CHILD_NAMES:
+    for name in child_names:
         child = suite / "skills" / name
         skill_text = (child / "SKILL.md").read_text(encoding="utf-8")
         checks += 1
@@ -182,7 +178,7 @@ def agent_command(cwd: Path, prompt: str, schema: dict[str, Any]) -> tuple[str, 
     return run_agent(cwd, structured_prompt)
 
 
-def routing_schema(case_ids: list[str]) -> dict[str, Any]:
+def routing_schema(case_ids: list[str], child_names: list[str]) -> dict[str, Any]:
     return {
         "type": "object",
         "additionalProperties": False,
@@ -200,7 +196,7 @@ def routing_schema(case_ids: list[str]) -> dict[str, Any]:
                         "id": {"type": "string", "enum": case_ids},
                         "skills": {
                             "type": "array",
-                            "items": {"type": "string", "enum": list(CHILD_NAMES)},
+                            "items": {"type": "string", "enum": list(child_names)},
                         },
                     },
                 },
@@ -211,16 +207,17 @@ def routing_schema(case_ids: list[str]) -> dict[str, Any]:
 
 def run_tier2(suite: Path, split: str, engine: str) -> dict[str, Any]:
     cases = load_cases("routing", split)
+    child_names = discover_child_names(suite)
     error: str | None = None
     if engine == "reference":
         predicted = {case["id"]: case["expected"] for case in cases}
     else:
         descriptions = {
             name: frontmatter_description(suite / "skills" / name / "SKILL.md")
-            for name in CHILD_NAMES
+            for name in child_names
         }
         compact_cases = [{"id": case["id"], "prompt": case["prompt"]} for case in cases]
-        schema = routing_schema([case["id"] for case in cases])
+        schema = routing_schema([case["id"] for case in cases], child_names)
         prompt = (
             "You are a fresh-context semantic router. Select only the listed mini-program Skills "
             "that are materially required by each request. Return an empty list for unrelated work. "

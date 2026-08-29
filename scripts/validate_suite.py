@@ -375,25 +375,29 @@ def validate_public_media_copy(root: Path) -> list[str]:
 
 def validate(root: Path) -> dict[str, object]:
     """Return a machine-readable validation report."""
+def discover_child_names(root: Path) -> tuple[str, ...]:
+    """Enumerate child skills from the filesystem as the single source of truth."""
+    skills_dir = root / "skills"
+    if not skills_dir.is_dir():
+        return ()
+    return tuple(sorted(p.name for p in skills_dir.iterdir() if (p / "SKILL.md").is_file()))
+
+
+def validate(root: Path) -> dict[str, object]:
+    """Return a machine-readable validation report."""
     errors: list[str] = []
     for relative_path in REQUIRED_FILES:
         if not (root / relative_path).is_file():
             errors.append(f"missing required file: {relative_path}")
 
     root_skill = root / "SKILL.md"
-    child_names = (
-        "mini-program-project-intake-skill",
-        "mini-program-product-spec-skill",
-        "mini-program-architecture-skill",
-        "wechat-mini-program-platform-skill",
-        "mini-program-implementation-skill",
-        "mini-program-ui-device-skill",
-        "mini-program-debugging-skill",
-        "mini-program-verification-skill",
-        "mini-program-release-skill",
-    )
+    child_names = discover_child_names(root)
     if root_skill.is_file():
         errors.extend(validate_skill(root_skill, "mini-program-engineering-suite", root_skill=True))
+        root_text = root_skill.read_text(encoding="utf-8")
+        for child_name in child_names:
+            if f"skills/{child_name}/SKILL.md" not in root_text:
+                errors.append(f"root skill missing route: {child_name}")
     i18n_report = check_i18n_readme_structure(root)
     errors.extend(str(error) for error in i18n_report["errors"])
     errors.extend(validate_platform_rule_maps(root))

@@ -468,6 +468,37 @@ class PublicExportFailClosedTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("release package example version 9.9.9 must match VERSION", result.stdout)
 
+    def test_child_skills_single_source_and_route_consistency(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source = Path(temp_dir) / "source"
+            copy_public_source(source)
+            base = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(source)],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+            self.assertEqual(base.returncode, 0, base.stdout + base.stderr)
+            self.assertEqual(json.loads(base.stdout)["skill_count"], 9)
+
+            skill = source / "SKILL.md"
+            skill.write_text(
+                skill.read_text(encoding="utf-8").replace(
+                    "skills/wechat-mini-program-platform-skill/SKILL.md",
+                    "skills/removed-entry/SKILL.md",
+                ),
+                encoding="utf-8",
+            )
+            broken = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(source)],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+
+        self.assertNotEqual(broken.returncode, 0)
+        self.assertIn("root skill missing route: wechat-mini-program-platform-skill", broken.stdout)
+
     def test_i18n_readme_structure_checker_accepts_current_readmes(self) -> None:
         result = subprocess.run(
             [sys.executable, str(I18N_CHECKER), str(ROOT)],
