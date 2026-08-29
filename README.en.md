@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.3.1-0EA5E9.svg" alt="Version: 1.3.1">
+  <img src="https://img.shields.io/badge/version-1.4.0-0EA5E9.svg" alt="Version: 1.4.0">
 </p>
 
 <p align="center">
@@ -224,6 +224,8 @@ This suite does not automatically install project dependencies, create cloud res
 
 The current suite version uses structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, and independent final judgment before release.
 
+Evaluation layers, evidence boundaries, and per-release public summaries are documented in [EVALUATIONS.md](EVALUATIONS.md).
+
 For a received package, integrity is checked through its `package-manifest.json`. For a source working copy, validation and sensitive scanning are run before distribution.
 
 After cloning this repository, you can run the zero-dependency local checks:
@@ -266,9 +268,9 @@ shasum -a 256 -c SHA256SUMS
 Then extract the archive and verify the package manifest:
 
 ```bash
-tar -xzf mini-program-engineering-suite-v1.3.1.tar.gz
-python3 mini-program-engineering-suite-v1.3.1/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v1.3.1
+tar -xzf mini-program-engineering-suite-v1.4.0.tar.gz
+python3 mini-program-engineering-suite-v1.4.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v1.4.0
 ```
 
 If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
@@ -283,7 +285,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current working version: **1.3.1**.
+Current working version: **1.4.0**.
 
 ---
 

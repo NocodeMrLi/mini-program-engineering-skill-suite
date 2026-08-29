@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.3.1-0EA5E9.svg" alt="Version: 1.3.1">
+  <img src="https://img.shields.io/badge/version-1.4.0-0EA5E9.svg" alt="Version: 1.4.0">
 </p>
 
 <p align="center">
@@ -158,6 +158,8 @@ Suite ini tidak otomatis menginstal dependency, membuat cloud resources, mengung
 
 Sebelum dianggap siap dibekukan, suite ini melewati structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, dan independent final judgment.
 
+Lapisan evaluasi, batas bukti, dan ringkasan publik per versi dijelaskan di [EVALUATIONS.md](EVALUATIONS.md).
+
 Pemeriksaan lokal:
 
 ```bash
@@ -183,7 +185,7 @@ python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 
 ## Versi
 
-Versi saat ini: **1.3.1**.
+Versi saat ini: **1.4.0**.
 
 ---
 

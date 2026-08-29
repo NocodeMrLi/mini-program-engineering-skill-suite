@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.3.1-0EA5E9.svg" alt="Version: 1.3.1">
+  <img src="https://img.shields.io/badge/version-1.4.0-0EA5E9.svg" alt="Version: 1.4.0">
 </p>
 
 <p align="center">
@@ -158,6 +158,8 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 公開前には、構造検証、機密情報スキャン、公開パッケージ出力、マニフェスト確認、ルーティング評価、行動評価、独立レビューを行います。
 
+評価レイヤー、証拠の境界、バージョンごとの公開サマリーは [EVALUATIONS.md](EVALUATIONS.md) を参照してください。
+
 ローカル検証：
 
 ```bash
@@ -183,7 +185,7 @@ python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 
 ## バージョン
 
-現在のバージョン：**1.3.1**。
+現在のバージョン：**1.4.0**。
 
 ---
 

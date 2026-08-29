@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.3.1-0EA5E9.svg" alt="Version: 1.3.1">
+  <img src="https://img.shields.io/badge/version-1.4.0-0EA5E9.svg" alt="Version: 1.4.0">
 </p>
 
 <p align="center">
@@ -158,6 +158,8 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 ก่อนถือว่า release พร้อมใช้งาน จะมี structural validation, sensitive-content scan, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation และ independent final review
 
+ชั้นการประเมิน ขอบเขตของหลักฐาน และสรุปผลสาธารณะรายเวอร์ชัน อยู่ใน [EVALUATIONS.md](EVALUATIONS.md)
+
 ตรวจในเครื่อง:
 
 ```bash
@@ -183,7 +185,7 @@ python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 
 ## เวอร์ชัน
 
-เวอร์ชันปัจจุบัน: **1.3.1**.
+เวอร์ชันปัจจุบัน: **1.4.0**.
 
 ---
 

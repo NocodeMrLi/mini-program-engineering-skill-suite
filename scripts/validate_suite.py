@@ -22,11 +22,13 @@ REQUIRED_FILES = (
     "README.id.md",
     ".github/workflows/ci.yml",
     ".github/workflows/release.yml",
+    ".github/dependabot.yml",
     ".github/ISSUE_TEMPLATE/bug_report.yml",
     ".github/ISSUE_TEMPLATE/config.yml",
     ".github/ISSUE_TEMPLATE/skill_proposal.yml",
     "CONTRIBUTING.md",
     "SECURITY.md",
+    "EVALUATIONS.md",
     "LICENSE",
     "CHANGELOG.md",
     "COMPATIBILITY.md",
@@ -91,6 +93,7 @@ REQUIRED_FILES = (
     "VERSION",
     "install.sh",
     "scripts/check_i18n_readme_structure.py",
+    "scripts/summarize_evaluations.py",
     "scripts/export_public_package.py",
     "scripts/capability_doctor.py",
     "scripts/scan_sensitive_content.py",
@@ -101,9 +104,11 @@ EXCLUDED_PARTS = {".git", ".planning", "__pycache__", "tests"}
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 DURATION_CLAIM = re.compile(r"(?<!\d)(\d{1,3})\s*(?:[-‑–—]\s*)?(秒|seconds?|วินาที|detik)", re.IGNORECASE)
 PROMO_VIDEO_CONTEXT = re.compile(
-    r"readme-promo\.mp4|说明视频|說明影片|説明動画|explainer video|video penjelasan|วิดีโอ",
+    r"readme-promo\.mp4|说明视频|說明影片|説明動画|explainer video|video penjelasan|วิดีโอ|"
+    r"看懂这套技能|看懂這套技能|概要を見る|Understand the Skill in|เข้าใจ Skill นี้ใน|Pahami Skill Ini dalam",
     re.IGNORECASE,
 )
+PACKAGE_VERSION_REFERENCE = re.compile(r"mini-program-engineering-suite-v(\d+\.\d+\.\d+)")
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, str], list[str]]:
@@ -229,6 +234,12 @@ def validate_version_consistency(root: Path) -> list[str]:
             errors.append(f"{readme_path}: version badge alt text must match VERSION")
         if version not in readme:
             errors.append(f"{readme_path}: README body must mention current VERSION")
+        for package_version in PACKAGE_VERSION_REFERENCE.findall(readme):
+            if package_version != version:
+                errors.append(
+                    f"{readme_path}: release package example version {package_version} "
+                    f"must match VERSION {version}"
+                )
     return errors
 
 

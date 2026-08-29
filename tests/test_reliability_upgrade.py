@@ -19,6 +19,7 @@ MODEL = ROOT / "shared/evidence-status-model.md"
 EXPORTER = ROOT / "scripts/export_public_package.py"
 I18N_CHECKER = ROOT / "scripts/check_i18n_readme_structure.py"
 INSTALLER = ROOT / "install.sh"
+SUMMARIZER = ROOT / "scripts/summarize_evaluations.py"
 SCANNER = ROOT / "scripts/scan_sensitive_content.py"
 VALIDATOR = ROOT / "scripts/validate_suite.py"
 VERIFIER = ROOT / "scripts/verify_public_package.py"
@@ -399,6 +400,73 @@ class PublicExportFailClosedTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("README promo video duration says 30", result.stdout)
 
+    def test_promo_duration_validator_rejects_heading_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source = Path(temp_dir) / "source"
+            copy_public_source(source)
+            readme = source / "README.md"
+            readme.write_text(
+                readme.read_text(encoding="utf-8").replace("## 32 秒看懂这套技能", "## 30 秒看懂这套技能"),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(source)],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("README promo video duration says 30", result.stdout)
+
+    def test_promo_duration_validator_rejects_english_heading_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source = Path(temp_dir) / "source"
+            copy_public_source(source)
+            readme = source / "README.en.md"
+            readme.write_text(
+                readme.read_text(encoding="utf-8").replace(
+                    "## Understand the Skill in 32 Seconds",
+                    "## Understand the Skill in 30 Seconds",
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(source)],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("README promo video duration says 30", result.stdout)
+
+    def test_release_package_examples_must_match_version(self) -> None:
+        suite_version = (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source = Path(temp_dir) / "source"
+            copy_public_source(source)
+            readme = source / "README.md"
+            readme.write_text(
+                readme.read_text(encoding="utf-8").replace(
+                    f"mini-program-engineering-suite-v{suite_version}",
+                    "mini-program-engineering-suite-v9.9.9",
+                ),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(source)],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("release package example version 9.9.9 must match VERSION", result.stdout)
+
     def test_i18n_readme_structure_checker_accepts_current_readmes(self) -> None:
         result = subprocess.run(
             [sys.executable, str(I18N_CHECKER), str(ROOT)],
@@ -411,6 +479,107 @@ class PublicExportFailClosedTests(unittest.TestCase):
         report = json.loads(result.stdout)
         self.assertTrue(report["valid"])
         self.assertEqual(report["checked_readmes"], 6)
+
+    def test_evaluation_summarizer_outputs_redacted_markdown(self) -> None:
+        long_prompt_digest = "a" * 64
+        with tempfile.TemporaryDirectory() as temp_dir:
+            reports = Path(temp_dir) / "reports"
+            reports.mkdir()
+            audit_agent = {
+                "stage": "tier2",
+                "generated_at_utc": "2026-08-29T00:00:00Z",
+                "engine": "agent",
+                "model": "codex-cli-default",
+                "prompt_sha256": long_prompt_digest,
+                "schema_sha256": "b" * 64,
+            }
+            payloads = {
+                "tier1": {
+                    "tier": 1, "verdict": "PASS", "skill_count": 10, "checks": 12,
+                    "errors": [], "limits": {}, "audit": {"stage": "tier1", "engine": "local"},
+                },
+                "routing-development": {
+                    "tier": 2, "split": "development", "engine": "agent", "verdict": "PASS",
+                    "case_count": 10, "correct": 9, "accuracy": 0.9, "minimum": 0.9, "error": None,
+                    "cases": [{"id": "case-internal", "prompt": "PROMPT_MARKER_MUST_NOT_APPEAR", "expected": ["x"]}],
+                    "audit": audit_agent,
+                },
+                "routing-held-out": {
+                    "tier": 2, "split": "held-out", "engine": "reference", "verdict": "PASS",
+                    "case_count": 8, "correct": 8, "accuracy": 1.0, "minimum": 0.9, "error": None,
+                    "cases": [], "audit": {"stage": "tier2", "engine": "reference"},
+                },
+                "behavior-development": {
+                    "tier": 3, "split": "development", "mode": "with-skill", "dataset": "behavior",
+                    "verdict": "PASS", "case_count": 3, "not_proven": 0, "cases": [], "audit": audit_agent,
+                },
+                "behavior-held-out": {
+                    "tier": 3, "split": "held-out", "mode": "with-skill", "dataset": "behavior",
+                    "verdict": "PASS", "case_count": 3, "not_proven": 0, "cases": [], "audit": audit_agent,
+                },
+                "methodology-development": {
+                    "tier": 3, "split": "development", "mode": "with-skill", "dataset": "methodology",
+                    "verdict": "PASS", "case_count": 2, "not_proven": 0, "cases": [], "audit": audit_agent,
+                },
+                "methodology-held-out": {
+                    "tier": 3, "split": "held-out", "mode": "with-skill", "dataset": "methodology",
+                    "verdict": "PASS", "case_count": 2, "not_proven": 0, "cases": [], "audit": audit_agent,
+                },
+                "validation": {"valid": True, "errors": [], "checked_files": 85, "skill_count": 9},
+                "sensitive": {
+                    "path": "source", "candidate_count": 10, "scanned_count": 10,
+                    "text_file_count": 9, "binary_like_count": 1, "unreadable_file_count": 0,
+                    "finding_count": 0, "findings": [],
+                },
+                "package-verification": {"valid": True, "verified_file_count": 85, "errors": []},
+                "independent-judgment": {
+                    "judgments": [
+                        {"evaluation_id": "with-skill::case-1", "verdict": "PASS", "reason": "ok"},
+                        {"evaluation_id": "baseline::case-1", "verdict": "FAIL", "reason": "missing"},
+                    ],
+                    "audit": audit_agent,
+                },
+                "final-signature": {
+                    "verdict": "PASS", "errors": [], "not_proven": [],
+                    "audit": {"stage": "final-release-signer", "generated_at_utc": "2026-08-29T00:00:00Z"},
+                },
+            }
+            paths: dict[str, Path] = {}
+            for name, payload in payloads.items():
+                paths[name] = reports / f"{name}.json"
+                paths[name].write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+            arguments = [sys.executable, str(SUMMARIZER), "--version", "9.9.9"]
+            for name, path in paths.items():
+                arguments.extend([f"--{name.replace('_', '-')}", str(path)])
+            result = subprocess.run(arguments, capture_output=True, check=False, text=True)
+            output = result.stdout
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("# 评测摘要（v9.9.9）", output)
+        self.assertIn("| tier1 结构、预算与资源引用 | PASS |", output)
+        self.assertIn("accuracy 0.90 (9/10)", output)
+        self.assertIn("accuracy 1.00 (8/8)", output)
+        self.assertIn(f"prompt_sha256={long_prompt_digest[:12]}", output)
+        self.assertIn("judgments 2 (FAIL 1, PASS 1)", output)
+        self.assertNotIn("PROMPT_MARKER_MUST_NOT_APPEAR", output)
+        self.assertNotIn(long_prompt_digest, output)
+        self.assertNotIn("case-internal", output)
+
+    def test_evaluation_summarizer_fails_closed_on_missing_input(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            missing = Path(temp_dir) / "missing.json"
+            arguments = [sys.executable, str(SUMMARIZER), "--tier1", str(missing)]
+            for name in (
+                "routing-development", "routing-held-out", "behavior-development", "behavior-held-out",
+                "methodology-development", "methodology-held-out", "validation", "sensitive",
+                "package-verification", "independent-judgment",
+            ):
+                arguments.extend([f"--{name}", str(missing)])
+            result = subprocess.run(arguments, capture_output=True, check=False, text=True)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("unreadable-input", result.stderr)
 
     def test_installer_uses_verified_public_payload_without_manifest_debris(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
