@@ -158,6 +158,8 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 ก่อนถือว่า release พร้อมใช้งาน จะมี structural validation, sensitive-content scan, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation และ independent final review
 
+ตั้งแต่ 2.0 มี **platform rule freshness**: ขั้นตอนที่สัมผัสแพลตฟอร์ม (upload/ส่งทวนสอบ/privacy) จะยึดกฎทางการปัจจุบันเสมอ แม้เวอร์ชันท้องถิ่นเก่าก็ไม่ทำตามกฎล้าสมัย ส่วน engine ประเมินเลือกได้ (codex / claude / gemini / OpenAI-compatible API)
+
 ชั้นการประเมิน ขอบเขตของหลักฐาน และสรุปผลสาธารณะรายเวอร์ชัน อยู่ใน [EVALUATIONS.md](EVALUATIONS.md)
 
 ตรวจในเครื่อง:

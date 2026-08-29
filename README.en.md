@@ -100,6 +100,19 @@ This Skill suite was not written from an abstract tutorial. It was distilled fro
 - Authorization is explicit: external writes such as upload, review submission, release, cloud changes, and repository publishing require separate approval.
 - Private information stays out: public packages must pass redaction and sensitive-content checks.
 - Real devices still matter: local, static, and simulated checks cannot replace device, cloud, experience-version, or production evidence.
+- Platform-rule freshness (new in 2.0): execution follows the current official rules; bundled rules are a cache, never the authority.
+
+---
+
+## Platform Rule Freshness (new in 2.0)
+
+Platform rules keep changing, so any rule hardcoded into a skill goes stale. Since 2.0 the suite follows "fresh at execution, controlled in evolution":
+
+- **Execution always defers to the official source.** For platform-touching steps (upload, review submission, release, privacy declarations, quotas), the agent first checks whether the recorded platform facts are still fresh (each fact carries a verification date and source fingerprint); stale or high-risk steps check the current official documentation before executing. **A slightly outdated local install never causes a task to follow stale rules** — it only changes how often official sources are consulted, never correctness.
+- **Suite content evolves under control.** The maintainer detects rule changes with drift tooling (fingerprint comparison against official pages) and lands updates through multi-round independent audits; you can report a rule change you spotted via the **Platform rule drift** issue template (voluntary, pre-filled).
+- **Want the latest copy?** Download the new package from [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) and reinstall with `install.sh --force`. The suite never silently auto-updates a local install.
+
+Platform facts and the rule map live in the `platforms/` directory, currently covering WeChat; Alipay, Douyin, and more join in later versions per the roadmap.
 
 ---
 
@@ -224,7 +237,7 @@ This suite does not automatically install project dependencies, create cloud res
 
 The current suite version uses structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, and independent final judgment before release.
 
-Evaluation layers, evidence boundaries, and per-release public summaries are documented in [EVALUATIONS.md](EVALUATIONS.md).
+Evaluation layers, evidence boundaries, and per-release public summaries are documented in [EVALUATIONS.md](EVALUATIONS.md). The evaluation engine and model are pluggable (any available one of codex / claude / gemini / OpenAI-compatible APIs can serve as the tested or judging engine); audit metadata records the engine and model actually used. Passing across engines is stronger evidence; scores are not compared across engine classes.
 
 For a received package, integrity is checked through its `package-manifest.json`. For a source working copy, validation and sensitive scanning are run before distribution.
 

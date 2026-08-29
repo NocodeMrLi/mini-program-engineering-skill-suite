@@ -154,6 +154,8 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 幫我安
 
 當前套件版本在發布前會經過結構校驗、敏感資訊掃描、公開包導出、清單核對、路由評估、行為評估與獨立終審。
 
+2.0 起新增**平台規則保鮮**：執行上傳、提審、隱私申報等平台觸點步驟時一律以官方現行規則為準（套件記錄的事實僅作帶核驗日期的快取），本地版本稍舊不會導致按過期規則執行；詳見中文主 README 的「平台規則保鮮」。评测引擎與模型可插拔（codex / claude / gemini / OpenAI 相容 API）。
+
 評測分層、證據邊界與各版本公開摘要見 [EVALUATIONS.md](EVALUATIONS.md)。
 
 本地自檢：

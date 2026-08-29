@@ -158,6 +158,8 @@ Suite ini tidak otomatis menginstal dependency, membuat cloud resources, mengung
 
 Sebelum dianggap siap dibekukan, suite ini melewati structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, dan independent final judgment.
 
+Mulai 2.0 ada **platform rule freshness**: langkah yang menyentuh platform (upload/review/privacy) selalu mengikuti aturan resmi terkini — versi lokal yang sedikit lama tidak akan menjalankan aturan kedaluwarsa. Engine evaluasi dan model dapat diganti-ganti (codex / claude / gemini / API kompatibel OpenAI).
+
 Lapisan evaluasi, batas bukti, dan ringkasan publik per versi dijelaskan di [EVALUATIONS.md](EVALUATIONS.md).
 
 Pemeriksaan lokal:
