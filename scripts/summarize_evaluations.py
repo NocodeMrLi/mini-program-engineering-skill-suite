@@ -56,6 +56,8 @@ def verdict_of(report: dict[str, Any]) -> str:
         return "PASS"
     if report.get("valid") is False:
         return "FAIL"
+    if "finding_count" in report:
+        return "PASS" if report.get("finding_count") == 0 and not report.get("findings") else "FAIL"
     return "NOT_PROVEN"
 
 
@@ -72,10 +74,16 @@ def metrics_of(report: dict[str, Any]) -> str:
             parts.append(f"accuracy {ratio}")
         if isinstance(report.get("minimum"), (int, float)):
             parts.append(f"最低 {report['minimum']:.2f}")
-    if "case_count" in report and "accuracy" not in report:
+    if isinstance(report.get("case_count"), int) and "accuracy" not in report:
         parts.append(f"cases {report['case_count']}")
         if isinstance(report.get("not_proven"), int):
             parts.append(f"not-proven {report['not_proven']}")
+    if isinstance(report.get("skill_pass_rate"), (int, float)):
+        parts.append(f"skill {report['skill_pass_rate']:.2f}")
+    if isinstance(report.get("baseline_pass_rate"), (int, float)):
+        parts.append(f"baseline {report['baseline_pass_rate']:.2f}")
+    if isinstance(report.get("non_regression"), bool):
+        parts.append(f"non-regression {str(report['non_regression']).lower()}")
     if isinstance(report.get("checks"), int):
         parts.append(f"checks {report['checks']}")
     if isinstance(report.get("skill_count"), int):
