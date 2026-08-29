@@ -1,0 +1,96 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to package, for example v1.3.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    name: Build verified release package
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Resolve release tag
+        id: release
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            release_tag="${{ inputs.tag }}"
+          else
+            release_tag="${GITHUB_REF_NAME}"
+          fi
+          case "$release_tag" in
+            v*) ;;
+            *) echo "Release tag must start with v" >&2; exit 1 ;;
+          esac
+          echo "tag=$release_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Run release gates
+        run: |
+          python3 -m unittest discover -s tests -q
+          python3 scripts/validate_suite.py .
+          python3 scripts/scan_sensitive_content.py . --format json
+
+      - name: Export public package
+        run: |
+          version="$(cat VERSION)"
+          tag="${{ steps.release.outputs.tag }}"
+          if [ "$tag" != "v$version" ]; then
+            echo "Tag $tag does not match VERSION $version" >&2
+            exit 1
+          fi
+          dist_dir="$(pwd)/dist"
+          export_dir="$(mktemp -d)"
+          package_name="mini-program-engineering-suite-$tag"
+          mkdir -p "$dist_dir"
+          python3 scripts/export_public_package.py . --output "$export_dir/$package_name"
+          python3 "$export_dir/$package_name/scripts/verify_public_package.py" "$export_dir/$package_name"
+          cp "$export_dir/$package_name/package-manifest.json" "$dist_dir/package-manifest.json"
+          tar -C "$export_dir" -czf "$dist_dir/$package_name.tar.gz" "$package_name"
+          cd "$dist_dir"
+          sha256sum "$package_name.tar.gz" package-manifest.json > SHA256SUMS
+
+      - name: Create or update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ steps.release.outputs.tag }}"
+          notes_file="$(mktemp)"
+          {
+            echo "Verified public package for $tag."
+            echo
+            echo "Assets:"
+            echo "- mini-program-engineering-suite-$tag.tar.gz"
+            echo "- package-manifest.json"
+            echo "- SHA256SUMS"
+            echo
+            echo "Integrity check:"
+            echo '```bash'
+            echo "sha256sum -c SHA256SUMS"
+            echo "python3 mini-program-engineering-suite-$tag/scripts/verify_public_package.py mini-program-engineering-suite-$tag"
+            echo '```'
+          } > "$notes_file"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" dist/* --clobber
+          else
+            gh release create "$tag" dist/* --title "$tag" --notes-file "$notes_file"
+          fi

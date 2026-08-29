@@ -2,6 +2,21 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 1.3.0 - 2026-08-29
+
+### Added
+
+- 新增 tag 触发的 GitHub Release 自动化，发布时导出公开包、生成 `package-manifest.json` 和 `SHA256SUMS`，并附加到 Release 页面。
+- 新增 `install.sh` 一键安装器，支持 user-level Agent skill 目录和显式项目级 Cursor / GitHub Copilot 安装。
+- 新增 GitHub issue 模板，引导用户提交脱敏后的问题复现、证据、环境和 Skill 能力建议。
+- 新增 `scripts/check_i18n_readme_structure.py`，检查六种语言 README 的核心章节顺序，防止多语言说明漂移。
+
+### Changed
+
+- README 增加 Release 下载、SHA256 校验、安装器使用方式和 i18n 结构检查命令。
+- CI 增加 README 多语言结构检查，`validate_suite.py` 也会把 i18n 漂移纳入结构校验。
+- 四份次要语言 README 拆分“验证、包完整性、版本、许可证”段落，让关键公开说明与主 README 保持同构。
+
 ## 1.2.0 - 2026-08-29
 
 ### Added

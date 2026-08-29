@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
+  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
 </p>
 
 <p align="center">
@@ -133,7 +133,7 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 
 ### 1. 安装到支持 Agent Skill 的应用
 
-你可以把本仓库克隆到支持 `SKILL.md` 或项目规则的 Agent 应用目录中。不同应用的具体识别能力会随版本变化，下面是当前推荐的安装位置：
+推荐优先从 [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) 下载已经导出的公开包；如果你想查看源码、参与修改或让 Agent 自动处理，也可以克隆本仓库到支持 `SKILL.md` 或项目规则的 Agent 应用目录中。
 
 如果你不想手动执行命令，可以先把下面这句话复制给自己正在使用的 Agent。只要它有联网、Git 和本地文件写入权限，它通常可以自动判断安装位置并完成安装：
 
@@ -141,7 +141,7 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 帮我安装这个技能
 ```
 
-如果 Agent 无法访问本地文件系统，或你想自己控制安装位置，再使用下面的命令行方式。
+如果 Agent 无法访问本地文件系统，或你想自己控制安装位置，可以使用下面的安装器或命令行方式。
 
 | 应用 / 运行器 | 推荐安装位置 | 调用方式 |
 | --- | --- | --- |
@@ -150,6 +150,23 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 帮我安
 | GitHub Copilot Coding Agent | `.github/skills/mini-program-engineering-suite` | 在仓库任务中按 Skill 说明触发 |
 | Cursor | `.cursor/rules/mini-program-engineering-suite` | 作为项目规则 / Skill 说明使用 |
 | Windsurf / Cline / Roo Code / Gemini CLI / Kiro / Trae / Goose / OpenCode | 对应应用的 skills 或 rules 目录 | 按该应用的 Skill / Rules 机制触发 |
+
+安装器示例：
+
+```bash
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
+cd mini-program-engineering-skill-suite
+bash install.sh --target auto
+```
+
+如果要安装到某个项目的 GitHub Copilot 或 Cursor 规则目录，请显式传入项目路径：
+
+```bash
+bash install.sh --target copilot --project /path/to/your-mini-program-project
+bash install.sh --target cursor --project /path/to/your-mini-program-project
+```
+
+安装器默认不覆盖已有目录；需要替换时加 `--force`，旧目录会先移动为带时间戳的备份。
 
 通用安装示例：
 
@@ -221,6 +238,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 ```bash
 python3 -m unittest discover -s tests -q
 python3 scripts/validate_suite.py .
+python3 scripts/check_i18n_readme_structure.py .
 python3 scripts/scan_sensitive_content.py . --format json
 ```
 
@@ -238,7 +256,29 @@ python3 "$export_dir/package/scripts/verify_public_package.py" "$export_dir/pack
 
 ## 包完整性
 
-请使用 **可信来源** 提供的发布包，不要混用不同版本的文件。`VERSION` 是版本号的唯一权威。一个包如果包含 `package-manifest.json`，可以通过重新计算每个文件的大小和 SHA-256 摘要来校验：
+请优先使用 [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) 这样的 **可信来源** 中的版本化发布包，不要混用不同版本的文件；仓库中的 `VERSION` 是版本号的唯一权威。每个 Release 会附带公开包压缩文件、`package-manifest.json` 和 `SHA256SUMS`，用于确认下载产物没有被传输损坏或混入其他版本文件。
+
+校验 Release 附件。Linux / GitHub Actions 可用：
+
+```bash
+sha256sum -c SHA256SUMS
+```
+
+macOS 可用：
+
+```bash
+shasum -a 256 -c SHA256SUMS
+```
+
+然后解压并复验包内清单：
+
+```bash
+tar -xzf mini-program-engineering-suite-v1.3.0.tar.gz
+python3 mini-program-engineering-suite-v1.3.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v1.3.0
+```
+
+如果你拿到的是其他渠道提供的包，也可以通过包内 `package-manifest.json` 重新计算每个文件的大小和 SHA-256 摘要：
 
 ```bash
 python3 <包目录>/scripts/verify_public_package.py <包目录>
@@ -250,7 +290,7 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前工作版本：**1.2.0**。
+当前工作版本：**1.3.0**。
 
 ---
 

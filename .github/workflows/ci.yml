@@ -31,6 +31,9 @@ jobs:
       - name: Validate suite structure
         run: python3 scripts/validate_suite.py .
 
+      - name: Check README translation structure
+        run: python3 scripts/check_i18n_readme_structure.py .
+
       - name: Scan sensitive content
         run: python3 scripts/scan_sensitive_content.py . --format json
 

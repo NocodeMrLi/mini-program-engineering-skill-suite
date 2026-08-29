@@ -1,0 +1,70 @@
+name: Bug report
+description: Report a reproducible problem in the skill suite.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a problem. Please share evidence from your local run, but do not paste secrets, real AppIDs, cloud environment IDs, private repository paths, or business data.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the symptom and what you expected instead.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - README / installation
+        - Project intake
+        - Product specification
+        - Architecture
+        - WeChat platform evidence
+        - Implementation
+        - UI / device verification
+        - Debugging
+        - Verification
+        - Release governance
+        - Export / package integrity
+        - Sensitive-content scan
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: Use an anonymous fixture or a minimal public example when possible.
+      placeholder: |
+        1. Run ...
+        2. Observe ...
+        3. Expected ...
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Paste command output, screenshots, or logs after redacting sensitive values.
+      render: text
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        OS:
+        Python:
+        Agent runner:
+        Suite version:
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Safety boundary
+      options:
+        - label: I have removed secrets, AppIDs, cloud IDs, private paths, and business data from this report.
+          required: true
+

@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
+  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
 </p>
 
 <p align="center">
@@ -145,7 +145,7 @@ Suite ini tidak otomatis menginstal dependency, membuat cloud resources, mengung
 
 ---
 
-## Verifikasi dan Integritas Paket
+## Verifikasi
 
 Sebelum dianggap siap dibekukan, suite ini melewati structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, dan independent final judgment.
 
@@ -154,8 +154,15 @@ Pemeriksaan lokal:
 ```bash
 python3 -m unittest discover -s tests -q
 python3 scripts/validate_suite.py .
+python3 scripts/check_i18n_readme_structure.py .
 python3 scripts/scan_sensitive_content.py . --format json
 ```
+
+---
+
+## Integritas Paket
+
+Utamakan package berversi dari [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases). Setiap Release menyertakan archive, `package-manifest.json`, dan `SHA256SUMS`. Di Linux / GitHub Actions gunakan `sha256sum -c SHA256SUMS`; di macOS gunakan `shasum -a 256 -c SHA256SUMS`. Setelah diekstrak, verifikasi ulang manifest dengan `verify_public_package.py` di dalam package.
 
 Untuk memeriksa package yang diterima:
 
@@ -163,4 +170,14 @@ Untuk memeriksa package yang diterima:
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-Versi saat ini: **1.2.0**. Lisensi: **MIT License**.
+---
+
+## Versi
+
+Versi saat ini: **1.3.0**.
+
+---
+
+## Lisensi
+
+Lisensi: **MIT License**.

@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
+  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
 </p>
 
 <p align="center">
@@ -145,7 +145,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 ---
 
-## 検証と完全性
+## 検証
 
 公開前には、構造検証、機密情報スキャン、公開パッケージ出力、マニフェスト確認、ルーティング評価、行動評価、独立レビューを行います。
 
@@ -154,8 +154,15 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 ```bash
 python3 -m unittest discover -s tests -q
 python3 scripts/validate_suite.py .
+python3 scripts/check_i18n_readme_structure.py .
 python3 scripts/scan_sensitive_content.py . --format json
 ```
+
+---
+
+## パッケージ完全性
+
+[GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) のバージョン付き公開パッケージを優先してください。各 Release にはアーカイブ、`package-manifest.json`、`SHA256SUMS` が含まれます。Linux / GitHub Actions では `sha256sum -c SHA256SUMS`、macOS では `shasum -a 256 -c SHA256SUMS` を使えます。展開後、同梱の `verify_public_package.py` でマニフェストを再検証してください。
 
 公開パッケージを受け取った場合の完全性確認：
 
@@ -163,4 +170,14 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-現在のバージョン：**1.2.0**。ライセンス：**MIT License**。
+---
+
+## バージョン
+
+現在のバージョン：**1.3.0**。
+
+---
+
+## ライセンス
+
+ライセンス：**MIT License**。

@@ -5,7 +5,7 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.9+ for bundled scripts; framework adapters are optional and discovered read-only.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
   author: "Mini Program Engineering Suite contributors"
   maintainers: "Mini Program Engineering Suite contributors"
   language: "zh-CN"
@@ -111,10 +111,13 @@ metadata:
 
 - `VERSION`：套件语义版本事实源。
 - `scripts/validate_suite.py`：检查主 Skill、九个分 Skill、共享层、公开文档、版本事实源、链接、frontmatter、界面元数据和占位内容。
+- `scripts/check_i18n_readme_structure.py`：检查六种语言 README 的核心章节顺序，防止安装、验证、包完整性、版本和许可说明漂移。
 - `scripts/scan_sensitive_content.py`：扫描公开包候选中的真实 AppID、云环境 ID、凭证形态、用户路径、邮箱、手机号、JWT、COS bucket、私钥块与二进制命中。
 - `scripts/export_public_package.py`：按明确公共路径清单执行全候选敏感扫描和确定性导出，未知文件默认拒绝，并生成相对路径哈希清单。
 - `scripts/verify_public_package.py`：只读取收到的公共包，独立复算文件大小与 SHA-256，并拒绝缺失、篡改、新增、非法路径或损坏清单。
 - `scripts/capability_doctor.py`：只读识别原生/Taro/uni-app、既有脚本、测试依赖、分包和工具事实；不执行命令、不安装依赖、不输出配置值。
+- `install.sh`：从源码或已导出的公开包中安装套件，默认不覆盖已有目录，项目级安装必须显式传入目标项目路径。
+- `.github/workflows/ci.yml` 与 `.github/workflows/release.yml`：分别守住常规变更门禁和版本化发布包门禁；Release 附带压缩包、`package-manifest.json` 与 `SHA256SUMS`。
 
 ## 可靠性方法论资源
 

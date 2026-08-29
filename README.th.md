@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
+  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
 </p>
 
 <p align="center">
@@ -145,7 +145,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 ---
 
-## การตรวจสอบและความสมบูรณ์ของ package
+## การตรวจสอบ
 
 ก่อนถือว่า release พร้อมใช้งาน จะมี structural validation, sensitive-content scan, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation และ independent final review
 
@@ -154,8 +154,15 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 ```bash
 python3 -m unittest discover -s tests -q
 python3 scripts/validate_suite.py .
+python3 scripts/check_i18n_readme_structure.py .
 python3 scripts/scan_sensitive_content.py . --format json
 ```
+
+---
+
+## ความสมบูรณ์ของ package
+
+แนะนำให้ใช้ package ตาม version จาก [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) แต่ละ Release จะมี archive, `package-manifest.json` และ `SHA256SUMS` บน Linux / GitHub Actions ใช้ `sha256sum -c SHA256SUMS`; บน macOS ใช้ `shasum -a 256 -c SHA256SUMS` จากนั้นแตกไฟล์และตรวจซ้ำด้วย `verify_public_package.py` ใน package
 
 ตรวจ package ที่ได้รับ:
 
@@ -163,4 +170,14 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-เวอร์ชันปัจจุบัน: **1.2.0**. License: **MIT License**.
+---
+
+## เวอร์ชัน
+
+เวอร์ชันปัจจุบัน: **1.3.0**.
+
+---
+
+## สัญญาอนุญาต
+
+License: **MIT License**.

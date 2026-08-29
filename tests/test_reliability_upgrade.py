@@ -17,6 +17,8 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "shared/evidence-status-model.md"
 EXPORTER = ROOT / "scripts/export_public_package.py"
+I18N_CHECKER = ROOT / "scripts/check_i18n_readme_structure.py"
+INSTALLER = ROOT / "install.sh"
 SCANNER = ROOT / "scripts/scan_sensitive_content.py"
 VALIDATOR = ROOT / "scripts/validate_suite.py"
 VERIFIER = ROOT / "scripts/verify_public_package.py"
@@ -396,6 +398,48 @@ class PublicExportFailClosedTests(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("README promo video duration says 30", result.stdout)
+
+    def test_i18n_readme_structure_checker_accepts_current_readmes(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(I18N_CHECKER), str(ROOT)],
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertTrue(report["valid"])
+        self.assertEqual(report["checked_readmes"], 6)
+
+    def test_installer_uses_verified_public_payload_without_manifest_debris(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            base = Path(temp_dir)
+            fake_home = base / "home"
+            target_parent = fake_home / ".agents" / "skills"
+            target_parent.mkdir(parents=True)
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(INSTALLER),
+                    "--target",
+                    "agents",
+                    "--home",
+                    str(fake_home),
+                    "--source",
+                    str(ROOT),
+                ],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+
+            installed = target_parent / "mini-program-engineering-suite"
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertTrue((installed / "SKILL.md").is_file())
+            self.assertTrue((installed / "scripts" / "verify_public_package.py").is_file())
+            self.assertFalse((installed / "package-manifest.json").exists())
 
 
 class PublicPackageIntegrityTests(unittest.TestCase):

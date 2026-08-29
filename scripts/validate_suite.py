@@ -10,6 +10,8 @@ import sys
 from pathlib import Path
 from typing import Sequence
 
+from check_i18n_readme_structure import check_i18n_readme_structure
+
 
 REQUIRED_FILES = (
     "README.md",
@@ -19,6 +21,10 @@ REQUIRED_FILES = (
     "README.th.md",
     "README.id.md",
     ".github/workflows/ci.yml",
+    ".github/workflows/release.yml",
+    ".github/ISSUE_TEMPLATE/bug_report.yml",
+    ".github/ISSUE_TEMPLATE/config.yml",
+    ".github/ISSUE_TEMPLATE/skill_proposal.yml",
     "CONTRIBUTING.md",
     "SECURITY.md",
     "LICENSE",
@@ -83,6 +89,8 @@ REQUIRED_FILES = (
     "skills/mini-program-release-skill/references/release-governance-workflow.md",
     "skills/mini-program-release-skill/assets/release-readiness-record.md",
     "VERSION",
+    "install.sh",
+    "scripts/check_i18n_readme_structure.py",
     "scripts/export_public_package.py",
     "scripts/capability_doctor.py",
     "scripts/scan_sensitive_content.py",
@@ -315,6 +323,8 @@ def validate(root: Path) -> dict[str, object]:
     )
     if root_skill.is_file():
         errors.extend(validate_skill(root_skill, "mini-program-engineering-suite", root_skill=True))
+    i18n_report = check_i18n_readme_structure(root)
+    errors.extend(str(error) for error in i18n_report["errors"])
     errors.extend(validate_version_consistency(root))
     errors.extend(validate_public_media_copy(root))
     errors.extend(validate_openai_yaml(root / "agents/openai.yaml", "mini-program-engineering-suite"))

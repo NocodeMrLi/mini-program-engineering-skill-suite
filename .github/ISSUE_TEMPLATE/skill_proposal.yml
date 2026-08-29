@@ -1,0 +1,42 @@
+name: Skill proposal
+description: Suggest a new capability or platform adaptation for the suite.
+title: "[Skill proposal]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template for new mini-program engineering capabilities, platform evidence layers, or reusable workflow improvements.
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Scenario
+      description: What mini-program development situation should this help with?
+      placeholder: "Example: judging whether an Alipay mini program is ready for upload without confusing local build success with platform evidence."
+    validations:
+      required: true
+  - type: textarea
+    id: users
+    attributes:
+      label: Who benefits?
+      description: Product owner, first-time builder, maintainer, reviewer, release operator, etc.
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence sources
+      description: What official docs, fixtures, screenshots, logs, or test cases would prove this capability?
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Boundaries and non-goals
+      description: What should the skill not do automatically?
+  - type: checkboxes
+    id: fit
+    attributes:
+      label: Fit check
+      options:
+        - label: This proposal is about mini-program engineering or a clearly reusable evidence-first engineering rule.
+          required: true
+        - label: This proposal does not require publishing private source code, AppIDs, cloud resources, or business data.
+          required: true
+

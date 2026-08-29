@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
+  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
 </p>
 
 <p align="center">
@@ -121,7 +121,7 @@ Typical use cases include:
 
 ### 1. Install Into An Agent App
 
-Clone this repository into an application that supports `SKILL.md` or project rules. Exact discovery behavior depends on the app version, but these are the recommended locations:
+Prefer downloading the verified public package from [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases). If you want to inspect source, contribute changes, or let an agent handle the setup, clone this repository into an application that supports `SKILL.md` or project rules.
 
 If you do not want to run commands manually, paste this request into the agent app you are using. If the agent has network, Git, and local filesystem write access, it can usually choose the right install location and install the skill for you:
 
@@ -129,7 +129,7 @@ If you do not want to run commands manually, paste this request into the agent a
 https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git Install this skill for me.
 ```
 
-If the agent cannot access your local filesystem, or if you want to control the exact install location, use the command-line examples below.
+If the agent cannot access your local filesystem, or if you want to control the exact install location, use the installer or command-line examples below.
 
 | App / runner | Recommended location | Invocation |
 | --- | --- | --- |
@@ -138,6 +138,23 @@ If the agent cannot access your local filesystem, or if you want to control the 
 | GitHub Copilot Coding Agent | `.github/skills/mini-program-engineering-suite` | Trigger through the repository task and Skill instructions |
 | Cursor | `.cursor/rules/mini-program-engineering-suite` | Use as project rules / Skill instructions |
 | Windsurf / Cline / Roo Code / Gemini CLI / Kiro / Trae / Goose / OpenCode | The app's skills or rules directory | Trigger through that app's Skill / Rules mechanism |
+
+Installer example:
+
+```bash
+git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
+cd mini-program-engineering-skill-suite
+bash install.sh --target auto
+```
+
+For project-level GitHub Copilot or Cursor installation, pass the project path explicitly:
+
+```bash
+bash install.sh --target copilot --project /path/to/your-mini-program-project
+bash install.sh --target cursor --project /path/to/your-mini-program-project
+```
+
+The installer does not overwrite existing directories by default. Use `--force` only when you want to replace an existing installation after creating a timestamped backup.
 
 Universal install example:
 
@@ -209,6 +226,7 @@ After cloning this repository, you can run the zero-dependency local checks:
 ```bash
 python3 -m unittest discover -s tests -q
 python3 scripts/validate_suite.py .
+python3 scripts/check_i18n_readme_structure.py .
 python3 scripts/scan_sensitive_content.py . --format json
 ```
 
@@ -226,7 +244,29 @@ These commands are also the core GitHub Actions CI gates.
 
 ## Package Integrity
 
-Use a 可信来源 (trusted source) for any distributed package, and do not mix files from different versions. `VERSION` is the version source of truth. A package that includes `package-manifest.json` can be checked by recomputing each file size and SHA-256 digest:
+Prefer versioned packages from [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases). Each release includes the public package archive, `package-manifest.json`, and `SHA256SUMS` so you can confirm that downloaded assets were not corrupted or mixed with another version.
+
+Verify release assets. On Linux / GitHub Actions:
+
+```bash
+sha256sum -c SHA256SUMS
+```
+
+On macOS:
+
+```bash
+shasum -a 256 -c SHA256SUMS
+```
+
+Then extract the archive and verify the package manifest:
+
+```bash
+tar -xzf mini-program-engineering-suite-v1.3.0.tar.gz
+python3 mini-program-engineering-suite-v1.3.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v1.3.0
+```
+
+If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
 
 ```bash
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
@@ -238,7 +278,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current working version: **1.2.0**.
+Current working version: **1.3.0**.
 
 ---
 

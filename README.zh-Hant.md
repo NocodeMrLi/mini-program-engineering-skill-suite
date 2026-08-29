@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
+  <img src="https://img.shields.io/badge/version-1.3.0-0EA5E9.svg" alt="Version: 1.3.0">
 </p>
 
 <p align="center">
@@ -147,7 +147,7 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 幫我安
 
 ---
 
-## 驗證與完整性
+## 驗證
 
 當前套件版本在發布前會經過結構校驗、敏感資訊掃描、公開包導出、清單核對、路由評估、行為評估與獨立終審。
 
@@ -156,8 +156,15 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 幫我安
 ```bash
 python3 -m unittest discover -s tests -q
 python3 scripts/validate_suite.py .
+python3 scripts/check_i18n_readme_structure.py .
 python3 scripts/scan_sensitive_content.py . --format json
 ```
+
+---
+
+## 包完整性
+
+建議優先使用 [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) 中的版本化公開包。每個 Release 會附帶壓縮包、`package-manifest.json` 和 `SHA256SUMS`。Linux / GitHub Actions 可用 `sha256sum -c SHA256SUMS`；macOS 可用 `shasum -a 256 -c SHA256SUMS`。解壓後再用包內 `verify_public_package.py` 復驗清單。
 
 接收公開包時校驗完整性：
 
@@ -165,4 +172,14 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 ```
 
-目前版本：**1.2.0**。本專案採用 **MIT License**。
+---
+
+## 目前版本
+
+目前版本：**1.3.0**。
+
+---
+
+## 授權
+
+本專案採用 **MIT License**。
