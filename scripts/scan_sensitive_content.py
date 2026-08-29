@@ -50,6 +50,9 @@ class ScanSummary:
     unreadable_file_count: int
 
 
+# Platform-fact rules (WeChat/Tencent Cloud shapes) are intentionally inline for the current
+# single-platform suite. Per shared/architecture-layers.md, multi-platform expansion must turn
+# these into per-platform injected rule sets instead of forking this script.
 RULES: tuple[Rule, ...] = (
     Rule("wechat-appid", re.compile(r"\bwx[a-fA-F0-9]{16}\b"), "Possible real WeChat AppID"),
     Rule(

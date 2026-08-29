@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -580,6 +581,54 @@ class PublicExportFailClosedTests(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("unreadable-input", result.stderr)
+
+    def test_agent_cli_builds_read_only_commands_per_engine(self) -> None:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import agent_cli
+
+        codex_cmd = agent_cli.build_command("codex", "PROMPT", "test-model", Path("/tmp/a.json"))
+        self.assertEqual(codex_cmd[0], "codex")
+        self.assertIn("test-model", codex_cmd)
+        self.assertEqual(codex_cmd[codex_cmd.index("--sandbox") + 1], "read-only")
+        self.assertIn("{answer}", codex_cmd)
+
+        claude_cmd = agent_cli.build_command("claude", "PROMPT", "", Path("/tmp/a.json"))
+        self.assertEqual(claude_cmd[:2], ["claude", "-p"])
+        self.assertIn("Read", claude_cmd)
+        self.assertNotIn("Write", claude_cmd)
+        self.assertNotIn("Bash", claude_cmd)
+
+        gemini_cmd = agent_cli.build_command("gemini", "PROMPT", "", Path("/tmp/a.json"))
+        self.assertEqual(gemini_cmd[gemini_cmd.index("--approval-mode") + 1], "plan")
+
+        with self.assertRaises(ValueError):
+            agent_cli.build_command("unknown-agent", "PROMPT", "", Path("/tmp/a.json"))
+
+    def test_agent_cli_extracts_json_from_noisy_messages(self) -> None:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import agent_cli
+
+        self.assertEqual(agent_cli.extract_json_object('{"ok": true}'), '{"ok": true}')
+        self.assertEqual(agent_cli.extract_json_object('```json\n{"ok": 1}\n```'), '{"ok": 1}')
+        self.assertEqual(agent_cli.extract_json_object('Here you go:\n{"ok": 1}\nDone.'), '{"ok": 1}')
+        self.assertIsNone(agent_cli.extract_json_object("no json here"))
+        self.assertIsNone(agent_cli.extract_json_object('{"truncated": '))
+
+    def test_agent_cli_engine_selection_prefers_env_and_requires_binary(self) -> None:
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import agent_cli
+
+        fake_which = lambda name: f"/usr/bin/{name}" if name in ("claude", "gemini") else None
+        with patch.dict(os.environ, {"EVAL_ENGINE": "gemini"}):
+            with patch.object(agent_cli.shutil, "which", side_effect=fake_which):
+                self.assertEqual(agent_cli.resolve_engine(), "gemini")
+        with patch.dict(os.environ, {"EVAL_ENGINE": "zcode"}):
+            with self.assertRaises(ValueError):
+                agent_cli.resolve_engine()
+        with patch.dict(os.environ, {"EVAL_ENGINE": ""}):
+            with patch.object(agent_cli.shutil, "which", return_value=None):
+                with self.assertRaises(ValueError):
+                    agent_cli.resolve_engine()
 
     def test_installer_uses_verified_public_payload_without_manifest_debris(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -14,6 +14,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
+
+from agent_cli import engine_metadata, run_agent  # noqa: E402
+
 
 EVAL_ROOT = Path(__file__).resolve().parent
 CHILD_NAMES = (
@@ -30,7 +34,8 @@ CHILD_NAMES = (
 ROUTING_MINIMUM = 0.90
 ROOT_TOKEN_BUDGET = 4000
 CHILD_TOKEN_BUDGET = 1800
-DEFAULT_AGENT_MODEL = "codex-cli-default"
+_AGENT_META = engine_metadata()
+DEFAULT_AGENT_MODEL = f"{_AGENT_META['engine']}:{_AGENT_META['model']}"
 
 
 def utc_now() -> str:
@@ -166,35 +171,15 @@ def load_cases(kind: str, split: str) -> list[dict[str, Any]]:
 
 
 def agent_command(cwd: Path, prompt: str, schema: dict[str, Any]) -> tuple[str, str | None]:
-    with tempfile.TemporaryDirectory(prefix="mp-eval-agent-") as temp_dir:
-        temp = Path(temp_dir)
-        schema_path = temp / "schema.json"
-        output_path = temp / "answer.json"
-        schema_path.write_text(json.dumps(schema, ensure_ascii=False), encoding="utf-8")
-        command = [
-            "codex",
-            "exec",
-            "--ephemeral",
-            "--ignore-user-config",
-            "--ignore-rules",
-            "--sandbox",
-            "read-only",
-            "--skip-git-repo-check",
-            "--color",
-            "never",
-            "--output-schema",
-            str(schema_path),
-            "--output-last-message",
-            str(output_path),
-            "-C",
-            str(cwd),
-            prompt,
-        ]
-        result = subprocess.run(command, capture_output=True, check=False, text=True)
-        if result.returncode or not output_path.is_file():
-            detail = (result.stderr or result.stdout or "agent-output-missing").strip()
-            return "", detail[-1200:]
-        return output_path.read_text(encoding="utf-8"), None
+    """Run one fresh agent session through the pluggable engine (scripts/agent_cli.py)."""
+    structured_prompt = (
+        prompt
+        + "\n\nOUTPUT FORMAT:\n"
+        + "Return a single JSON object and nothing else. It must conform exactly to this JSON Schema:\n"
+        + json.dumps(schema, ensure_ascii=False)
+        + "\nNo markdown fences, no commentary, no trailing text."
+    )
+    return run_agent(cwd, structured_prompt)
 
 
 def routing_schema(case_ids: list[str]) -> dict[str, Any]:
