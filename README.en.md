@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.4.0-0EA5E9.svg" alt="Version: 1.4.0">
+  <img src="https://img.shields.io/badge/version-2.0.0-0EA5E9.svg" alt="Version: 2.0.0">
 </p>
 
 <p align="center">
@@ -268,9 +268,9 @@ shasum -a 256 -c SHA256SUMS
 Then extract the archive and verify the package manifest:
 
 ```bash
-tar -xzf mini-program-engineering-suite-v1.4.0.tar.gz
-python3 mini-program-engineering-suite-v1.4.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v1.4.0
+tar -xzf mini-program-engineering-suite-v2.0.0.tar.gz
+python3 mini-program-engineering-suite-v2.0.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v2.0.0
 ```
 
 If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
@@ -285,7 +285,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current working version: **1.4.0**.
+Current working version: **2.0.0**.
 
 ---
 

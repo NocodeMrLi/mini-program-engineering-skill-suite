@@ -2,6 +2,26 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 2.0.0 - 2026-08-30
+
+### Added
+
+- 单仓三层分层架构：`shared/architecture-layers.md` 声明通用层 / 工程流程层 / 平台事实层边界与引用规则。
+- 平台事实层 `platforms/wechat/`：微信平台事实单一事实源（证据层、核对清单、隐私矩阵从平台 Skill 迁入，git 识别为 100% rename）；`facts.md` 逐条核验标注（verified/source/digest，无标注视为 unverified）；`rule-map.json` 规则地图（步骤类 → 官方权威文档 → 核对点 → TTL → 域名白名单），全部 URL 经 L0 实测可达。
+- 平台规则保鲜协议工具链：`platform_drift.py` 三级检查（L0 可达+标题 / L1 归一化文本指纹，永不哈希原始 HTML / L2 仅指纹变化时 extract-only 抽取）与四态 fail-closed 报告；`review_drift_proposal.py` 二元裁决审计器（4 道确定性门禁 + K 轮全票忠实性审计，影子模式默认开启）；`release_recommendation.py` 确定性发布建议器；`agent_cli.py` 新增 HTTP 引擎（OpenAI 兼容 API，与 CLI 订阅额度解耦）。
+- 漂移上报通道：`.github/ISSUE_TEMPLATE/platform_drift.yml`（用户侧自愿上报，预填规则 ID/来源/差异）。
+
+### Changed
+
+- capability doctor v2：输出 `target_platforms`（uni-app manifest 键 / Taro 脚本名 / 原生配置 → wechat/alipay/douyin），未知目标警告不猜测，schema 只增不改；验证能力矩阵补目标平台与平台事实层路由。
+- 「九个分 Skill」清单改为目录枚举单源（`discover_child_names`），并新增根 SKILL.md 路由覆盖校验。
+- 平台 Skill 步骤 7 保鲜门禁：核验结果与漂移发现只写入本轮任务报告，不写回 facts/rule-map，不更新 verified/digest 标注。
+- 评测引擎可插拔（1.4.0 引入）在本版本成为默认：`EVAL_ENGINE` 环境变量选择 codex/claude/gemini/http，缺省自动探测。
+
+### Compatibility
+
+- 对安装者无破坏：单仓安装方式、manifest 完整性校验、版本成组同步、fail-closed 出包语义全部不变；已安装用户用 `install.sh --force` 升级。
+
 ## 1.4.0 - 2026-08-29
 
 ### Added
