@@ -31,21 +31,21 @@
 4. 涉及微信平台时效性规则、高风险配置或发布要求时，只使用当前官方资料进行核查。
 5. 共享门禁始终生效，不能被组件自己的便利流程覆盖。
 
-## 第二批组件路由
+## 产品与架构路由
 
 - 目标用户、MVP、产品范围、主/异常流程、页面职责、状态矩阵或验收行为不明确时，使用 [产品规格 Skill](../skills/mini-program-product-spec-skill/SKILL.md)。
 - 产品语义稳定，需要设计模块、状态源、数据模型、接口、权限、失败、迁移或回滚时，使用 [工程架构 Skill](../skills/mini-program-architecture-skill/SKILL.md)。
 - 问题涉及微信开发者工具、构建目录、权限、隐私、平台配置、上传、审核或发布证据时，使用 [微信平台适配 Skill](../skills/wechat-mini-program-platform-skill/SKILL.md)。
 - 同时命中多个阶段时，按 `specification → architecture → wechat-platform` 传递最小交接产物；局部改动不影响结构时可以有依据地跳过架构阶段。
 
-## 第三批组件路由
+## 实施、界面与调试路由
 
 - 产品语义与改动边界已经稳定，需要编写、修改或语义删除代码时，使用 [工程实现 Skill](../skills/mini-program-implementation-skill/SKILL.md)。症状根因未知时先调试，不盲改。
 - 任务涉及参考还原、视觉预览、布局/内容边界、安全区、键盘、触控、滚动、手势或真实设备适配时，使用 [界面与真机适配 Skill](../skills/mini-program-ui-device-skill/SKILL.md)。高影响视觉先预览并取得用户确认，再正式集成。
 - 任务涉及白屏、卡顿、异常值、间歇错误、旧构建、设备差异、权限或外部服务失败且根因未明时，使用 [问题调试 Skill](../skills/mini-program-debugging-skill/SKILL.md)。
 - 新功能通常按 `implementation → ui-device（涉及界面时）→ verification`；故障按 `debugging → implementation（获授权修复时）→ verification`。
 
-## 第四批组件路由
+## 验证与发布路由
 
 - 需要测试、回归、验收证据、质量判断或确认实现是否完成时，使用 [工程验证 Skill](../skills/mini-program-verification-skill/SKILL.md)。根据风险选择证据层，未执行层保持 unknown。
 - 需要版本、打包、导出、上传/审核/发布就绪判断、发布记录或回滚治理时，使用 [发布治理 Skill](../skills/mini-program-release-skill/SKILL.md)。默认只读，外部状态变化逐项授权。

@@ -7,8 +7,11 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Sequence
+
+sys.dont_write_bytecode = True
 
 from validate_suite import validate
 

@@ -18,10 +18,13 @@ REQUIRED_FILES = (
     "README.ja.md",
     "README.th.md",
     "README.id.md",
+    ".github/workflows/ci.yml",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
     "LICENSE",
     "CHANGELOG.md",
     "COMPATIBILITY.md",
-    "assets/readme-cover.png",
+    "assets/readme-cover.webp",
     "assets/readme-promo.mp4",
     "assets/wordpet-origin-case.png",
     "SKILL.md",
@@ -89,6 +92,10 @@ REQUIRED_FILES = (
 EXCLUDED_PARTS = {".git", ".planning", "__pycache__", "tests"}
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 DURATION_CLAIM = re.compile(r"(?<!\d)(\d{1,3})\s*(?:[-‑–—]\s*)?(秒|seconds?|วินาที|detik)", re.IGNORECASE)
+PROMO_VIDEO_CONTEXT = re.compile(
+    r"readme-promo\.mp4|说明视频|說明影片|説明動画|explainer video|video penjelasan|วิดีโอ",
+    re.IGNORECASE,
+)
 
 
 def parse_frontmatter(path: Path) -> tuple[dict[str, str], list[str]]:
@@ -241,6 +248,15 @@ def read_mp4_duration_seconds(path: Path) -> float | None:
     return duration / timescale
 
 
+def find_promo_duration_claims(text: str) -> list[int]:
+    """Return duration claims only from README lines that describe the promo video."""
+    claims: list[int] = []
+    for line in text.splitlines():
+        if PROMO_VIDEO_CONTEXT.search(line):
+            claims.extend(int(match.group(1)) for match in DURATION_CLAIM.finditer(line))
+    return claims
+
+
 def validate_public_media_copy(root: Path) -> list[str]:
     """Check public README claims against bundled media facts."""
     errors: list[str] = []
@@ -265,7 +281,7 @@ def validate_public_media_copy(root: Path) -> list[str]:
         if not readme_path.is_file():
             continue
         text = readme_path.read_text(encoding="utf-8")
-        claims = [int(match.group(1)) for match in DURATION_CLAIM.finditer(text)]
+        claims = find_promo_duration_claims(text)
         if not claims:
             errors.append(f"{readme_path}: README promo video duration copy is missing")
             continue

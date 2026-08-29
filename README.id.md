@@ -1,11 +1,12 @@
 <p align="center">
-  <img src="assets/readme-cover.png" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
+  <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
   <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
@@ -13,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.4-0EA5E9.svg" alt="Version: 1.1.4">
+  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
 </p>
 
 <p align="center">
@@ -105,6 +106,16 @@ Skill ini tidak ditulis dari tutorial abstrak. Ia disarikan dari kolaborasi jang
 
 ---
 
+## Prinsip Desain
+
+- Fakta sebelum tindakan: jangan mengubah proyek lama sebelum statusnya jelas.
+- Status mengikuti bukti: hanya laporkan hal yang sudah diverifikasi.
+- Tahap tidak boleh dicampur: preview, implementation, build, upload, review, acceptance, dan release adalah tahap berbeda.
+- External action perlu izin terpisah: cloud change, upload, submit review, dan publish harus disetujui satu per satu.
+- Informasi privat dipisahkan: public package dan README assets harus melewati sensitive-content scan.
+
+---
+
 ## Cara Menggunakan
 
 Clone repository ini ke direktori skill atau rules pada aplikasi Agent yang mendukung `SKILL.md`. Jika tidak ingin menjalankan perintah sendiri, kirim kalimat berikut ke Agent yang Anda gunakan:
@@ -138,8 +149,18 @@ Suite ini tidak otomatis menginstal dependency, membuat cloud resources, mengung
 
 Sebelum dianggap siap dibekukan, suite ini melewati structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, dan independent final judgment.
 
+Pemeriksaan lokal:
+
+```bash
+python3 -m unittest discover -s tests -q
+python3 scripts/validate_suite.py .
+python3 scripts/scan_sensitive_content.py . --format json
+```
+
+Untuk memeriksa package yang diterima:
+
 ```bash
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-Versi saat ini: **1.1.4**. Lisensi: **MIT License**.
+Versi saat ini: **1.2.0**. Lisensi: **MIT License**.

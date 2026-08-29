@@ -5,12 +5,30 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
 
 
 def load(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def audit_snapshot(named_reports: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """Copy input audit metadata into the final signature without requiring raw prompts."""
+    return {
+        "stage": "final-release-signer",
+        "generated_at_utc": utc_now(),
+        "input_audits": {
+            name: report.get("audit")
+            for name, report in named_reports.items()
+            if isinstance(report.get("audit"), dict)
+        },
+    }
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -76,6 +94,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             not_proven.append("independent-judgment")
         elif independent.get("verdict") != "PASS" or independent.get("blockers"):
             errors.append("independent-judgment-not-pass")
+        named_reports = {
+            "tier1": tier1,
+            "routing-development": routing[0],
+            "routing-held-out": routing[1],
+            "behavior-development": behavior[0],
+            "behavior-held-out": behavior[1],
+            "methodology-development": methodology[0],
+            "methodology-held-out": methodology[1],
+            "validation": validation,
+            "sensitive": sensitive,
+            "package-verification": package,
+            "independent-judgment": independent,
+        }
         verdict = "NOT_PROVEN" if not_proven else ("FAIL" if errors else "PASS")
         report = {
             "verdict": verdict,
@@ -83,6 +114,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "public_file_count": manifest_a.get("file_count"),
             "errors": errors,
             "not_proven": not_proven,
+            "audit": audit_snapshot(named_reports),
         }
     payload = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True)
     if args.output:

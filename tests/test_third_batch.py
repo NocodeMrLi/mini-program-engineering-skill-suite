@@ -136,7 +136,8 @@ class ThirdBatchIntegrationTests(unittest.TestCase):
         content = (ROOT / "SKILL.md").read_text(encoding="utf-8")
         for skill_name in SKILLS:
             self.assertIn(f"skills/{skill_name}/SKILL.md", content)
-        self.assertIn("第三批资源", content)
+        self.assertIn("能力地图", content)
+        self.assertIn("维护脚本与公开包", content)
         routing_table = content.split("| 编写或修改代码", 1)[1].split("当目标组件尚未实现", 1)[0]
         self.assertNotIn("后续批次", routing_table)
 

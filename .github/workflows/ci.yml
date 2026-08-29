@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify public skill suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Run unit tests
+        run: python3 -m unittest discover -s tests -q
+
+      - name: Validate suite structure
+        run: python3 scripts/validate_suite.py .
+
+      - name: Scan sensitive content
+        run: python3 scripts/scan_sensitive_content.py . --format json
+
+      - name: Export and verify public package
+        run: |
+          export_dir="$(mktemp -d)"
+          python3 scripts/export_public_package.py . --output "$export_dir/package"
+          python3 "$export_dir/package/scripts/verify_public_package.py" "$export_dir/package"

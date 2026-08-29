@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SIGNER = ROOT / "tests/evals/final_release_signer.py"
 JUDGE = ROOT / "tests/evals/judge_final_release.py"
+RUNNER = ROOT / "tests/evals/run_evaluations.py"
 
 
 class FinalReleaseSignerTests(unittest.TestCase):
@@ -69,18 +70,53 @@ class FinalReleaseSignerTests(unittest.TestCase):
 
     def make_evidence(self, root: Path, *, verdict: str = "PASS", version: str | None = None) -> list[str]:
         version = version or (ROOT / "VERSION").read_text(encoding="utf-8").strip()
+        def audit(stage: str) -> dict[str, str | None]:
+            return {
+                "stage": stage,
+                "generated_at_utc": "2026-08-29T00:00:00Z",
+                "engine": "test-fixture",
+                "model": None,
+                "prompt_sha256": None,
+                "schema_sha256": None,
+            }
+
         documents = {
-            "tier1.json": {"verdict": verdict},
-            "routing-dev.json": {"verdict": "PASS", "accuracy": 1.0},
-            "routing-held.json": {"verdict": "PASS", "accuracy": 1.0},
-            "behavior-dev.json": {"verdict": "PASS", "skill_pass_rate": 1.0, "non_regression": True},
-            "behavior-held.json": {"verdict": "PASS", "skill_pass_rate": 1.0, "non_regression": True},
-            "method-dev.json": {"verdict": "PASS", "skill_pass_rate": 1.0, "non_regression": True},
-            "method-held.json": {"verdict": "PASS", "skill_pass_rate": 1.0, "non_regression": True},
-            "validate.json": {"valid": True, "errors": []},
-            "sensitive.json": {"finding_count": 0, "findings": []},
-            "package.json": {"valid": True, "verified_file_count": 2, "errors": []},
-            "independent.json": {"verdict": "PASS", "blockers": []},
+            "tier1.json": {"verdict": verdict, "audit": audit("tier1")},
+            "routing-dev.json": {"verdict": "PASS", "accuracy": 1.0, "audit": audit("tier2-routing-development")},
+            "routing-held.json": {"verdict": "PASS", "accuracy": 1.0, "audit": audit("tier2-routing-held-out")},
+            "behavior-dev.json": {
+                "verdict": "PASS",
+                "skill_pass_rate": 1.0,
+                "non_regression": True,
+                "audit": audit("tier3-behavior-development"),
+            },
+            "behavior-held.json": {
+                "verdict": "PASS",
+                "skill_pass_rate": 1.0,
+                "non_regression": True,
+                "audit": audit("tier3-behavior-held-out"),
+            },
+            "method-dev.json": {
+                "verdict": "PASS",
+                "skill_pass_rate": 1.0,
+                "non_regression": True,
+                "audit": audit("methodology-development"),
+            },
+            "method-held.json": {
+                "verdict": "PASS",
+                "skill_pass_rate": 1.0,
+                "non_regression": True,
+                "audit": audit("methodology-held-out"),
+            },
+            "validate.json": {"valid": True, "errors": [], "audit": audit("validate-suite")},
+            "sensitive.json": {"finding_count": 0, "findings": [], "audit": audit("sensitive-scan")},
+            "package.json": {
+                "valid": True,
+                "verified_file_count": 2,
+                "errors": [],
+                "audit": audit("package-verification"),
+            },
+            "independent.json": {"verdict": "PASS", "blockers": [], "audit": audit("independent-judgment")},
             "manifest-a.json": {"suite_version": version, "file_count": 2, "files": [{"path": "A"}, {"path": "B"}]},
         }
         documents["manifest-b.json"] = documents["manifest-a.json"]
@@ -111,12 +147,28 @@ class FinalReleaseSignerTests(unittest.TestCase):
         self.assertTrue(JUDGE.is_file())
         self.assertTrue(SIGNER.is_file())
 
+    def test_local_eval_report_includes_audit_metadata(self) -> None:
+        result = subprocess.run(
+            [sys.executable, str(RUNNER), "tier1", "--suite", str(ROOT)],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["audit"]["stage"], "tier1")
+        self.assertRegex(report["audit"]["generated_at_utc"], r"^\d{4}-\d{2}-\d{2}T")
+        self.assertEqual(report["audit"]["engine"], "local")
+
     def test_signer_passes_complete_consistent_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             command = self.make_evidence(Path(temp))
             result = subprocess.run(command, check=False, capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-            self.assertEqual(json.loads(result.stdout)["verdict"], "PASS")
+            report = json.loads(result.stdout)
+            self.assertEqual(report["verdict"], "PASS")
+            self.assertEqual(report["audit"]["stage"], "final-release-signer")
+            self.assertIn("tier1", report["audit"]["input_audits"])
 
     def test_signer_rejects_failed_gate_version_drift_and_manifest_drift(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

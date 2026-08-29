@@ -53,9 +53,26 @@ class ScanSummary:
 RULES: tuple[Rule, ...] = (
     Rule("wechat-appid", re.compile(r"\bwx[a-fA-F0-9]{16}\b"), "Possible real WeChat AppID"),
     Rule(
+        "cloud-env-id",
+        re.compile(
+            r"(?i)\b(?:env[_-]?id|cloud[_-]?env|environment[_-]?id)\s*[:=]\s*[\"']?(?:cloud1|tcb)-[a-z0-9][a-z0-9-]{5,}"
+        ),
+        "Possible real mini-program cloud environment ID",
+    ),
+    Rule(
         "absolute-user-path",
         re.compile(r"/(?:Users|home)/[^/\s]+(?:/[^\s\"'`<>]*)?"),
         "User-specific absolute path",
+    ),
+    Rule(
+        "email-address",
+        re.compile(r"\b[A-Za-z0-9._%+-]{2,}@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
+        "Possible personal or account email address",
+    ),
+    Rule(
+        "mainland-phone-number",
+        re.compile(r"(?<!\d)(?:\+?86[- ]?)?1[3-9]\d{9}(?!\d)"),
+        "Possible mainland China mobile phone number",
     ),
     Rule(
         "credential-assignment",
@@ -63,6 +80,16 @@ RULES: tuple[Rule, ...] = (
             r"(?i)\b(?:api[_-]?key|secret|token|password|private[_-]?key)\s*[:=]\s*[\"']?[^\s\"']{8,}"
         ),
         "Possible hardcoded credential",
+    ),
+    Rule(
+        "jwt-token",
+        re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b"),
+        "Possible JSON Web Token",
+    ),
+    Rule(
+        "cos-bucket-host",
+        re.compile(r"\b[a-z0-9][a-z0-9-]{2,}-\d{5,}\.cos\.[a-z0-9-]+\.myqcloud\.com\b"),
+        "Possible Tencent COS bucket host",
     ),
     Rule(
         "private-key-block",

@@ -1,11 +1,12 @@
 <p align="center">
-  <img src="assets/readme-cover.png" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
+  <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
   <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
@@ -13,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.4-0EA5E9.svg" alt="Version: 1.1.4">
+  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
 </p>
 
 <p align="center">
@@ -105,6 +106,16 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 
 ---
 
+## 設計原則
+
+- 事実が先、変更は後：現状を確認する前に既存プロジェクトを変更しない。
+- 状態は証拠に合わせる：証明された範囲だけを報告する。
+- 工程を混同しない：プレビュー、実装、ビルド、提出、審査、受け入れ、公開は別の段階。
+- 外部操作は個別承認：クラウド変更、アップロード、審査提出、公開はそれぞれ許可が必要。
+- 非公開情報を分離する：公開パッケージと README 素材は機密情報スキャンを通す。
+
+---
+
 ## 使い方
 
 `SKILL.md` またはプロジェクトルールを認識できる Agent アプリのスキルディレクトリに、このリポジトリを clone します。手動でコマンドを打ちたくない場合は、利用中の Agent に次の文を渡してください。
@@ -138,8 +149,18 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 公開前には、構造検証、機密情報スキャン、公開パッケージ出力、マニフェスト確認、ルーティング評価、行動評価、独立レビューを行います。
 
+ローカル検証：
+
+```bash
+python3 -m unittest discover -s tests -q
+python3 scripts/validate_suite.py .
+python3 scripts/scan_sensitive_content.py . --format json
+```
+
+公開パッケージを受け取った場合の完全性確認：
+
 ```bash
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-現在のバージョン：**1.1.4**。ライセンス：**MIT License**。
+現在のバージョン：**1.2.0**。ライセンス：**MIT License**。

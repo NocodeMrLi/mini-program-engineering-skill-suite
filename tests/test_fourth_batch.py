@@ -101,7 +101,8 @@ class FourthBatchIntegrationTests(unittest.TestCase):
         content = (ROOT / "SKILL.md").read_text(encoding="utf-8")
         for skill_name in SKILLS:
             self.assertIn(f"skills/{skill_name}/SKILL.md", content)
-        self.assertIn("第四批资源", content)
+        self.assertIn("能力地图", content)
+        self.assertIn("维护脚本与公开包", content)
         self.assertNotIn("第四批，勿声称已安装", content)
 
     def test_suite_validator_accepts_nine_children(self) -> None:

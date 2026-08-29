@@ -9,7 +9,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Sequence
 
-from run_evaluations import agent_command
+from run_evaluations import DEFAULT_AGENT_MODEL, agent_command, audit_record
 
 
 def judge_schema(ids: list[str]) -> dict[str, Any]:
@@ -67,6 +67,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     baseline_report = json.loads(args.baseline.read_text(encoding="utf-8"))
     evaluations = compact(skill_report) + compact(baseline_report)
     ids = [item["evaluation_id"] for item in evaluations]
+    schema = judge_schema(ids)
     prompt = (
         "Act as an independent, fresh-context evaluator. Judge each response only against its fixed "
         "required and forbidden behaviors. PASS requires every required behavior to be materially "
@@ -76,7 +77,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "do not assume that a proposed mutating action was executed.\n\nEVALUATIONS:\n"
         + json.dumps(evaluations, ensure_ascii=False, indent=2)
     )
-    raw, error = agent_command(Path(tempfile.gettempdir()), prompt, judge_schema(ids))
+    raw, error = agent_command(Path(tempfile.gettempdir()), prompt, schema)
     if error:
         report = {
             "verdict": "NOT_PROVEN",
@@ -129,6 +130,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "judgments": [],
             }
 
+    report["audit"] = audit_record(
+        "judge-behavior",
+        engine="agent",
+        model=DEFAULT_AGENT_MODEL,
+        prompt=prompt,
+        schema=schema,
+    )
     payload = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

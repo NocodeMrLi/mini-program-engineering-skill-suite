@@ -5,7 +5,7 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.9+ for bundled scripts; framework adapters are optional and discovered read-only.
 metadata:
-  version: "1.1.4"
+  version: "1.2.0"
   author: "Mini Program Engineering Suite contributors"
   maintainers: "Mini Program Engineering Suite contributors"
   language: "zh-CN"
@@ -32,15 +32,15 @@ metadata:
 
 | 用户意图 | 当前路由 | 可用状态 |
 | --- | --- | --- |
-| 接管项目、了解现状、识别技术栈或改动边界 | `mini-program-project-intake-skill` | 第一批已实现 |
-| 梳理产品、MVP、流程与状态 | [`mini-program-product-spec-skill`](skills/mini-program-product-spec-skill/SKILL.md) | 第二批已实现 |
-| 设计模块、数据、接口与权限 | [`mini-program-architecture-skill`](skills/mini-program-architecture-skill/SKILL.md) | 第二批已实现 |
-| 微信平台规则、工具、隐私与配置 | [`wechat-mini-program-platform-skill`](skills/wechat-mini-program-platform-skill/SKILL.md) | 第二批已实现 |
-| 编写或修改代码 | [`mini-program-implementation-skill`](skills/mini-program-implementation-skill/SKILL.md) | 第三批已实现 |
-| UI、参考还原、机型适配与手势 | [`mini-program-ui-device-skill`](skills/mini-program-ui-device-skill/SKILL.md) | 第三批已实现 |
-| 白屏、错误、卡顿或状态异常 | [`mini-program-debugging-skill`](skills/mini-program-debugging-skill/SKILL.md) | 第三批已实现 |
-| 独立测试、回归或交付证据判断 | [`mini-program-verification-skill`](skills/mini-program-verification-skill/SKILL.md) | 第四批已实现 |
-| 版本、导出、上传/审核/发布就绪治理 | [`mini-program-release-skill`](skills/mini-program-release-skill/SKILL.md) | 第四批已实现 |
+| 接管项目、了解现状、识别技术栈或改动边界 | [`mini-program-project-intake-skill`](skills/mini-program-project-intake-skill/SKILL.md) | 已实现 |
+| 梳理产品、MVP、流程与状态 | [`mini-program-product-spec-skill`](skills/mini-program-product-spec-skill/SKILL.md) | 已实现 |
+| 设计模块、数据、接口与权限 | [`mini-program-architecture-skill`](skills/mini-program-architecture-skill/SKILL.md) | 已实现 |
+| 微信平台规则、工具、隐私与配置 | [`wechat-mini-program-platform-skill`](skills/wechat-mini-program-platform-skill/SKILL.md) | 已实现 |
+| 编写或修改代码 | [`mini-program-implementation-skill`](skills/mini-program-implementation-skill/SKILL.md) | 已实现 |
+| UI、参考还原、机型适配与手势 | [`mini-program-ui-device-skill`](skills/mini-program-ui-device-skill/SKILL.md) | 已实现 |
+| 白屏、错误、卡顿或状态异常 | [`mini-program-debugging-skill`](skills/mini-program-debugging-skill/SKILL.md) | 已实现 |
+| 独立测试、回归或交付证据判断 | [`mini-program-verification-skill`](skills/mini-program-verification-skill/SKILL.md) | 已实现 |
+| 版本、导出、上传/审核/发布就绪治理 | [`mini-program-release-skill`](skills/mini-program-release-skill/SKILL.md) | 已实现 |
 
 当目标组件尚未实现时，明确报告套件当前能力边界；可以继续做安全的只读发现与任务拆解，但不要伪装成已调用不存在的组件。已实现组件既可由主 Skill 编排，也可独立使用；组件只交换阶段产物，不直接调用彼此脚本。
 
@@ -85,40 +85,36 @@ metadata:
 
 使用 [证据状态模型](shared/evidence-status-model.md) 中的状态词。用户明确验收前，不使用 `accepted`（已正式验收）；没有平台正式证据时，不使用 `released`（已正式发布）。
 
-## 第一批资源
+## 能力地图
 
-- [项目接管 Skill](skills/mini-program-project-intake-skill/SKILL.md)：只读建立项目事实图和改动边界。
+- [项目接管 Skill](skills/mini-program-project-intake-skill/SKILL.md)：只读建立项目事实图、技术栈、风险、未知项和改动边界。
+- [产品规格 Skill](skills/mini-program-product-spec-skill/SKILL.md)：将模糊想法收敛为范围、流程、状态矩阵与可测试验收标准，不发明产品逻辑。
+- [工程架构 Skill](skills/mini-program-architecture-skill/SKILL.md)：把稳定产品语义映射为模块、状态源、数据、接口、权限、失败策略与 ADR。
+- [微信平台适配 Skill](skills/wechat-mini-program-platform-skill/SKILL.md)：只读核对工具、构建、权限、隐私和发布证据层；时效性规则查微信官方当前资料。
+- [工程实现 Skill](skills/mini-program-implementation-skill/SKILL.md)：在明确边界内保护用户改动，以测试驱动小步实施并交付验证入口。
+- [界面与真机适配 Skill](skills/mini-program-ui-device-skill/SKILL.md)：按参考目标处理预览、确认、集成、屏幕/内容边界、手势和真机证据。
+- [问题调试 Skill](skills/mini-program-debugging-skill/SKILL.md)：从最小复现、竞争假设与判别实验定位根因，并覆盖同类状态回归。
+- [工程验证 Skill](skills/mini-program-verification-skill/SKILL.md)：按风险分层执行静态、单元、集成、状态、真机、云端和发布验证，报告已执行、未执行与残余风险。
+- [发布治理 Skill](skills/mini-program-release-skill/SKILL.md)：核对版本、构建、安全、权限隐私、回滚和各发布层证据；默认只读，外部动作逐项授权。
+
+每个组件均包含独立的 `agents/openai.yaml`、工作流参考和可复用交付模板，可脱离主套件安装和触发；主 Skill 负责跨阶段编排、计划连续性和证据状态一致性。
+
+## 共享模板与门禁
+
 - [项目接管模板](shared/templates/project-intake.md)：统一接管输出。
 - [实施计划模板](shared/templates/implementation-plan.md)：记录范围、步骤与门禁。
 - [验证报告模板](shared/templates/verification-report.md)：区分检查范围与证据层级。
 - [发布清单模板](shared/templates/release-checklist.md)：核对发布链路，但不授权外部操作。
-- `scripts/validate_suite.py`：检查第一批结构、frontmatter、链接与占位内容。
-- `scripts/scan_sensitive_content.py`：扫描公开包中的密钥形态、真实 AppID 和用户绝对路径。
+- [共享工程门禁](shared/engineering-guardrails.md)、[证据状态模型](shared/evidence-status-model.md)、[判断与确认规则](shared/decision-and-confirmation-rules.md)、[脱敏规则](shared/redaction-policy.md) 和 [公开与内部文档边界](shared/documentation-boundaries.md)：统一约束所有组件。
 
-## 第二批资源
+## 维护脚本与公开包
 
-- [产品规格 Skill](skills/mini-program-product-spec-skill/SKILL.md)：将模糊想法收敛为范围、流程、状态矩阵与可测试验收标准，不发明产品逻辑。
-- [工程架构 Skill](skills/mini-program-architecture-skill/SKILL.md)：把稳定产品语义映射为模块、状态源、数据、接口、权限、失败策略与 ADR。
-- [微信平台适配 Skill](skills/wechat-mini-program-platform-skill/SKILL.md)：只读核对工具、构建、权限、隐私和发布证据层；时效性规则查微信官方当前资料。
-- 每个第二批组件均包含独立的 `agents/openai.yaml`、工作流参考和可复用交付模板，可脱离主套件安装和触发。
-- `scripts/validate_suite.py`：检查主 Skill、四个分 Skill、共享层、链接、frontmatter、界面元数据和占位内容。
-
-## 第三批资源
-
-- [工程实现 Skill](skills/mini-program-implementation-skill/SKILL.md)：在明确边界内保护用户改动，以测试驱动小步实施并交付验证入口。
-- [界面与真机适配 Skill](skills/mini-program-ui-device-skill/SKILL.md)：按参考目标处理预览、确认、集成、屏幕/内容边界、手势和真机证据。
-- [问题调试 Skill](skills/mini-program-debugging-skill/SKILL.md)：从最小复现、竞争假设与判别实验定位根因，并覆盖同类状态回归。
-- 每个第三批组件均包含独立的 `agents/openai.yaml`、代表场景工作流和证据交付模板；实际验证/发布组件仍留在第四批。
-- `scripts/validate_suite.py`：检查主 Skill、七个分 Skill、共享层、链接、frontmatter、界面元数据和占位内容。
-
-## 第四批资源
-
-- [工程验证 Skill](skills/mini-program-verification-skill/SKILL.md)：按风险分层执行静态、单元、集成、状态、真机、云端和发布验证，报告已执行、未执行与残余风险。
-- [发布治理 Skill](skills/mini-program-release-skill/SKILL.md)：核对版本、构建、安全、权限隐私、回滚和各发布层证据；默认只读，外部动作逐项授权。
 - `VERSION`：套件语义版本事实源。
+- `scripts/validate_suite.py`：检查主 Skill、九个分 Skill、共享层、公开文档、版本事实源、链接、frontmatter、界面元数据和占位内容。
+- `scripts/scan_sensitive_content.py`：扫描公开包候选中的真实 AppID、云环境 ID、凭证形态、用户路径、邮箱、手机号、JWT、COS bucket、私钥块与二进制命中。
 - `scripts/export_public_package.py`：按明确公共路径清单执行全候选敏感扫描和确定性导出，未知文件默认拒绝，并生成相对路径哈希清单。
 - `scripts/verify_public_package.py`：只读取收到的公共包，独立复算文件大小与 SHA-256，并拒绝缺失、篡改、新增、非法路径或损坏清单。
-- `scripts/validate_suite.py`：检查主 Skill、九个分 Skill、共享层和第四批版本/导出能力。
+- `scripts/capability_doctor.py`：只读识别原生/Taro/uni-app、既有脚本、测试依赖、分包和工具事实；不执行命令、不安装依赖、不输出配置值。
 
 ## 可靠性方法论资源
 

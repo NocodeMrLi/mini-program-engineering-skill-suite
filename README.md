@@ -1,11 +1,12 @@
 <p align="center">
-  <img src="assets/readme-cover.png" alt="小程序开发工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp" alt="小程序开发工程技能套件 封面" width="100%">
 </p>
 
 # 小程序开发工程技能套件
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
+  <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
   <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
@@ -13,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.4-0EA5E9.svg" alt="Version: 1.1.4">
+  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
 </p>
 
 <p align="center">
@@ -211,9 +212,27 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 ## 验证
 
-当前套件版本在冻结前会经过：结构校验、敏感信息扫描、对公包导出的确定性检查、清单核对、路由评估、行为评估和独立终审。
+当前套件版本在发布前会经过：结构校验、敏感信息扫描、对公包导出的确定性检查、清单核对、路由评估、行为评估和独立终审。
 
 接收一个包时，通过它的 `package-manifest.json` 校验完整性；源码工作副本在分发前会先经过校验和敏感扫描。
+
+如果你克隆了本仓库，可以在本地运行零依赖自检：
+
+```bash
+python3 -m unittest discover -s tests -q
+python3 scripts/validate_suite.py .
+python3 scripts/scan_sensitive_content.py . --format json
+```
+
+发布或分发前，再执行一次确定性导出与接收端复验：
+
+```bash
+export_dir="$(mktemp -d)"
+python3 scripts/export_public_package.py . --output "$export_dir/package"
+python3 "$export_dir/package/scripts/verify_public_package.py" "$export_dir/package"
+```
+
+这些命令也是 GitHub Actions CI 的核心检查项。
 
 ---
 
@@ -231,7 +250,7 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前工作版本：**1.1.4**。
+当前工作版本：**1.2.0**。
 
 ---
 

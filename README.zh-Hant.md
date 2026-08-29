@@ -1,11 +1,12 @@
 <p align="center">
-  <img src="assets/readme-cover.png" alt="小程式開發工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp" alt="小程式開發工程技能套件 封面" width="100%">
 </p>
 
 # 小程式開發工程技能套件
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
+  <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
   <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
@@ -13,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.4-0EA5E9.svg" alt="Version: 1.1.4">
+  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
 </p>
 
 <p align="center">
@@ -105,6 +106,16 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 
 ---
 
+## 設計原則
+
+- 事實先於動作：未摸清現狀，不修改既有專案。
+- 證據對齊狀態：只報告已被證明的工程狀態。
+- 階段邊界分明：預覽、實作、構建、上傳、審核、驗收、發布不可互相替代。
+- 外部動作獨立授權：雲端、上傳、提審、發布等寫操作必須逐項確認。
+- 私有資訊隔離：公開包與 README 素材必須先通過脫敏與敏感資訊檢查。
+
+---
+
 ## 使用方法
 
 把本倉庫克隆到支援 `SKILL.md` 或專案規則的 Agent 應用目錄中；如果不想手動操作，可以把這句話交給你的 Agent：
@@ -140,8 +151,18 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 幫我安
 
 當前套件版本在發布前會經過結構校驗、敏感資訊掃描、公開包導出、清單核對、路由評估、行為評估與獨立終審。
 
+本地自檢：
+
+```bash
+python3 -m unittest discover -s tests -q
+python3 scripts/validate_suite.py .
+python3 scripts/scan_sensitive_content.py . --format json
+```
+
+接收公開包時校驗完整性：
+
 ```bash
 python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 ```
 
-目前版本：**1.1.4**。本專案採用 **MIT License**。
+目前版本：**1.2.0**。本專案採用 **MIT License**。

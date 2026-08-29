@@ -1,11 +1,12 @@
 <p align="center">
-  <img src="assets/readme-cover.png" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
+  <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
   <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
@@ -13,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-1.1.4-0EA5E9.svg" alt="Version: 1.1.4">
+  <img src="https://img.shields.io/badge/version-1.2.0-0EA5E9.svg" alt="Version: 1.2.0">
 </p>
 
 <p align="center">
@@ -105,6 +106,16 @@ Skill นี้ไม่ได้เขียนจาก tutorial เชิง�
 
 ---
 
+## หลักการออกแบบ
+
+- ตรวจข้อเท็จจริงก่อนลงมือ: อย่าแก้โปรเจกต์เดิมก่อนรู้สถานะจริง
+- สถานะต้องมีหลักฐาน: รายงานเฉพาะสิ่งที่ตรวจสอบแล้ว
+- แยกแต่ละขั้นให้ชัด: preview, implementation, build, upload, review, acceptance และ release ไม่ใช่สิ่งเดียวกัน
+- external action ต้องอนุญาตแยก: cloud change, upload, submit review และ publish ต้องขออนุญาตทีละรายการ
+- แยกข้อมูลส่วนตัว: public package และ README assets ต้องผ่าน sensitive-content scan
+
+---
+
 ## วิธีใช้
 
 clone repository นี้ไปยัง directory ของ Agent app ที่รองรับ `SKILL.md` หรือ project rules ถ้าไม่อยากติดตั้งเอง ให้ส่งข้อความนี้ให้ Agent ที่คุณใช้อยู่:
@@ -138,8 +149,18 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 ก่อนถือว่า release พร้อมใช้งาน จะมี structural validation, sensitive-content scan, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation และ independent final review
 
+ตรวจในเครื่อง:
+
+```bash
+python3 -m unittest discover -s tests -q
+python3 scripts/validate_suite.py .
+python3 scripts/scan_sensitive_content.py . --format json
+```
+
+ตรวจ package ที่ได้รับ:
+
 ```bash
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-เวอร์ชันปัจจุบัน: **1.1.4**. License: **MIT License**.
+เวอร์ชันปัจจุบัน: **1.2.0**. License: **MIT License**.

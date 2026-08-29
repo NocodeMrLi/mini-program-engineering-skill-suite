@@ -9,7 +9,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Sequence
 
-from run_evaluations import agent_command
+from run_evaluations import DEFAULT_AGENT_MODEL, agent_command, audit_record
 
 
 def schema() -> dict[str, Any]:
@@ -50,7 +50,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             "ambiguous evidence. Do not infer unreported checks and do not reward volume.\n\nEVIDENCE:\n"
             + json.dumps(evidence, ensure_ascii=False, indent=2, sort_keys=True)
         )
-        raw, error = agent_command(Path(tempfile.gettempdir()), prompt, schema())
+        output_schema = schema()
+        raw, error = agent_command(Path(tempfile.gettempdir()), prompt, output_schema)
         if error:
             report = {"verdict": "NOT_PROVEN", "reason": error, "blockers": []}
         else:
@@ -58,6 +59,13 @@ def main(argv: Sequence[str] | None = None) -> int:
                 report = json.loads(raw)
             except json.JSONDecodeError as exc:
                 report = {"verdict": "NOT_PROVEN", "reason": f"invalid-judge-output:{type(exc).__name__}", "blockers": []}
+        report["audit"] = audit_record(
+            "judge-final-release",
+            engine="agent",
+            model=DEFAULT_AGENT_MODEL,
+            prompt=prompt,
+            schema=output_schema,
+        )
     payload = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True)
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)

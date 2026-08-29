@@ -10,6 +10,7 @@ import re
 import subprocess
 import sys
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
 
@@ -29,6 +30,29 @@ CHILD_NAMES = (
 ROUTING_MINIMUM = 0.90
 ROOT_TOKEN_BUDGET = 4000
 CHILD_TOKEN_BUDGET = 1800
+DEFAULT_AGENT_MODEL = "codex-cli-default"
+
+
+def utc_now() -> str:
+    """Return a stable UTC timestamp for audit metadata."""
+    return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+
+
+def sha256_text(text: str) -> str:
+    """Hash prompt or schema text without embedding it in reports."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def audit_record(stage: str, *, engine: str, model: str | None, prompt: str | None = None, schema: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Create reproducible audit metadata for an evaluation artifact."""
+    return {
+        "stage": stage,
+        "generated_at_utc": utc_now(),
+        "engine": engine,
+        "model": model,
+        "prompt_sha256": sha256_text(prompt) if prompt is not None else None,
+        "schema_sha256": sha256_text(json.dumps(schema, ensure_ascii=False, sort_keys=True)) if schema is not None else None,
+    }
 
 
 def emit(report: dict[str, Any], output: Path | None = None) -> int:
@@ -121,7 +145,7 @@ def run_tier1(suite: Path) -> dict[str, Any]:
         if marker in public_text:
             errors.append(f"development-content-leak:{marker.lower()}")
 
-    return {
+    report = {
         "tier": 1,
         "verdict": "PASS" if not errors else "FAIL",
         "skill_count": len(skill_paths),
@@ -132,6 +156,8 @@ def run_tier1(suite: Path) -> dict[str, Any]:
             "child_skill_estimated_tokens": CHILD_TOKEN_BUDGET,
         },
     }
+    report["audit"] = audit_record("tier1", engine="local", model=None)
+    return report
 
 
 def load_cases(kind: str, split: str) -> list[dict[str, Any]]:
@@ -209,6 +235,7 @@ def run_tier2(suite: Path, split: str, engine: str) -> dict[str, Any]:
             for name in CHILD_NAMES
         }
         compact_cases = [{"id": case["id"], "prompt": case["prompt"]} for case in cases]
+        schema = routing_schema([case["id"] for case in cases])
         prompt = (
             "You are a fresh-context semantic router. Select only the listed mini-program Skills "
             "that are materially required by each request. Return an empty list for unrelated work. "
@@ -218,7 +245,7 @@ def run_tier2(suite: Path, split: str, engine: str) -> dict[str, Any]:
             + "\n\nCASES:\n"
             + json.dumps(compact_cases, ensure_ascii=False, indent=2)
         )
-        raw, error = agent_command(Path(tempfile.gettempdir()), prompt, routing_schema([case["id"] for case in cases]))
+        raw, error = agent_command(Path(tempfile.gettempdir()), prompt, schema)
         predicted = {}
         if not error:
             try:
@@ -247,6 +274,13 @@ def run_tier2(suite: Path, split: str, engine: str) -> dict[str, Any]:
         "minimum": ROUTING_MINIMUM,
         "error": error,
         "cases": details,
+        "audit": audit_record(
+            "tier2",
+            engine=engine,
+            model=DEFAULT_AGENT_MODEL if engine == "agent" else None,
+            prompt=prompt if engine == "agent" else None,
+            schema=schema if engine == "agent" else None,
+        ),
     }
 
 
@@ -495,7 +529,8 @@ def run_tier3(suite: Path, split: str, mode: str, dataset: str = "behavior") -> 
                 "Return only the requested structured result.\n\nUSER REQUEST:\n"
                 + case["prompt"]
             )
-            raw, error = agent_command(fixture, prompt, behavior_schema())
+            schema = behavior_schema()
+            raw, error = agent_command(fixture, prompt, schema)
             after = tree_hash(fixture)
             parsed: dict[str, Any] | None = None
             if not error:
@@ -515,6 +550,13 @@ def run_tier3(suite: Path, split: str, mode: str, dataset: str = "behavior") -> 
                     "fixture_unchanged": before == after,
                     "response": parsed,
                     "error": error,
+                    "audit": audit_record(
+                        "tier3-case",
+                        engine=mode,
+                        model=DEFAULT_AGENT_MODEL,
+                        prompt=prompt,
+                        schema=schema,
+                    ),
                 }
             )
     not_proven = sum(1 for item in results if item["error"])
@@ -527,6 +569,7 @@ def run_tier3(suite: Path, split: str, mode: str, dataset: str = "behavior") -> 
         "case_count": len(results),
         "not_proven": not_proven,
         "cases": results,
+        "audit": audit_record("tier3", engine=mode, model=DEFAULT_AGENT_MODEL),
     }
 
 

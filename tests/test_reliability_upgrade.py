@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MODEL = ROOT / "shared/evidence-status-model.md"
 EXPORTER = ROOT / "scripts/export_public_package.py"
 SCANNER = ROOT / "scripts/scan_sensitive_content.py"
+VALIDATOR = ROOT / "scripts/validate_suite.py"
 VERIFIER = ROOT / "scripts/verify_public_package.py"
 
 STATUS_REFERENCE_FILES = (
@@ -286,6 +287,41 @@ class PublicExportFailClosedTests(unittest.TestCase):
             self.assertEqual(by_path["payload.bin"]["source_kind"], "binary-like")
             self.assertNotIn("fixture_secret_value", result.stdout)
 
+    def test_scanner_detects_mini_program_cloud_and_account_identifiers(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            fixture = Path(temp_dir) / "release-notes.md"
+            sensitive_lines = [
+                "env" + "Id=cloud1-" + "fixtureenv123",
+                "owner=" + "keeper" + "@example.invalid",
+                "phone=" + "138" + "00138000",
+                "jwt=eyJ" + "aaaaaaaaaaaa.bbbbbbbbbbbb.cccccccccccc",
+                "bucket=" + "demo-" + "12345.cos.ap-shanghai.myqcloud.com",
+            ]
+            fixture.write_text("\n".join(sensitive_lines) + "\n", encoding="utf-8")
+
+            result = subprocess.run(
+                [sys.executable, str(SCANNER), str(fixture), "--format", "json"],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        report = json.loads(result.stdout)
+        rule_ids = {finding["rule_id"] for finding in report["findings"]}
+        self.assertGreaterEqual(
+            rule_ids,
+            {
+                "cloud-env-id",
+                "email-address",
+                "mainland-phone-number",
+                "jwt-token",
+                "cos-bucket-host",
+            },
+        )
+        for sensitive_value in sensitive_lines:
+            self.assertNotIn(sensitive_value, result.stdout)
+
     def test_capability_doctor_survives_unreadable_root_entries(self) -> None:
         from scripts.capability_doctor import inspect_project
 
@@ -321,6 +357,45 @@ class PublicExportFailClosedTests(unittest.TestCase):
         for phrase in ("公共路径 allowlist", "未知文件默认拒绝", "二进制", "私有开发目录"):
             self.assertIn(phrase, policy)
         self.assertIn("未知文件默认拒绝", root_skill)
+
+    def test_promo_duration_validator_ignores_unrelated_seconds_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source = Path(temp_dir) / "source"
+            copy_public_source(source)
+            readme = source / "README.md"
+            readme.write_text(
+                readme.read_text(encoding="utf-8") + "\n补充说明：首屏目标加载时间为 3 秒。\n",
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(source)],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_promo_duration_validator_rejects_video_context_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source = Path(temp_dir) / "source"
+            copy_public_source(source)
+            readme = source / "README.md"
+            readme.write_text(
+                readme.read_text(encoding="utf-8").replace("32 秒说明视频", "30 秒说明视频"),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [sys.executable, str(VALIDATOR), str(source)],
+                capture_output=True,
+                check=False,
+                text=True,
+            )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("README promo video duration says 30", result.stdout)
 
 
 class PublicPackageIntegrityTests(unittest.TestCase):
@@ -358,6 +433,7 @@ class PublicPackageIntegrityTests(unittest.TestCase):
             "scripts/verify_public_package.py",
             (self.clean_package / "SKILL.md").read_text(encoding="utf-8"),
         )
+        self.assertFalse((self.clean_package / "scripts" / "__pycache__").exists())
 
     def test_modified_file_is_rejected(self) -> None:
         target = self.clean_package / "SKILL.md"

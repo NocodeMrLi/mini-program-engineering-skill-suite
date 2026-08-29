@@ -133,7 +133,8 @@ class SecondBatchIntegrationTests(unittest.TestCase):
         content = (ROOT / "SKILL.md").read_text(encoding="utf-8")
         for skill_name in SKILLS:
             self.assertIn(f"skills/{skill_name}/SKILL.md", content)
-        self.assertIn("第二批资源", content)
+        self.assertIn("能力地图", content)
+        self.assertIn("共享模板与门禁", content)
         second_batch_table = content.split("| 梳理产品", 1)[1].split("| 编码", 1)[0]
         self.assertNotIn("后续批次", second_batch_table)
 
