@@ -10,6 +10,14 @@
 | uni-app | 优先复用 `dev:mp-weixin`、`build:mp-weixin` 等已声明脚本 | 区分 DCloud 标识、微信 AppID 和生成目录 | 不从 `manifest.json` 存在推出平台配置通过 |
 | 未知或多框架信号 | 停止自动选择，标记 `unknown` | 人工确认真实框架、命令与产物根 | 不猜测、不安装、不执行候选命令 |
 
+## 目标平台与平台事实层
+
+doctor 输出的 `target_platforms` 把项目映射到 `platforms/<平台>/` 平台事实层（如 wechat / alipay / douyin）。验证时遵循：
+
+- 平台触点步骤（上传、提审、审核、发布、隐私申报、配额）按对应平台的 rule-map 与 facts 核对时效性；未收录平台的事实一律 `manual` 或 `unknown`。
+- `target_platforms` 为空或出现 `unrecognized-target` 警告时，先请用户人工确认目标平台再选证据链，不猜测。
+- 识别只来自静态清单（uni-app manifest 键、Taro 脚本名、原生配置），不执行项目命令，也不从目标平台存在推出任何平台证据通过。
+
 ## E2E 等待规则
 
 - 优先条件等待或元素等待：等待明确页面、元素、网络结果或状态成立，并设置有依据的超时。

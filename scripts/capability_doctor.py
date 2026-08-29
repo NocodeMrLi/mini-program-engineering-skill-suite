@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from typing import Any, Sequence
@@ -19,6 +20,27 @@ KNOWN_CAPABILITIES = {
     "playwright",
     "vitest",
 }
+TARGET_PLATFORM_ALIASES = {
+    "mp-weixin": "wechat",
+    "weapp": "wechat",
+    "mp-alipay": "alipay",
+    "alipay": "alipay",
+    "mp-toutiao": "douyin",
+    "mp-douyin": "douyin",
+    "tt": "douyin",
+}
+
+
+def resolve_target_platforms(slugs: set[str], warnings: list[str]) -> list[str]:
+    """Map raw build-target slugs to canonical platform names; unknown slugs warn."""
+    targets: set[str] = set()
+    for slug in sorted(slugs):
+        mapped = TARGET_PLATFORM_ALIASES.get(slug)
+        if mapped:
+            targets.add(mapped)
+        else:
+            warnings.append(f"unrecognized-target:{slug}")
+    return sorted(targets)
 
 
 def read_json_object(path: Path, warnings: list[str]) -> dict[str, Any]:
@@ -113,10 +135,28 @@ def inspect_project(root: Path, devtools_cli: Path | None = None) -> dict[str, o
     if framework in {"unknown", "ambiguous"}:
         constraints.append("manual-confirmation-required")
 
+    target_slugs: set[str] = set()
+    if isinstance(manifest, dict):
+        target_slugs.update(
+            key
+            for key in manifest
+            if isinstance(key, str) and key.startswith("mp-") and isinstance(manifest.get(key), dict)
+        )
+    if framework == "taro":
+        target_slugs.update(
+            match.group(1)
+            for name in script_names
+            if (match := re.match(r"^(?:dev|build):([A-Za-z0-9_-]+)$", name))
+        )
+    if framework == "native-wechat":
+        target_slugs.add("mp-weixin")
+    target_platforms = resolve_target_platforms(target_slugs, warnings)
+
     return {
         "schema_version": 1,
         "framework": framework,
         "framework_signals": signals,
+        "target_platforms": target_platforms,
         "facts": {
             "has_package_json": bool(package),
             "has_app_json": bool(app),

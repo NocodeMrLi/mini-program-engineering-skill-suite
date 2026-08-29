@@ -1,0 +1,54 @@
+name: Platform rule drift
+description: Official platform documentation no longer matches a fact bundled with the suite.
+title: "[Drift]: "
+labels: ["drift"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Found while running a task: the skill executed against the current official rules and recorded that a bundled fact is outdated. Your task was already executed correctly - this report only helps update the suite for everyone. Do not paste secrets, real AppIDs, cloud environment IDs, private paths, or business data.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - wechat
+      validations:
+        required: true
+  - type: input
+    id: rule_id
+    attributes:
+      label: Rule id (from rule-map.json)
+      description: For example release-review-operations or privacy-protection-declarations.
+    validations:
+      required: true
+  - type: input
+    id: official_url
+    attributes:
+      label: Official source URL you checked
+      description: Must be a public official documentation URL.
+    validations:
+      required: true
+  - type: input
+    id: checked_date
+    attributes:
+      label: Date you checked (UTC)
+      description: For example 2026-08-30.
+    validations:
+      required: true
+  - type: textarea
+    id: difference
+    attributes:
+      label: What differs from the bundled fact?
+      description: Describe the difference in your own words. Do not paste the full page content.
+    validations:
+      required: true
+  - type: input
+    id: suite_version
+    attributes:
+      label: Suite version you are using
+      description: For example 1.4.0.
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else

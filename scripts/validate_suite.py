@@ -26,6 +26,7 @@ REQUIRED_FILES = (
     ".github/ISSUE_TEMPLATE/bug_report.yml",
     ".github/ISSUE_TEMPLATE/config.yml",
     ".github/ISSUE_TEMPLATE/skill_proposal.yml",
+    ".github/ISSUE_TEMPLATE/platform_drift.yml",
     "CONTRIBUTING.md",
     "SECURITY.md",
     "EVALUATIONS.md",

@@ -60,6 +60,7 @@ class CapabilityDoctorTests(unittest.TestCase):
             report = self.run_doctor(project)
             self.assertEqual(tree_digest(project), before)
             self.assertEqual(report["framework"], "native-wechat")
+            self.assertEqual(report["target_platforms"], ["wechat"])
             self.assertTrue(report["facts"]["has_subpackages"])
             self.assertIn("miniprogram-simulate", report["capabilities"])
             rendered = json.dumps(report, ensure_ascii=False)
@@ -67,6 +68,46 @@ class CapabilityDoctorTests(unittest.TestCase):
             self.assertNotIn("private-app-id", rendered)
             self.assertNotIn("private-token-in-command", rendered)
             self.assertNotIn("SECRET_MARKER", rendered)
+
+    def test_detects_uniapp_multi_target_platforms(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            project = Path(temp)
+            (project / "manifest.json").write_text(
+                json.dumps({"name": "anonymous", "mp-weixin": {"appid": ""}, "mp-alipay": {}}),
+                encoding="utf-8",
+            )
+            (project / "pages.json").write_text(
+                json.dumps({"pages": ["pages/index/index"]}), encoding="utf-8"
+            )
+            (project / "package.json").write_text(
+                json.dumps({"dependencies": {"@dcloudio/uni-app": "3.0.0"}}), encoding="utf-8"
+            )
+            report = self.run_doctor(project)
+            self.assertEqual(report["framework"], "uni-app")
+            self.assertEqual(report["target_platforms"], ["alipay", "wechat"])
+
+    def test_detects_taro_script_targets_with_unknown_suffix_warning(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            project = Path(temp)
+            config_dir = project / "config"
+            config_dir.mkdir()
+            (config_dir / "index.js").write_text("export default {};\n", encoding="utf-8")
+            (project / "package.json").write_text(
+                json.dumps(
+                    {
+                        "scripts": {
+                            "dev:weapp": "npm run build:weapp -- --watch",
+                            "build:tt": "tarox build --type tt",
+                            "build:xhs": "tarox build --type xhs",
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            report = self.run_doctor(project)
+            self.assertEqual(report["framework"], "taro")
+            self.assertEqual(report["target_platforms"], ["douyin", "wechat"])
+            self.assertIn("unrecognized-target:xhs", report["warnings"])
 
     def test_detects_taro_uni_app_and_ambiguous_projects_without_guessing(self) -> None:
         fixtures = (
