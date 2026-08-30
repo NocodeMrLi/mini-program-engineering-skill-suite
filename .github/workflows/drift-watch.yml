@@ -45,8 +45,9 @@ jobs:
           if [ -n "${{ github.event.inputs.platform }}" ]; then
             args="--platform-dir platforms/${{ github.event.inputs.platform }}"
           fi
-          # --no-llm keeps CI on the deterministic path: L2 extraction never runs here.
-          python3 scripts/drift_watch.py $args --output drift-report.json
+          # --no-llm keeps CI on the deterministic path: L2 extraction never runs here
+          # (and the report's "mode" field reflects deterministic rather than full).
+          python3 scripts/drift_watch.py $args --no-llm --output drift-report.json
           echo "exit=$?" >> "$GITHUB_OUTPUT"
 
       - name: Create or update drift issues
