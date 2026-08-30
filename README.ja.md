@@ -49,7 +49,7 @@
 
 この Skill が何を解決し、どの実プロジェクトから生まれ、どのように使うのかを [32 秒の説明動画](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4) で確認できます。
 
-https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
+https://github.com/user-attachments/assets/d382951e-5175-48be-b0c0-44ba210706f1
 
 <sub>この動画は、スイートの位置づけ、由来、利用境界を説明するためのものです。</sub>
 

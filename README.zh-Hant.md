@@ -49,7 +49,7 @@
 
 如果你想先快速了解這套 Skill 解決什麼問題、從哪裡沉澱而來、適合怎麼用，可以先看這個 [32 秒說明影片](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)。
 
-https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
+https://github.com/user-attachments/assets/d382951e-5175-48be-b0c0-44ba210706f1
 
 <sub>影片僅用於說明這套 Skill 的定位、來源與使用邊界。</sub>
 

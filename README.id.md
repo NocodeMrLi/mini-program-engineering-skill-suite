@@ -49,7 +49,7 @@ Nama Tionghoa: **小程序开发工程技能套件**.
 
 Jika Anda ingin melihat gambaran singkat tentang masalah yang diselesaikan, asal-usulnya, dan cara penggunaannya, mulai dari [video penjelasan 32 detik](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4) ini.
 
-https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
+https://github.com/user-attachments/assets/d382951e-5175-48be-b0c0-44ba210706f1
 
 <sub>Video ini hanya menjelaskan posisi suite, asal-usul, dan batas penggunaannya.</sub>
 

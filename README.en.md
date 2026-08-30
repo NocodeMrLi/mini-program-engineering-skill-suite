@@ -47,7 +47,7 @@
 
 If you want a quick overview of what this Skill solves, where it came from, and how it is meant to be used, start with this [32-second explainer video](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4).
 
-https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
+https://github.com/user-attachments/assets/d382951e-5175-48be-b0c0-44ba210706f1
 
 <sub>The video only explains the suite positioning, origin, and usage boundaries.</sub>
 

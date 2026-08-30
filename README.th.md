@@ -49,7 +49,7 @@
 
 ถ้าต้องการดูภาพรวมว่าสิ่งนี้แก้ปัญหาอะไร มาจากโปรเจกต์จริงแบบไหน และควรใช้อย่างไร ให้เริ่มจาก[วิดีโออธิบาย 32 วินาที](https://raw.githubusercontent.com/NocodeMrLi/mini-program-engineering-skill-suite/main/assets/readme-promo.mp4)นี้
 
-https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
+https://github.com/user-attachments/assets/d382951e-5175-48be-b0c0-44ba210706f1
 
 <sub>วิดีโอนี้ใช้เพื่ออธิบายตำแหน่งของชุด Skill ที่มา และขอบเขตการใช้งานเท่านั้น</sub>
 
