@@ -307,9 +307,53 @@ class ReleaseHistoryTests(unittest.TestCase):
         self.assertFalse(result["history_complete"])
         self.assertTrue(any("shallow repository history is incomplete" in reason for reason in result["reasons"]))
 
+    def test_shallow_history_without_candidate_fails_closed(self) -> None:
+        recommender = load_recommender()
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source = build_tagged_repo(root)
+            (source / "scripts" / "after_tag.py").write_text("print('after tag')\n", encoding="utf-8")
+            git(source, "add", "scripts/after_tag.py")
+            git(source, "commit", "-q", "-m", "after tag")
+            shallow = root / "shallow"
+            subprocess.run(
+                [
+                    "git", "clone", "-q", "--depth", "1", f"file://{source}", str(shallow),
+                ],
+                check=True,
+            )
+            result = recommender.recommend(shallow, min_data_changes=1)
+        self.assertEqual(result["recommendation"], "MANUAL_VERIFICATION_REQUIRED")
+        self.assertFalse(result["history_complete"])
+        self.assertEqual(result["classes"], {})
+
+    def test_full_history_hold_reports_history_complete(self) -> None:
+        recommender = load_recommender()
+        with tempfile.TemporaryDirectory() as td:
+            repo = build_tagged_repo(Path(td))
+            result = recommender.recommend(repo, min_data_changes=1)
+        self.assertEqual(result["recommendation"], "HOLD")
+        self.assertTrue(result["history_complete"])
+
+    def test_recommend_accepts_string_root(self) -> None:
+        recommender = load_recommender()
+        with tempfile.TemporaryDirectory() as td:
+            repo = build_tagged_repo(Path(td))
+            (repo / "scripts" / "after_tag.py").write_text("print('after tag')\n", encoding="utf-8")
+            git(repo, "add", "scripts/after_tag.py")
+            git(repo, "commit", "-q", "-m", "after tag")
+            result = recommender.recommend(str(repo), min_data_changes=1)
+        self.assertEqual(result["recommendation"], "RECOMMEND_RELEASE")
+        self.assertTrue(result["history_complete"])
+
     def test_release_workflow_fetches_full_history(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
         self.assertIn("fetch-depth: 0", workflow)
+
+    def test_drift_audit_workflow_fetches_full_history(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "drift-watch.yml").read_text(encoding="utf-8")
+        audit = workflow.split("  audit:", 1)[1]
+        self.assertIn("fetch-depth: 0", audit)
 
 
 

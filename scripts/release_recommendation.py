@@ -296,24 +296,26 @@ def manual_verification_status(
     return {"required": required, "platforms": details, "evidence": evidence}
 
 
-def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = None) -> dict[str, Any]:
+def recommend(root: Path | str, min_data_changes: int, candidate_tag: str | None = None) -> dict[str, Any]:
+    root = Path(root)
     baseline_tag: str | None
+    # Every recommendation mode needs real history. Without this common guard,
+    # no-candidate callers (notably drift_audit in Actions) treat a depth-1
+    # checkout as a root commit, classify the entire tree, and falsely report
+    # history_complete=true.
+    if is_shallow_repository(root):
+        return {
+            "recommendation": "MANUAL_VERIFICATION_REQUIRED",
+            "level": None,
+            "reasons": ["shallow repository history is incomplete; fetch full history and tags"],
+            "tag": candidate_tag,
+            "baseline_tag": None,
+            "commit_count": 0,
+            "classes": {},
+            "history_complete": False,
+            "manual_verification": {"required": True, "platforms": {}, "evidence": {}},
+        }
     if candidate_tag:
-        # A release candidate needs its parent and prior tags. In a depth-1
-        # checkout the candidate is a grafted root, so classifying it would
-        # treat the whole tree as one change and fabricate the release scope.
-        if is_shallow_repository(root):
-            return {
-                "recommendation": "MANUAL_VERIFICATION_REQUIRED",
-                "level": None,
-                "reasons": ["shallow repository history is incomplete; fetch full history and tags"],
-                "tag": candidate_tag,
-                "baseline_tag": None,
-                "commit_count": 0,
-                "classes": {},
-                "history_complete": False,
-                "manual_verification": {"required": True, "platforms": {}, "evidence": {}},
-            }
         # Release checkout: HEAD sits on the candidate tag. The baseline must be
         # the tag BEFORE the candidate (via its parent), never the candidate
         # itself; and HEAD must actually be the candidate commit.
@@ -360,7 +362,7 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
                     "history_complete": True,
                     "manual_verification": {"required": True, "platforms": {}, "evidence": {}}}
         return {"recommendation": "HOLD", "level": None, "reasons": ["no-commits-since-last-tag"], "tag": tag,
-                "baseline_tag": None, "commit_count": 0, "classes": {}}
+                "baseline_tag": None, "commit_count": 0, "classes": {}, "history_complete": True}
 
     classes: dict[str, int] = {}
     for commit in commits:

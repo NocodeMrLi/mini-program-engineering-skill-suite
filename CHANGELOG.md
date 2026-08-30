@@ -2,6 +2,19 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.9 - 2026-08-31
+
+### Fixed（codex 九次复核：浅仓库语义全路径收口）
+
+- `release_recommendation.recommend()` 的浅仓库检查提升为候选/无候选共用门禁；depth-1 checkout 不再把整个仓库误分类为本轮 behavior/data/assets/tooling/docs，也不再错误写出 `history_complete=true`。
+- drift-watch 的 audit job checkout 改为完整历史，使审计 issue 中的“当前发布建议”基于上一 tag 到 HEAD 的真实变更；detect job 保持轻量 checkout。
+- 无新提交的 `HOLD` 返回补齐 `history_complete=true`；`recommend()` 入口统一接受 `Path` 与字符串路径，消除直接调用时的路径运算异常。
+- 新增 4 项回归：无候选浅 clone fail-closed、完整历史 HOLD 字段、字符串路径兼容、drift audit 完整历史配置。连同 v3.1.8 后首批 7 项回归，本版本测试总数由 173 增至 184。
+
+### Release boundary
+
+- 本版本不改平台事实与九个子 Skill 行为正文；不重复运行 tier2/tier3，正式发布证据以本 tag 的 `gate-summary.json`、SHA256 和 113 文件接收端复验为准。
+
 ## 3.1.8 - 2026-08-31
 
 ### Fixed（codex 七次复核批：1 P0 + 2 P1 + 2 P2 + 1 优化项，P0 为正式发布路径门禁绕过）
