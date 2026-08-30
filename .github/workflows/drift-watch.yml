@@ -87,8 +87,11 @@ jobs:
         with:
           name: drift-report
 
+      # The secrets context is NOT allowed in step-level if: expressions
+      # (GitHub rejects the whole workflow with 422), so the credential check
+      # happens inside the shell: audit runs when the key env is non-empty and
+      # degrades with a clear message otherwise.
       - name: Run audit (L2 + shadow-mode review, verdict issues)
-        if: ${{ secrets.AGENT_API_KEY != '' }}
         env:
           AGENT_API_BASE_URL: ${{ secrets.AGENT_API_BASE_URL }}
           AGENT_API_KEY: ${{ secrets.AGENT_API_KEY }}
@@ -97,6 +100,11 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
+          if [ -z "$AGENT_API_KEY" ]; then
+            echo "AGENT_API_* secrets not configured; skipping cloud audit."
+            echo "The detect job already opened detection issues for actionable drift; run L2 locally per issue instructions."
+            exit 0
+          fi
           args=""
           if [ -n "${{ github.event.inputs.platform }}" ]; then
             args="--platform-dir platforms/${{ github.event.inputs.platform }}"
@@ -104,11 +112,3 @@ jobs:
           # --report bounds the audit to the platforms the detect job scanned;
           # manual-only layers are skipped inside drift_audit either way.
           python3 scripts/drift_audit.py $args --report drift-report.json --rounds 3 --out-dir audit-out --emit-issues
-
-      - name: Degrade gracefully when no engine credentials
-        if: ${{ secrets.AGENT_API_KEY == '' }}
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          echo "AGENT_API_* secrets not configured; skipping cloud audit."
-          echo "The detect job already opened detection issues for actionable drift; run L2 locally per issue instructions."
