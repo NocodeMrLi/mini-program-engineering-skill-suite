@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
-"""CI orchestration for weekly deterministic drift watching.
+"""Deterministic drift detection orchestration (the detect stage).
 
 Wraps platform_drift's L0/L1 checks for every platforms/<name>/ directory:
-- default mode is fully deterministic (``--no-llm``): fingerprints only, no
-  extraction, no tokens, no agent credentials in CI;
+- detection is always deterministic here: fingerprints only, no LLM calls
+  (``--no-llm`` documents this explicitly; there is no L2 path in this tool);
 - findings become one GitHub issue per actionable rule via ``--emit-issues``
   (uses the repository's Platform rule drift template fields);
 - a missing or unreadable rule map fails closed (exit 2).
 
-L2 extraction and proposal review always run locally (see platform_drift.py
-and review_drift_proposal.py); CI never holds agent credentials.
+L2 extraction and shadow-mode proposal review live in drift_audit.py. That
+stage runs in CI with the AGENT_API_* secrets configured by the author (see
+.github/workflows/drift-watch.yml) or locally with any CLI engine — the
+workflow degrades to detection-only when the secrets are absent.
 """
 
 from __future__ import annotations
@@ -168,9 +170,12 @@ def run(root: Path, only: str | None, no_llm: bool) -> dict[str, Any] | None:
     dirs = platform_dirs(root, only)
     if not dirs:
         return None
+    # Detection in this tool is deterministic by construction; the flag is kept
+    # for CLI compatibility and the mode field always states the truth.
     report: dict[str, Any] = {
         "generated_at_utc": utc_now(),
-        "mode": "deterministic" if no_llm else "full",
+        "mode": "deterministic",
+        "llm_stage": "drift_audit.py (detection never calls engines)",
         "platforms": [deterministic_check(d) for d in dirs],
     }
     report["actionable_count"] = sum(len(actionable(p["results"])) for p in report["platforms"])

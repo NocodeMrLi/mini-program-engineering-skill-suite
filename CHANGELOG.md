@@ -2,6 +2,29 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.0 - 2026-08-30
+
+### Fixed（codex 全面审计交叉验证批，4 问题项全实证后修复）
+
+- **Release 门禁吞单测失败（P0）**：`release.yml` 门禁步骤补 `set -e`；单测管道显式取 `PIPESTATUS[0]` 断言退出码（实测失败被拦截）；`Ran N tests` 解析修单复数（失败输出含 `Ran 1 test` 单数形态，原先匹配为空使 `tests_passed` 变空串进工件）。
+- drift_watch 文档与 CI 行为不一致：docstring 改为如实描述「检测恒为确定性；L2/审计在 drift_audit，CI 用 AGENT_API_* Secret 或本地引擎，Secret 缺失降级仅检测」。
+- `--no-llm` 语义不真实：该参数原本只改报告 `mode` 字段（`full` 是谎）；现 mode 恒为 `deterministic` 并新增 `llm_stage` 字段指明 L2 归属。
+- capability doctor 的 uni-app 判定子串误判：`"uni" in value` 会把 `npm run unit`、`community-modules` 误判为 uni-app（实测坐实）；改为词边界正则，正负向回归测试入套件。
+
+### Fixed（优化项，实证后采纳）
+
+- **HTML 抽取 skip-depth 过度跳过（保鲜漏报）**：扁平计数器遇 `<span class="nav">` 会吞掉其后全部正文（实证：内容变化指纹不变）；改为标签栈精确配对，噪声剥离与 script 跳过行为保持，回归测试入套件。
+- 封面源图灰区收口：`assets/readme-cover-2000x849-v2.webp`（定稿源图）改为显式 `REPO_ONLY_ASSETS` 类——被 git 跟踪、被结构校验（仅源码树要求），但**不进公开包**；exporter 前缀容忍规则收敛为精确路径（前缀规则会静默豁免未来未知文件）；修复过程中顺带消除了「repo-only 检查误用于导出包」的缺陷。
+- Markdown 同文件锚点校验：`validate_links` 现解析标题 slug 并校验 `#anchor` 存在（篡改实验：坏锚点被拦截）；此前章节改名（如「平台规则保鲜」去版本后缀）会静默断链。
+
+### Added
+
+- manual-only 平台人工核验节奏（platforms/README.md）：minor/major 发布前人工核验、verified 更新为当日、CHANGELOG 记录核验日期、连续两版未核验由周报提示。
+
+### 验证
+
+- 129 测试全绿（+5 回归）；结构校验 112 文件；i18n 6/6；扫描 0 命中；foundation 等价 PASS；导出复验 112 文件且源图不入包；四组修复均含实证/篡改/负向验证。
+
 ## 3.0.1 - 2026-08-30
 
 ### Fixed（交叉验证台账批量修复 #2 #3 #4 #6 #7）

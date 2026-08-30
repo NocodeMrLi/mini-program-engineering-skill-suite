@@ -29,6 +29,14 @@
 - 同一 source URL 关联的多条事实 digest 必须一致；不一致时检测判 `inconsistent-baseline-digests`（fail-closed）。
 - 只收录公开可达的官方文档；需登录后台确认的事实标 `manual`，不进自动化。
 
+## manual-only 平台的人工核验节奏
+
+支付宝与抖音的 facts 目前 `verified=unknown`（种子占位）。为避免「知道要人工查、但版本记录看不出查没查」，约定如下：
+
+- **节奏**：每个 minor/major 版本发布前，维护者对 manual-only 平台的每条 rule 至少完成一次人工核验（打开 rule-map 的 `official.url`，对照 verify_points 目视核对）。
+- **记录方式**：核验后把该条事实的 `verified` 更新为当日 UTC 日期（digest 保持 `unknown`，因 SPA 无法实算），并在 CHANGELOG 的该版本条目加一句「alipay/douyin facts 人工核验于 YYYY-MM-DD」。连续两个版本未核验的平台，`release_recommendation.py` 的周报应提示（后续工具化）。
+- **发现变化时**：走与微信相同的受控修订流程（提案→审计→合并），只是触发源是人工而非指纹比对。
+
 ## 漂移处理路径
 
 发现漂移（周频 CI 或用户上报）→ `platform_drift.py` L2 抽取生成脱敏提案 → `review_drift_proposal.py` 四道确定性门禁 + K 轮忠实性审计（影子模式：只报告，不自动合并）→ 作者看裁决合并 → 随版本发布。用户拿新教材的方式：Releases 下载 + `install.sh --force` 重装（永不静默自动更新）。

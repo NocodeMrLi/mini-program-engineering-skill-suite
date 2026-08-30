@@ -49,23 +49,27 @@ class TextExtractor(html.parser.HTMLParser):
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        self._skip_depth = 0
+        # Stack of tags whose content is being skipped; each end tag only pops
+        # its own kind, so a noisy <span class="nav"> cannot swallow the rest
+        # of the page (a flat counter did exactly that).
+        self._skip_stack: list[str] = []
         self._chunks: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if tag in self.SKIP_TAGS:
-            self._skip_depth += 1
-            return
         class_attr = dict(attrs).get("class") or ""
-        if any(marker in class_attr.lower() for marker in self.NOISE_CLASSES):
-            self._skip_depth += 1
+        if tag in self.SKIP_TAGS or any(marker in class_attr.lower() for marker in self.NOISE_CLASSES):
+            self._skip_stack.append(tag)
 
     def handle_endtag(self, tag: str) -> None:
-        if self._skip_depth and tag in self.SKIP_TAGS | {"div", "aside", "section", "nav", "footer", "header"}:
-            self._skip_depth = max(0, self._skip_depth - 1)
+        if tag in self._skip_stack:
+            # Pop only the innermost matching open tag of this name.
+            for index in range(len(self._skip_stack) - 1, -1, -1):
+                if self._skip_stack[index] == tag:
+                    self._skip_stack.pop(index)
+                    return
 
     def handle_data(self, data: str) -> None:
-        if not self._skip_depth and data.strip():
+        if not self._skip_stack and data.strip():
             self._chunks.append(data.strip())
 
 

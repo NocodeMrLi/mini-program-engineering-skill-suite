@@ -384,5 +384,45 @@ class DriftAuditUnitTests(unittest.TestCase):
         self.assertNotIn("raw secret-looking", error)
 
 
+class AuditFixRegressionTests(unittest.TestCase):
+    """Regressions for the codex-audit fix batch (release gates, uni matching, extractor stack)."""
+
+    def test_uni_detection_uses_word_boundary(self) -> None:
+        import json as _json
+        doctor = load_script("capability_doctor")
+        with tempfile.TemporaryDirectory() as td:
+            for i, (value, expect) in enumerate(
+                [("npm run unit", "unknown"), ("echo community-modules", "unknown"), ("uni build -p mp-weixin", "uni-app")]
+            ):
+                root = Path(td) / f"u{i}"
+                root.mkdir()
+                (root / "package.json").write_text(_json.dumps({"scripts": {"w": value}}), encoding="utf-8")
+                self.assertEqual(doctor.inspect_project(root)["framework"], expect, value)
+
+    def test_extractor_stack_does_not_swallow_content_after_noisy_span(self) -> None:
+        a = '<html><body><span class="nav">m</span><p>RULE ONE</p><p>MORE</p></body></html>'
+        b = '<html><body><span class="nav">m</span><p>RULE ONE</p><p>DIFF</p></body></html>'
+        self.assertNotEqual(drift.normalized_fingerprint(a), drift.normalized_fingerprint(b))
+
+    def test_extractor_still_strips_noise_and_scripts(self) -> None:
+        c = '<html><body><span class="nav">NAV1</span><p>BODY</p></body></html>'
+        d = '<html><body><span class="menu">NAV2</span><p>BODY</p></body></html>'
+        self.assertEqual(drift.normalized_fingerprint(c), drift.normalized_fingerprint(d))
+        e = '<html><head><script>var a=1</script></head><body><p>X</p></body></html>'
+        f = '<html><head><script>var b=2</script></head><body><p>X</p></body></html>'
+        self.assertEqual(drift.normalized_fingerprint(e), drift.normalized_fingerprint(f))
+
+    def test_drift_watch_mode_is_always_honest(self) -> None:
+        with patch.dict(os.environ, {}, clear=False):
+            report = drift_watch.run(Path(ROOT), None, no_llm=False)
+        self.assertEqual(report["mode"], "deterministic")
+        self.assertIn("drift_audit", report["llm_stage"])
+
+    def test_source_cover_is_repo_only_not_package_content(self) -> None:
+        vs = load_script("validate_suite")
+        self.assertIn("assets/readme-cover-2000x849-v2.webp", vs.REPO_ONLY_ASSETS)
+        self.assertNotIn("assets/readme-cover-2000x849-v2.webp", vs.REQUIRED_FILES)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -50,7 +50,7 @@ jobs:
 
       - name: Run release gates
         run: |
-          set -uo pipefail
+          set -euo pipefail
           # The summary is written to /tmp first: export_public_package.py scans the
           # source tree fail-closed, so any artifact left in the tree (dist/ included)
           # would be rejected as an allowlist violation. It is copied into dist only
@@ -59,8 +59,23 @@ jobs:
           # checked files, scan findings). Release claims must quote these numbers;
           # filling them from memory caused four consecutive versions of undercounted
           # test totals (117/119, 117/119, 120/122, 120/122).
+          # The unittest pipeline must gate the release: pipefail alone is not
+          # enough under `cmd | tee` in every shell context, and a failed run can
+          # also omit the "Ran N tests" line entirely (empty count below). Both
+          # the exit code and the parsed count are asserted explicitly.
+          set +e
           python3 -m unittest discover -s tests -q 2>&1 | tee /tmp/unittest.log
-          test_count="$(grep -Eo 'Ran [0-9]+ tests' /tmp/unittest.log | grep -Eo '[0-9]+' | head -1)"
+          unittest_rc="${PIPESTATUS[0]}"
+          set -e
+          test_count="$(grep -Eo 'Ran [0-9]+ tests?' /tmp/unittest.log | grep -Eo '[0-9]+' | head -1 || true)"
+          if [ "$unittest_rc" -ne 0 ]; then
+            echo "unittest failed with rc=$unittest_rc; release blocked" >&2
+            exit 1
+          fi
+          if [ -z "$test_count" ] || [ "$test_count" -eq 0 ]; then
+            echo "unittest reported no tests (discovery failure?); release blocked" >&2
+            exit 1
+          fi
           validate_json="$(python3 scripts/validate_suite.py .)"
           scan_json="$(python3 scripts/scan_sensitive_content.py . --format json)"
           python3 - "$test_count" "$validate_json" "$scan_json" <<'PYEOF'

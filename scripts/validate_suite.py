@@ -128,6 +128,9 @@ REQUIRED_FILES = (
     "scripts/validate_suite.py",
 )
 EXCLUDED_PARTS = {".git", ".planning", "__pycache__", "tests"}
+# Repo-only assets: tracked in git and covered by the sensitive scan, but not
+# part of the public package (design sources for shipped assets).
+REPO_ONLY_ASSETS = ("assets/readme-cover-2000x849-v2.webp",)
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 DURATION_CLAIM = re.compile(r"(?<!\d)(\d{1,3})\s*(?:[-‑–—]\s*)?(秒|seconds?|วินาที|detik)", re.IGNORECASE)
 PROMO_VIDEO_CONTEXT = re.compile(
@@ -194,19 +197,31 @@ def validate_skill(path: Path, expected_name: str, *, root_skill: bool = False) 
     return errors
 
 
+def heading_slug(heading: str) -> str:
+    """Render a GitHub-style anchor slug for one Markdown heading."""
+    text = re.sub(r"[*_`\[\]]", "", heading)
+    text = text.strip().lower()
+    text = re.sub(r"[^\w\u4e00-\u9fff\u3040-\u30ff\u0e00-\u0e7f-]+", "-", text)
+    return text.strip("-")
+
+
 def validate_links(root: Path) -> list[str]:
-    """Check relative Markdown links in public package files."""
+    """Check relative Markdown links and same-file anchors in public package files."""
     errors: list[str] = []
     for path in sorted(root.rglob("*.md")):
         if any(part in EXCLUDED_PARTS for part in path.parts):
             continue
         content = path.read_text(encoding="utf-8")
+        slugs = {heading_slug(m.group(1)) for m in re.finditer(r"^#+\s+(.+)$", content, re.MULTILINE)}
         for target in MARKDOWN_LINK.findall(content):
-            if target.startswith(("http://", "https://", "#")):
+            if target.startswith(("http://", "https://")):
                 continue
-            clean_target = target.split("#", 1)[0]
+            clean_target, _, anchor = target.partition("#")
             if clean_target and not (path.parent / clean_target).resolve().exists():
                 errors.append(f"{path}: broken link {target}")
+                continue
+            if anchor and not clean_target and anchor not in slugs:
+                errors.append(f"{path}: broken same-file anchor #{anchor}")
     return errors
 
 
@@ -409,6 +424,12 @@ def validate(root: Path) -> dict[str, object]:
     for relative_path in REQUIRED_FILES:
         if not (root / relative_path).is_file():
             errors.append(f"missing required file: {relative_path}")
+    # Repo-only assets exist in the source repository, not in exported packages;
+    # requiring them inside validate() would fail every clean export.
+    if (root / ".git").exists() or (root / "platforms").is_dir() and (root / "tests").is_dir():
+        for relative_path in REPO_ONLY_ASSETS:
+            if not (root / relative_path).is_file():
+                errors.append(f"missing repo-only asset: {relative_path}")
 
     root_skill = root / "SKILL.md"
     child_names = discover_child_names(root)

@@ -88,7 +88,9 @@ def detect_framework(root: Path, package: dict[str, Any], warnings: list[str]) -
         or ("manifest.json" in root_entries and (root / "pages.json").is_file())
         # A script *name* like "dev:mp-weixin" is a Taro convention too, so the
         # uni-app signal must come from the script *value* invoking the uni CLI.
-        or any("uni" in value for value in script_values)
+        # Word-boundary matching: a bare "uni" substring also lives inside
+        # "unit", "community", "run-integration" and would misclassify them.
+        or any(re.search(r"(?:^|\s|/|=)uni(?:\s|$)", value) for value in script_values)
     )
     native = (root / "app.json").is_file() or (root / "project.config.json").is_file()
 

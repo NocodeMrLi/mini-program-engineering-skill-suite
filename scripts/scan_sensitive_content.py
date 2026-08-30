@@ -15,8 +15,9 @@ from typing import Iterable, Sequence
 
 SKIP_DIRS = {".git", ".planning", "__pycache__", "tests"}
 SKIP_NAMES = {".DS_Store"}
-# Cover redesign drafts share the assets/ directory; not package content.
-SKIP_NAME_PATTERNS = ("readme-cover-2000x",)
+# The tracked cover design source (not package content) still gets scanned by
+# size, but its binary payload is skipped like other media; exact name only.
+SKIP_EXACT_PATHS = {"assets/readme-cover-2000x849-v2.webp"}
 
 
 @dataclass(frozen=True)
@@ -113,8 +114,9 @@ def iter_scannable_files(root: Path) -> Iterable[Path]:
     for path in sorted(root.rglob("*")):
         if not path.is_file() or path.name in SKIP_NAMES:
             continue
-        if path.name.startswith(SKIP_NAME_PATTERNS):
+        if path.relative_to(root).as_posix() in SKIP_EXACT_PATHS:
             continue
+
         relative = path.relative_to(root)
         if any(part in SKIP_DIRS for part in relative.parts):
             continue
