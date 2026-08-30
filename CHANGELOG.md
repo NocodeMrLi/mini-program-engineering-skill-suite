@@ -19,6 +19,8 @@
 ### Fixed
 
 - 修复 `--no-llm` 模式仍触发 L2 引擎调用的缺陷（首次实测发现）；修复 drift_watch 编辑期产生的重复定义。
+- 修复 capability doctor 把 Taro 项目 `dev:mp-weixin` 类脚本名误判为 uni-app 信号导致 `ambiguous` 的缺陷（v2.0.0 独立交叉验证发现）：脚本名不再参与 uni-app 判定，改以脚本值调用 uni CLI 为信号；补 Taro `dev:mp-weixin` 与 uni 脚本值两组回归测试。
+- 微信平台事实基线经 `platform_drift.py` L0/L1 实测核验（三条规则全 unchanged，指纹与登记一致）后写入 `facts.md`：三条种子事实更新 verified/digest，新增 toolchain-devtools 事实。
 
 ## 2.0.0 - 2026-08-30
 

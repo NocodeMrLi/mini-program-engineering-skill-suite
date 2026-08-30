@@ -132,6 +132,35 @@ class CapabilityDoctorTests(unittest.TestCase):
                 self.assertEqual(report["framework"], expected)
                 self.assertEqual(sorted(report["script_names"]), sorted(package["scripts"]))
 
+    def test_taro_script_named_mp_weixin_is_not_a_uni_app_signal(self) -> None:
+        """Taro projects name scripts like "dev:mp-weixin"; only uni CLI values signal uni-app."""
+        with tempfile.TemporaryDirectory() as temp:
+            project = Path(temp)
+            (project / "package.json").write_text(
+                json.dumps(
+                    {
+                        "dependencies": {"@tarojs/taro": "4.0.0"},
+                        "scripts": {"dev:mp-weixin": "npm run build:mp-weixin -- --watch", "build:mp-weixin": "taro build --type weapp"},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            report = self.run_doctor(project)
+            self.assertEqual(report["framework"], "taro")
+            self.assertNotIn("multiple-framework-signals", report["warnings"])
+            self.assertEqual(report["target_platforms"], ["wechat"])
+
+    def test_script_value_invoking_uni_cli_still_signals_uni_app(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            project = Path(temp)
+            (project / "package.json").write_text(
+                json.dumps({"scripts": {"build:mp-weixin": "uni build -p mp-weixin"}}),
+                encoding="utf-8",
+            )
+            report = self.run_doctor(project)
+            self.assertEqual(report["framework"], "uni-app")
+            self.assertNotIn("multiple-framework-signals", report["warnings"])
+
     def test_unknown_project_is_reported_as_unknown(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             report = self.run_doctor(Path(temp))

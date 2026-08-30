@@ -82,10 +82,13 @@ def detect_framework(root: Path, package: dict[str, Any], warnings: list[str]) -
     taro = any(item.startswith("@tarojs/") for item in deps) or (root / "config/index.js").is_file() or (
         root / "config/index.ts"
     ).is_file()
+    script_values = [scripts[name] for name in script_names if isinstance(scripts.get(name), str)]
     uni_app = (
         any(item.startswith("@dcloudio/") for item in deps)
         or ("manifest.json" in root_entries and (root / "pages.json").is_file())
-        or any("mp-weixin" in item for item in script_names)
+        # A script *name* like "dev:mp-weixin" is a Taro convention too, so the
+        # uni-app signal must come from the script *value* invoking the uni CLI.
+        or any("uni" in value for value in script_values)
     )
     native = (root / "app.json").is_file() or (root / "project.config.json").is_file()
 
