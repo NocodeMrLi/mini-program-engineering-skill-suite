@@ -2,6 +2,22 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.4 - 2026-08-30
+
+### Fixed（上线前质检第二批：5 项延期加固全部落地）
+
+3.1.3 批中排为「下一版」的 5 项 P2/升级项本批完成，上线前审计（7 P1 + 10 P2）至此**全部处置完毕**（含证伪与流程项）。
+
+- **P2 第三方 Actions 固定到不可变提交 SHA**：checkout@v7.0.1 → `3d3c42e`、setup-python@v7.0.0 → `5fda3b9`、upload-artifact@v4 → `65c4c4a1`（v4.6.0）、download-artifact@v4 → `d3f86a10`（v4.3.0），三个 workflow 全部固定并注明原版本号，SHA 经 GitHub API 逐 tag 解析（annotated tag 取其指向 commit）。
+- **P2 接收端绑定 manifest 版本与 VERSION**：新增 `check_version_binding`——manifest `suite_version` 必须与包内 VERSION 文件一致，否则 `version-metadata-mismatch` 拒绝；manifest 缺 VERSION 条目也判 invalid。篡改负例实测：改 manifest 版本号 → valid=false。+3 单元回归（匹配通过/不匹配拒绝/缺文件拒绝）。
+- **P2 安装器多目标事务性**：安装前对全部目标做预检（存在性冲突、父目录可创建、可写），任一失败即「零目标被改动」退出；复制失败自动回滚该目标（删半成品、恢复本次备份）。实测：单目标冲突时其余目标不被触碰；正常路径三目标齐装且版本正确。
+- **升级项 敏感扫描文件大小上限**：>32MB 文件不再无界 `read_bytes`，改为报 `oversized-file` finding（fail-closed，提示拆分或显式上调阈值）。当前仓库最大资产 4.4MB，阈值留 7 倍余量。负例实测：超限文件触发 finding；全仓扫描仍 0 命中。
+- **P2 文档校验覆盖不足**：i18n 校验新增跨语言事实对齐——六个 README 的徽章版本与 tar 包命令中的版本必须与 VERSION 文件一致（漂移或缺失均报错）。负例实测：单语言 README 版本回退 → valid=false 并指明文件与漂移值。
+
+### 验证
+
+- 143 测试全绿（+3 版本绑定回归）；validate 113 文件；扫描 115 候选 0 命中；i18n 6/6 含新事实对齐；导出复验 113 文件 valid；安装器正/负路径实测；3.1.3 批 CI 绿（a40fcc3）。
+
 ## 3.1.3 - 2026-08-30
 
 ### Fixed（上线前质检交叉验证批：10 项实修，1 项证伪免修）

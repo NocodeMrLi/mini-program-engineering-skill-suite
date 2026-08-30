@@ -125,12 +125,40 @@ README_HEADINGS: dict[str, list[str]] = {
 
 
 HEADING_RE = re.compile(r"^(#{1,2})\s+.+$", re.MULTILINE)
+# Cross-language fact alignment (audit finding: structure checks alone cannot
+# catch one translation keeping a stale version while others were bumped).
+VERSION_RE = re.compile(r"version-(\d+\.\d+\.\d+)-")
+TARBALL_RE = re.compile(r"mini-program-engineering-suite-v(\d+\.\d+\.\d+)\.tar\.gz")
 
 
 def extract_headings(path: Path) -> list[str]:
     """Return top-level and second-level Markdown headings from a README."""
     text = path.read_text(encoding="utf-8")
     return [match.group(0).strip() for match in HEADING_RE.finditer(text)]
+
+
+def check_fact_alignment(root: Path, errors: list[str]) -> None:
+    """All READMEs must carry the same version as VERSION, everywhere it appears."""
+    version_file = root / "VERSION"
+    canonical = version_file.read_text(encoding="utf-8").strip() if version_file.is_file() else ""
+    if not canonical:
+        errors.append("VERSION: missing or empty")
+        return
+    for readme_name in README_HEADINGS:
+        path = root / readme_name
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+        badge_versions = set(VERSION_RE.findall(text))
+        tarball_versions = set(TARBALL_RE.findall(text))
+        if badge_versions - {canonical}:
+            errors.append(f"{readme_name}: badge version drift {sorted(badge_versions)} != {canonical}")
+        if tarball_versions - {canonical}:
+            errors.append(f"{readme_name}: tarball version drift {sorted(tarball_versions)} != {canonical}")
+        if badge_versions and canonical not in badge_versions:
+            errors.append(f"{readme_name}: badge missing current version {canonical}")
+        if tarball_versions and canonical not in tarball_versions:
+            errors.append(f"{readme_name}: tarball missing current version {canonical}")
 
 
 def check_i18n_readme_structure(root: Path) -> dict[str, object]:
@@ -148,6 +176,7 @@ def check_i18n_readme_structure(root: Path) -> dict[str, object]:
             errors.append(
                 f"{readme_name}: heading structure drifted; expected {len(expected)} headings, got {len(actual)}"
             )
+    check_fact_alignment(root, errors)
     return {
         "valid": not errors,
         "errors": errors,

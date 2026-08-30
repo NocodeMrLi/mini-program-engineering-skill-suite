@@ -211,20 +211,54 @@ for entry in manifest["files"]:
     shutil.copy2(source / relative, destination)
 PY
 
+# Best-effort rollback for a failed multi-target install: remove the partially
+# copied destination and restore the newest backup if one was taken this run.
+rollback_destination() {
+  local dest="$1"
+  rm -rf "$dest"
+  local newest_backup
+  newest_backup="$(ls -1d "$dest.backup."* 2>/dev/null | sort | tail -n 1)"
+  if [ -n "$newest_backup" ]; then
+    mv "$newest_backup" "$dest"
+    echo "Rolled back $dest from $newest_backup" >&2
+  fi
+}
+
 for destination in "${DESTINATIONS[@]}"; do
   parent="$(dirname "$destination")"
-  mkdir -p "$parent"
+  # Pre-flight every destination BEFORE touching any of them: a mid-loop
+  # failure used to leave earlier targets updated and later ones stale
+  # (mixed-version installs, audit finding: no transactionality).
+  if [ -e "$destination" ] && [ "$FORCE" -ne 1 ]; then
+    echo "Destination already exists: $destination" >&2
+    echo "Use --force to replace it after creating a backup." >&2
+    echo "No destination has been modified (pre-flight check)." >&2
+    exit 1
+  fi
+  if ! mkdir -p "$parent" 2>/dev/null; then
+    echo "Cannot create destination parent directory: $parent" >&2
+    echo "No destination has been modified (pre-flight check)." >&2
+    exit 1
+  fi
+  if [ ! -w "$parent" ]; then
+    echo "Destination parent not writable: $parent" >&2
+    echo "No destination has been modified (pre-flight check)." >&2
+    exit 1
+  fi
+done
+
+for destination in "${DESTINATIONS[@]}"; do
+  parent="$(dirname "$destination")"
   if [ -e "$destination" ]; then
-    if [ "$FORCE" -ne 1 ]; then
-      echo "Destination already exists: $destination" >&2
-      echo "Use --force to replace it after creating a backup." >&2
-      exit 1
-    fi
     backup="$destination.backup.$(date +%Y%m%d%H%M%S)"
     mv "$destination" "$backup"
     echo "Backed up existing installation: $backup"
   fi
-  cp -R "$INSTALL_TREE" "$destination"
+  if ! cp -R "$INSTALL_TREE" "$destination"; then
+    echo "Copy to $destination failed; rolling back already-installed targets." >&2
+    rollback_destination "$destination"
+    exit 1
+  fi
   echo "Installed $SUITE_NAME -> $destination"
 done
 

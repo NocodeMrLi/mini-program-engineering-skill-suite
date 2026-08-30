@@ -104,6 +104,17 @@ def parse_entries(
         return None
     if file_count != len(files):
         errors.add("manifest-file-count-mismatch")
+    suite_version = manifest.get("suite_version")
+    assert isinstance(suite_version, str)
+    # "VERSION" is part of every exported manifest; require the recorded
+    # suite_version to equal the VERSION file's content so a repackaged or
+    # tampered manifest cannot carry wrong version metadata with intact files.
+    for item in files if isinstance(files, list) else []:
+        if isinstance(item, dict) and item.get("path") == "VERSION":
+            break
+    else:
+        errors.add("manifest-invalid")
+        return None
 
     entries: list[tuple[str, int, str]] = []
     seen_paths: set[str] = set()
@@ -152,6 +163,22 @@ def actual_package_files(package: Path, errors: set[str]) -> set[str]:
     return files
 
 
+def check_version_binding(package: Path, manifest: dict[str, object], errors: set[str]) -> None:
+    """Bind manifest version metadata to the packaged VERSION file.
+
+    An intact content set could otherwise ship under wrong version metadata
+    (audit finding: receiver-side version binding was non-existent).
+    """
+    suite_version = manifest.get("suite_version")
+    version_file = package / "VERSION"
+    try:
+        packaged_version = version_file.read_text(encoding="utf-8").strip()
+    except (OSError, UnicodeError):
+        packaged_version = ""
+    if not packaged_version or not isinstance(suite_version, str) or packaged_version != suite_version:
+        errors.add("version-metadata-mismatch")
+
+
 def verify_package(package: Path) -> dict[str, object]:
     """Return a redacted integrity report for one exported package."""
     errors: set[str] = set()
@@ -171,6 +198,9 @@ def verify_package(package: Path) -> dict[str, object]:
         errors.add("file-missing")
     if actual_files - expected_files:
         errors.add("unexpected-file")
+
+    # Bind manifest version metadata to the packaged VERSION file.
+    check_version_binding(package, manifest, errors)
 
     checked_files = 0
     for relative_path, expected_size, expected_digest in entries:

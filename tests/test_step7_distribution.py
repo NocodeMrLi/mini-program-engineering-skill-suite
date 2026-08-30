@@ -44,6 +44,58 @@ class DistributionContractTests(unittest.TestCase):
         self.assertIn("MIT License", license_text)
         self.assertIn("Permission is hereby granted", license_text)
 
+
+class ReceiverVersionBindingTests(unittest.TestCase):
+    """Audit fix: the verifier must bind manifest version metadata to VERSION."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import importlib.util
+        import sys
+
+        scripts_dir = str(ROOT / "scripts")
+        sys.path.insert(0, scripts_dir)
+        try:
+            spec = importlib.util.spec_from_file_location(
+                "verify_public_package_test", ROOT / "scripts" / "verify_public_package.py"
+            )
+            cls.verifier = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(cls.verifier)
+        finally:
+            sys.path.remove(scripts_dir)
+
+    def make_package(self, temp: str, manifest_version: str, file_version: str) -> Path:
+        package = Path(temp) / "pkg"
+        package.mkdir(parents=True, exist_ok=True)
+        (package / "VERSION").write_text(file_version, encoding="utf-8")
+        return package
+
+    def test_matching_versions_pass(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            package = self.make_package(temp, "3.1.4", "3.1.4\n")
+            errors: set[str] = set()
+            self.verifier.check_version_binding(
+                package, {"suite_version": "3.1.4"}, errors
+            )
+        self.assertEqual(errors, set())
+
+    def test_mismatched_manifest_version_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            package = self.make_package(temp, "9.9.9", "3.1.4\n")
+            errors: set[str] = set()
+            self.verifier.check_version_binding(
+                package, {"suite_version": "9.9.9"}, errors
+            )
+        self.assertIn("version-metadata-mismatch", errors)
+
+    def test_missing_version_file_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            package = Path(temp) / "empty"
+            package.mkdir()
+            errors: set[str] = set()
+            self.verifier.check_version_binding(package, {"suite_version": "3.1.4"}, errors)
+        self.assertIn("version-metadata-mismatch", errors)
+
     def test_validator_and_exporter_accept_distribution_files(self) -> None:
         validation = subprocess.run(
             [sys.executable, str(ROOT / "scripts/validate_suite.py"), str(ROOT)],

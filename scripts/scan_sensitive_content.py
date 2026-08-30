@@ -15,6 +15,11 @@ from typing import Iterable, Sequence
 
 SKIP_DIRS = {".git", ".planning", "__pycache__", "tests"}
 SKIP_NAMES = {".DS_Store"}
+# Fail-closed size ceiling: files above this cannot be fully trusted from a
+# single read; the scanner reports them as findings instead of silently
+# skipping content (audit finding: unbounded read_bytes). Current repo max is
+# ~4.4 MB, so 32 MB leaves generous headroom for legitimate media.
+MAX_SCAN_FILE_BYTES = 32_000_000
 
 
 @dataclass(frozen=True)
@@ -130,6 +135,21 @@ def scan_files_with_summary(paths: Iterable[Path], root: Path) -> tuple[list[Fin
         candidate_count += 1
         display_path = path.name if root.is_file() else path.relative_to(root).as_posix()
         try:
+            if path.stat().st_size > MAX_SCAN_FILE_BYTES:
+                fingerprint = hashlib.sha256(display_path.encode("utf-8")).hexdigest()[:12]
+                findings.append(
+                    Finding(
+                        display_path,
+                        0,
+                        "oversized-file",
+                        "oversized-file",
+                        f"File exceeds scan size ceiling ({MAX_SCAN_FILE_BYTES} bytes); "
+                        "split it or raise the ceiling consciously",
+                        fingerprint,
+                        "oversized",
+                    )
+                )
+                continue
             raw_content = path.read_bytes()
         except OSError:
             unreadable_file_count += 1
