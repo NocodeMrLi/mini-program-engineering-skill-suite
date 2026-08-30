@@ -57,6 +57,7 @@ REQUIRED_FILES = (
     "foundation/templates/verification-report.md",
     "foundation/templates/release-checklist.md",
     "scripts/check_foundation_equivalence.py",
+    "scripts/release_gate.sh",
     "shared/templates/project-intake.md",
     "shared/templates/implementation-plan.md",
     "shared/templates/verification-report.md",
@@ -128,8 +129,9 @@ REQUIRED_FILES = (
     "scripts/validate_suite.py",
 )
 EXCLUDED_PARTS = {".git", ".planning", "__pycache__", "tests"}
-# Repo-only assets: tracked in git and covered by the sensitive scan, but not
-# part of the public package (design sources for shipped assets).
+# Repo-only assets: tracked in git, scanned like every other file (binary
+# payloads get the latin-1 full scan since 1.4), but not part of the public
+# package (design sources for shipped assets).
 REPO_ONLY_ASSETS = ("assets/readme-cover-2000x849-v2.webp",)
 MARKDOWN_LINK = re.compile(r"\[[^\]]+\]\(([^)]+)\)")
 DURATION_CLAIM = re.compile(r"(?<!\d)(\d{1,3})\s*(?:[-‑–—]\s*)?(秒|seconds?|วินาที|detik)", re.IGNORECASE)

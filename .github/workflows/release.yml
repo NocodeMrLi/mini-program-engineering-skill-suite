@@ -51,55 +51,10 @@ jobs:
       - name: Run release gates
         run: |
           set -euo pipefail
-          # The summary is written to /tmp first: export_public_package.py scans the
-          # source tree fail-closed, so any artifact left in the tree (dist/ included)
-          # would be rejected as an allowlist violation. It is copied into dist only
-          # after the export succeeds.
-          # gate-summary.json records what the gates ACTUALLY produced (test count,
-          # checked files, scan findings). Release claims must quote these numbers;
-          # filling them from memory caused four consecutive versions of undercounted
-          # test totals (117/119, 117/119, 120/122, 120/122).
-          # The unittest pipeline must gate the release: pipefail alone is not
-          # enough under `cmd | tee` in every shell context, and a failed run can
-          # also omit the "Ran N tests" line entirely (empty count below). Both
-          # the exit code and the parsed count are asserted explicitly.
-          set +e
-          python3 -m unittest discover -s tests -q 2>&1 | tee /tmp/unittest.log
-          unittest_rc="${PIPESTATUS[0]}"
-          set -e
-          test_count="$(grep -Eo 'Ran [0-9]+ tests?' /tmp/unittest.log | grep -Eo '[0-9]+' | head -1 || true)"
-          if [ "$unittest_rc" -ne 0 ]; then
-            echo "unittest failed with rc=$unittest_rc; release blocked" >&2
-            exit 1
-          fi
-          if [ -z "$test_count" ] || [ "$test_count" -eq 0 ]; then
-            echo "unittest reported no tests (discovery failure?); release blocked" >&2
-            exit 1
-          fi
-          validate_json="$(python3 scripts/validate_suite.py .)"
-          scan_json="$(python3 scripts/scan_sensitive_content.py . --format json)"
-          python3 - "$test_count" "$validate_json" "$scan_json" <<'PYEOF'
-          import json, sys
-          from datetime import datetime, timezone
-          test_count = int(sys.argv[1])
-          validate = json.loads(sys.argv[2])
-          scan = json.loads(sys.argv[3])
-          summary = {
-              "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
-              "tests_passed": test_count,
-              "validate_valid": validate["valid"],
-              "validate_checked_files": validate["checked_files"],
-              "skill_count": validate["skill_count"],
-              "scan_candidate_count": scan["candidate_count"],
-              "scan_finding_count": scan["finding_count"],
-          }
-          with open("/tmp/gate-summary.json", "w", encoding="utf-8") as handle:
-              json.dump(summary, handle, ensure_ascii=False, indent=2, sort_keys=True)
-              handle.write("\n")
-          print(json.dumps(summary, ensure_ascii=False))
-          if not validate["valid"] or scan["finding_count"]:
-              sys.exit(1)
-          PYEOF
+          # Gating logic lives in scripts/release_gate.sh so it has committed
+          # regression tests (tests/test_release_gate.py); the summary is written
+          # outside the tree because export_public_package.py scans fail-closed.
+          bash scripts/release_gate.sh . /tmp/unittest.log /tmp/gate-summary.json
 
       - name: Export public package
         run: |

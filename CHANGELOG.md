@@ -2,6 +2,18 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.1 - 2026-08-30
+
+### Fixed（codex 复核报告两项注意，交叉验证后修复）
+
+- repo-only 源图扫描空窗（复核报告注意 1，zcode 深挖加重为 P1.5）：v3.1.0 曾把封面源图加入 SKIP_EXACT_PATHS——经实验证实这不是冗余规则而是实质扫描空窗（1.4 版起二进制资产走 latin-1 逐字节扫描，移除该规则后源图可被扫出文本形态敏感信息，实测 findings=0）。修复：删除该跳过规则恢复完整覆盖（扫描候选 112→115），validate_suite 注释同步改真；源图仍不进公开包。
+- Release 门禁缺已提交回归测试（注意 2）：门禁 shell 从 release.yml 内联段抽为 `scripts/release_gate.sh`（workflow 调用之，行为不变），新增 `tests/test_release_gate.py` 五项回归锁定三种失败形态（单测失败、`Ran 1 test` 单数解析、零测试数）与崩溃路径。抽取过程顺带加固：validate/scan 自身崩溃（非 JSON 输出）现在以明确原因阻断发布，而非隐性 traceback。
+- 过程记录：新脚本首次提交时被自家 fail-closed 白名单拦截（release_gate.sh 未在 REQUIRED_FILES）——#14 同款模式，循环检查在本地即拦截。
+
+### 验证
+
+- 134 测试全绿（+5 门禁回归）；真实仓库 gate 实跑 rc=0、summary=134 tests / 113 files / 0 findings；结构校验 113 文件；i18n 6/6；扫描 115 候选 0 命中；foundation 等价 PASS；导出复验 113 文件且源图不入包。
+
 ## 3.1.0 - 2026-08-30
 
 ### Fixed（codex 全面审计交叉验证批，4 问题项全实证后修复）
