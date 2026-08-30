@@ -124,6 +124,7 @@ class ProposalReviewTests(unittest.TestCase):
             "state": "updated",
             "source": "https://example-official.test/product/",
             "new_digest": "a" * 64,
+            "current_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
         }
         change.update(overrides)
         return {"format_version": 1, "platform": "wechat", "changes": [change]}
@@ -184,6 +185,25 @@ class ProposalReviewTests(unittest.TestCase):
         proposal_path, platform_root = self.prepare(self.build_proposal())
         report = reviewer.review(proposal_path, platform_root, None, rounds=3, shadow=True)
         self.assertTrue(report["shadow"])
+
+    def test_rounds_below_one_is_rejected(self) -> None:
+        # rounds=0 must never shortcut deterministic gates into RECOMMEND_MERGE.
+        proposal_path, platform_root = self.prepare(self.build_proposal())
+        report = reviewer.review(proposal_path, platform_root, None, rounds=0, shadow=True)
+        self.assertEqual(report["verdict"], "DO_NOT_MERGE")
+        self.assertIn("rounds-below-minimum:1", report["problems"])
+
+    def test_missing_statements_fail_closed_before_audit(self) -> None:
+        # A proposal without extracted statements has no auditable evidence;
+        # gate 3 must reject it before any agent call is attempted.
+        proposal_path, platform_root = self.prepare(
+            self.build_proposal(current_statements={})
+        )
+        with patch.object(reviewer, "run_agent") as agent:
+            report = reviewer.review(proposal_path, platform_root, None, rounds=1, shadow=True)
+        agent.assert_not_called()
+        self.assertEqual(report["verdict"], "DO_NOT_MERGE")
+        self.assertTrue(any("missing-current-statements" in item for item in report["problems"]))
 
 
 class ReleaseRecommendationTests(unittest.TestCase):
@@ -411,6 +431,43 @@ class AuditFixRegressionTests(unittest.TestCase):
         e = '<html><head><script>var a=1</script></head><body><p>X</p></body></html>'
         f = '<html><head><script>var b=2</script></head><body><p>X</p></body></html>'
         self.assertEqual(drift.normalized_fingerprint(e), drift.normalized_fingerprint(f))
+
+    def test_nested_div_inside_noisy_div_does_not_leak(self) -> None:
+        # Same-tag nesting: the inner plain </div> must not close the outer
+        # noisy div's skip state and leak menu text into the fingerprint.
+        leak = '<html><body><div class="nav"><div>menu-inner</div></div><p>BODY</p></body></html>'
+        clean = '<html><body><div class="nav"><div>other</div></div><p>BODY</p></body></html>'
+        self.assertEqual(drift.normalized_fingerprint(leak), drift.normalized_fingerprint(clean))
+
+    def test_extractor_survives_deep_and_mismatched_nesting(self) -> None:
+        ok = '<html><body><div class="footer"><div><div><span>x</span></div></div></div><p>BODY</p></body></html>'
+        self.assertNotEqual(drift.normalized_fingerprint(ok), "")
+        stray = '<html><body><div class="header"></div></p><p>BODY</p></body></html>'
+        self.assertNotEqual(drift.normalized_fingerprint(stray), "")
+
+    def test_redirect_off_allowlist_blocked(self) -> None:
+        # Real 302 to an off-allowlist host: the redirect handler must refuse
+        # the hop and fetch must return a fail-closed error, never content.
+        import http.server
+        import threading
+
+        class RedirectOnce(http.server.BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                self.send_response(302)
+                self.send_header("Location", "https://evil.test/leaked")
+                self.end_headers()
+
+            def log_message(self, *args) -> None:  # noqa: ANN002, ANN003, ARG002
+                pass
+
+        server = http.server.HTTPServer(("127.0.0.1", 0), RedirectOnce)
+        host_port = f"127.0.0.1:{server.server_address[1]}"
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(server.shutdown)
+        html_text, error = drift.fetch(f"http://{host_port}/x", [host_port])
+        self.assertIsNone(html_text)
+        self.assertIn("redirect-off-allowlist", error)
 
     def test_drift_watch_mode_is_always_honest(self) -> None:
         with patch.dict(os.environ, {}, clear=False):

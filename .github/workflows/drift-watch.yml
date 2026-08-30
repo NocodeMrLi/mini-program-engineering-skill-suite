@@ -48,11 +48,18 @@ jobs:
       - name: Run deterministic drift check
         env:
           GH_TOKEN: ${{ github.token }}
+          # Passed through env, never interpolated into the script body:
+          # workflow_dispatch inputs are attacker-controllable strings and
+          # inline `${{ }}` insertion is a script-injection vector.
+          PLATFORM_INPUT: ${{ inputs.platform }}
         run: |
           set -uo pipefail
           args=""
-          if [ -n "${{ github.event.inputs.platform }}" ]; then
-            args="--platform-dir platforms/${{ github.event.inputs.platform }}"
+          if [ -n "$PLATFORM_INPUT" ]; then
+            case "$PLATFORM_INPUT" in
+              wechat|alipay|douyin) args="--platform-dir platforms/$PLATFORM_INPUT" ;;
+              *) echo "Unknown platform: $PLATFORM_INPUT" >&2; exit 2 ;;
+            esac
           fi
           # --no-llm keeps detection on the deterministic path (L0/L1 only);
           # --emit-issues keeps the notification chain intact even when the
@@ -76,7 +83,10 @@ jobs:
     needs: detect
     # Run after detect EVEN WHEN detect failed: detect fails precisely when
     # drift is actionable, and that is when the audit (L2 + verdict) matters.
-    if: ${{ !cancelled() && github.event.inputs.skip-audit != true && needs.detect.result != 'skipped' }}
+    # `inputs.*` keeps the declared boolean type; `github.event.inputs.*`
+    # stringifies it, and string-vs-boolean comparison is always true (that
+    # bug made skip-audit impossible to enable for real).
+    if: ${{ !cancelled() && inputs.skip-audit != true && needs.detect.result != 'skipped' }}
 
     steps:
       - name: Checkout repository
@@ -103,6 +113,7 @@ jobs:
           AGENT_API_MODEL: ${{ secrets.AGENT_API_MODEL }}
           EVAL_ENGINE: http
           GH_TOKEN: ${{ github.token }}
+          PLATFORM_INPUT: ${{ inputs.platform }}
         run: |
           set -uo pipefail
           if [ -z "$AGENT_API_KEY" ]; then
@@ -111,9 +122,28 @@ jobs:
             exit 0
           fi
           args=""
-          if [ -n "${{ github.event.inputs.platform }}" ]; then
-            args="--platform-dir platforms/${{ github.event.inputs.platform }}"
+          if [ -n "$PLATFORM_INPUT" ]; then
+            case "$PLATFORM_INPUT" in
+              wechat|alipay|douyin) args="--platform-dir platforms/$PLATFORM_INPUT" ;;
+              *) echo "Unknown platform: $PLATFORM_INPUT" >&2; exit 2 ;;
+            esac
           fi
           # --report bounds the audit to the platforms the detect job scanned;
           # manual-only layers are skipped inside drift_audit either way.
           python3 scripts/drift_audit.py $args --report drift-report.json --rounds 3 --out-dir audit-out --emit-issues
+          # emit-issues reports its own outcome; a structured summary on disk
+          # is the durable fallback when issue creation fails (P2 audit trail).
+          if [ ! -f audit-out/audit-summary.json ]; then
+            echo "audit-summary.json missing after audit run" >&2
+            exit 1
+          fi
+
+      - name: Upload audit output (always)
+        # Structured verdict trail: survives even when issue creation fails or
+        # the audit step above exits non-zero on actionable drift.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-out
+          path: audit-out
+          if-no-files-found: ignore

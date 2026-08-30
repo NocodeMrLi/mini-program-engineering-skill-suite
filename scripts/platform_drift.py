@@ -49,24 +49,39 @@ class TextExtractor(html.parser.HTMLParser):
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        # Stack of tags whose content is being skipped; each end tag only pops
-        # its own kind, so a noisy <span class="nav"> cannot swallow the rest
-        # of the page (a flat counter did exactly that).
-        self._skip_stack: list[str] = []
+        # While any skip entry is open, ALL start tags push a shadow marker so
+        # end tags pair one-to-one with start tags. Without this, a noisy
+        # <div class="nav"> followed by a plain inner <div> would let the inner
+        # </div> pop the outer skip state and leak nav text into the fingerprint
+        # (false-positive drift).
+        self._skip_stack: list[str | None] = []
         self._chunks: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if self._skip_stack:
+            self._skip_stack.append(None)
+            return
         class_attr = dict(attrs).get("class") or ""
         if tag in self.SKIP_TAGS or any(marker in class_attr.lower() for marker in self.NOISE_CLASSES):
             self._skip_stack.append(tag)
 
     def handle_endtag(self, tag: str) -> None:
-        if tag in self._skip_stack:
-            # Pop only the innermost matching open tag of this name.
-            for index in range(len(self._skip_stack) - 1, -1, -1):
-                if self._skip_stack[index] == tag:
-                    self._skip_stack.pop(index)
-                    return
+        if not self._skip_stack:
+            return
+        # Pop the innermost marker that belongs to this tag: a real tag name
+        # pops itself; a shadow marker only pops when it is the matching
+        # closer of a tag opened inside the skip region.
+        for index in range(len(self._skip_stack) - 1, -1, -1):
+            if self._skip_stack[index] == tag:
+                self._skip_stack.pop(index)
+                return
+        # No matching opener (stray or mismatched end tag): pop one shadow
+        # marker so the stack cannot outgrow the real nesting.
+        for index in range(len(self._skip_stack) - 1, -1, -1):
+            if self._skip_stack[index] is None:
+                self._skip_stack.pop(index)
+                return
+        self._skip_stack.pop()
 
     def handle_data(self, data: str) -> None:
         if not self._skip_stack and data.strip():
@@ -123,16 +138,43 @@ def fact_ids_for_rule(rule: dict[str, Any], annotations: dict[str, dict[str, str
     return sorted(fid for fid, meta in annotations.items() if meta["source"] == url)
 
 
+class RedirectBlocked(urllib.error.URLError):
+    """Raised when a redirect hop leaves the domain allowlist."""
+
+
+class AllowlistRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Follow redirects only while every hop stays inside the allowlist."""
+
+    def __init__(self, allowed_domains: list[str]) -> None:
+        super().__init__()
+        self._allowed = allowed_domains
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: ANN001
+        new_domain = newurl.split("/")[2] if "://" in newurl else ""
+        if new_domain not in self._allowed:
+            raise RedirectBlocked(f"redirect-off-allowlist:{new_domain}")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
 def fetch(url: str, allowed_domains: list[str]) -> tuple[str | None, str | None]:
-    """Fetch one URL after enforcing the domain allowlist; return (html, error)."""
+    """Fetch one URL after enforcing the domain allowlist on every hop; return (html, error)."""
     domain = url.split("/")[2] if "://" in url else ""
     if domain not in allowed_domains:
         return None, f"domain-not-allowlisted:{domain}"
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    opener = urllib.request.build_opener(AllowlistRedirectHandler(allowed_domains))
     try:
-        with urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
+        with opener.open(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
             payload = response.read(MAX_PAGE_BYTES + 1)
+    except RedirectBlocked as exc:
+        # Must precede the URLError clause: RedirectBlocked IS a URLError, and
+        # the generic clause would mask the allowlist reason.
+        return None, str(exc.reason)
     except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        # urlopen wraps some handler errors; surface an allowlist reason if one hides inside.
+        reason = getattr(exc, "reason", None)
+        if isinstance(reason, str) and reason.startswith("redirect-off-allowlist"):
+            return None, reason
         return None, f"fetch-failed:{type(exc).__name__}"
     if len(payload) > MAX_PAGE_BYTES:
         return None, "page-too-large"
@@ -164,6 +206,28 @@ EXTRACT_SCHEMA = {
 }
 
 
+def _extract_payload_valid(payload: Any) -> bool:
+    """Enforce EXTRACT_SCHEMA for real: shape, keys, types, duplicates."""
+    if not isinstance(payload, dict) or set(payload) != {"verify_points"}:
+        return False
+    points = payload["verify_points"]
+    if not isinstance(points, list) or not points:
+        return False
+    seen: set[str] = set()
+    for item in points:
+        if not isinstance(item, dict) or set(item) != {"point", "current_statement"}:
+            return False
+        point, statement = item["point"], item["current_statement"]
+        if not isinstance(point, str) or not isinstance(statement, str):
+            return False
+        if not point or not statement:
+            return False
+        if point in seen:
+            return False
+        seen.add(point)
+    return True
+
+
 def l2_extract(url: str, verify_points: list[str], page_text: str) -> tuple[dict[str, Any] | None, str | None]:
     """Extract the current statement per verify point via an extract-only agent call."""
     example = json.dumps(
@@ -192,7 +256,7 @@ def l2_extract(url: str, verify_points: list[str], page_text: str) -> tuple[dict
         payload = json.loads(raw)
     except json.JSONDecodeError as exc:
         return None, f"invalid-extract-output:{type(exc).__name__}"
-    if not isinstance(payload, dict) or not isinstance(payload.get("verify_points"), list):
+    if not _extract_payload_valid(payload):
         return None, "extract-output-shape-invalid"
     return payload, None
 
@@ -296,6 +360,11 @@ def check_rule(
         "verified": recorded_verified,
         "reason": reason,
         "not_stated_points": not_stated,
+        # Per-point current statements feed the faithfulness auditor (gate 5):
+        # without them the auditor has no evidence to compare the proposal
+        # against (the audit prompt asked for SOURCE EXTRACTS that were never
+        # supplied — found in the pre-release audit).
+        "current_statements": statements,
         "url": url,
         "checked_at_utc": utc_now(),
     }
@@ -318,10 +387,15 @@ def emit_proposal(platform: str, results: list[dict[str, Any]]) -> dict[str, Any
                 "new_digest": item["fingerprint"],
                 "reason": item.get("reason"),
                 "not_stated_points": item.get("not_stated_points", []),
+                "current_statements": item.get("current_statements", {}),
             }
             for item in actionable
         ],
-        "evidence_note": "Proposal contains digests and rule ids only; page text stays out of the suite.",
+        "evidence_note": (
+            "Proposal carries per-point current statements extracted from the official "
+            "page (NOT_STATED when absent) so faithfulness audits compare against real "
+            "evidence; page text beyond these statements stays out of the suite."
+        ),
     }
 
 

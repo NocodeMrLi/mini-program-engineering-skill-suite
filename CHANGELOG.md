@@ -2,6 +2,29 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.3 - 2026-08-30
+
+### Fixed（上线前质检交叉验证批：10 项实修，1 项证伪免修）
+
+上线前审计（codex 产出、zcode 逐项交叉验证）判定 7 项 P1 阻塞 + 10 项 P2。交叉验证后确认 5 项 P1 属实、1 项降级、1 项基本证伪（README 早已如实标注支付宝/抖音 manual-only）；P2 中 HTML 提取器缺陷升格必修。本批修复 10 项，另有关键实证：**12:35 CI 检出的「3 条微信漂移」全部为提取器假阳性**（见 P2-1 条目）。
+
+- **P1 忠实性审计无证据（gate5 空转）**：审计提示词要求对比「提案与源摘录」，但提案只含 digest/规则 ID，从无摘录——结构上不可能做出判断（当天 CI 实测 `agent-output-not-json` 旁证）。修复：L2 抽取的逐点 `current_statements` 写入提案与漂移报告，审计 prompt 现在携带真实 SOURCE EXTRACTS，只把元数据（rule_id/state/reason/not_stated_points）交审计对比；缺摘录即 `no-extracted-statements` fail-closed，不再无证据放行。gate3 同步要求提案必须携带非空 `current_statements`（含长度上限 2000 字符/条），防页面正文伪装成证据。
+- **P1 L2 Schema 只定义未执行**：`EXTRACT_SCHEMA` 全仓库零引用，实际仅查顶层 dict/list。修复：`_extract_payload_valid` 真实执行 schema（键集合精确匹配、逐条类型与空值、重复点拒绝），畸形输出统一降级 `extract-output-shape-invalid`，不再可能以 KeyError/TypeError 崩溃审计进程。
+- **P1 skip-audit 开关失效**：`github.event.inputs.*`（字符串）与布尔比较恒真——历史上两次修复（`!` 取反 → `!= true`）方向都错。修复：改用 `inputs.skip-audit`（保真布尔），注释记录教训。
+- **P1 工作流注入面**：`platform` 输入直接内联进 `run:` 脚本体。修复：经 `env: PLATFORM_INPUT` 传入 + `wechat|alipay|douyin` 白名单 case 校验，未知值 exit 2（drift-watch 两处；release.yml 的 tag 本就有 `v*` 前缀校验且不拼接入脚本命令，维持现状）。
+- **P1 基线未裁决 → 实证结案，无需重置**：CI 运行 33311630155 检出 3 条 `fingerprint-changed`、Issue #2–#5 关闭后基线未动，曾判定「下次定时任务必然复发」。**提取器修复后本地实跑：3 条全部 `unchanged`，新算指纹与 facts.md 已记录 digest 逐字一致（同页两次抓取稳定复现）。结论：检出是提取器噪声泄漏制造的假阳性，基线本身正确。**
+- **P2-1 升格 HTML 噪声跳过同标签嵌套缺陷（本批根因）**：外层 `class="nav"` div 内出现普通 div 时，内层 `</div>` 会提前弹出外层跳过态，导航噪声泄入指纹——正是上述 3 条假阳性的根因。修复：跳过态内所有 start tag 压入影子标记（None），end tag 与 start tag 一一配对；杂散闭合标签只弹影子标记。
+- **P2-2 重定向白名单缺口**：`urlopen` 默认跟跳转，最终目标可离开允许域且 L2 会把内容送外部引擎。修复：`AllowlistRedirectHandler` 逐跳校验，越域即 `redirect-off-allowlist:<domain>` fail-closed；异常捕获顺序修正（RedirectBlocked 是 URLError 子类，须在前，且从被包裹的 reason 中还原该错误）。本地 HTTP 服务器真实 302 集成测试验证。
+- **P2-7 审计通知链兜底（残留半项）**：audit job 新增 `always()` 上传 `audit-out` 工件（结构化 verdict 长期保留），运行后缺 `audit-summary.json` 即非零退出。
+- **P1-2 rounds 绕过**：`--rounds 0` 使审计循环空转、确定性门禁通过即 RECOMMEND_MERGE。修复：rounds<1 直接 `DO_NOT_MERGE` + `rounds-below-minimum:1`。
+- **P1-7 残留**：平台上报 Issue 模板下拉仅 wechat，补 alipay/douyin 选项（README 口径本身已如实，无需改）。
+- 证伪免修：三平台产品口径超标——README 早已写明「支付宝与抖音…如实标注为 manual-only…不假装能自动检测」，审计建议的修复内容即现状，无代码可改。
+
+### 验证
+
+- 140 测试全绿（+5 回归：rounds=0 拒绝、缺摘录 fail-closed、嵌套噪声不泄漏、深/错位嵌套存活、真实 302 越域拦截）；drift-watch 本地实跑 actionable_count=0（修复前同日为 3）；结构校验 113 文件；扫描 115 候选 0 命中；导出复验 113 文件 valid。
+- 指纹稳定性实验：同页两次抓取（间隔 2s）指纹逐字一致且与 facts.md 基线一致——证明修复后基线可长期稳定，非碰巧匹配。
+
 ## 3.1.2 - 2026-08-30
 
 ### Fixed（codex 二次复核新注意项）

@@ -13,6 +13,8 @@ body:
       label: Platform
       options:
         - wechat
+        - alipay
+        - douyin
       validations:
         required: true
   - type: input
