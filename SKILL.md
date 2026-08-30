@@ -5,7 +5,7 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.9+ for bundled scripts; framework adapters are optional and discovered read-only.
 metadata:
-  version: "2.2.1"
+  version: "3.0.0"
   author: "Mini Program Engineering Suite contributors"
   maintainers: "Mini Program Engineering Suite contributors"
   language: "zh-CN"
@@ -87,6 +87,7 @@ metadata:
 
 ## 能力地图
 
+- 基础层（3.0 新增，领域无关，可独立分发）：[evidence-first-engineering](foundation/SKILL.md) —— 证据状态模型、工程门禁、判断与确认规则、脱敏规则与四个交付模板的通用版本，位于 `foundation/`；本套件是其第一个垂直应用，`scripts/check_foundation_equivalence.py` 保证通用版与 shared/ 原版不分叉。
 - [项目接管 Skill](skills/mini-program-project-intake-skill/SKILL.md)：只读建立项目事实图、技术栈、风险、未知项和改动边界。
 - [产品规格 Skill](skills/mini-program-product-spec-skill/SKILL.md)：将模糊想法收敛为范围、流程、状态矩阵与可测试验收标准，不发明产品逻辑。
 - [工程架构 Skill](skills/mini-program-architecture-skill/SKILL.md)：把稳定产品语义映射为模块、状态源、数据、接口、权限、失败策略与 ADR。

@@ -46,6 +46,17 @@ REQUIRED_FILES = (
     "shared/redaction-policy.md",
     "shared/documentation-boundaries.md",
     "shared/architecture-layers.md",
+    "foundation/SKILL.md",
+    "foundation/VALIDATE.md",
+    "foundation/guardrails/evidence-status-model.md",
+    "foundation/guardrails/engineering-guardrails.md",
+    "foundation/guardrails/decision-and-confirmation-rules.md",
+    "foundation/guardrails/redaction-policy.md",
+    "foundation/templates/project-intake.md",
+    "foundation/templates/implementation-plan.md",
+    "foundation/templates/verification-report.md",
+    "foundation/templates/release-checklist.md",
+    "scripts/check_foundation_equivalence.py",
     "shared/templates/project-intake.md",
     "shared/templates/implementation-plan.md",
     "shared/templates/verification-report.md",
@@ -411,6 +422,8 @@ def validate(root: Path) -> dict[str, object]:
     i18n_report = check_i18n_readme_structure(root)
     errors.extend(str(error) for error in i18n_report["errors"])
     errors.extend(validate_platform_rule_maps(root))
+    foundation_report = __import__("check_foundation_equivalence").check(root)
+    errors.extend(str(problem) for problem in foundation_report["problems"])
     errors.extend(validate_version_consistency(root))
     errors.extend(validate_public_media_copy(root))
     errors.extend(validate_openai_yaml(root / "agents/openai.yaml", "mini-program-engineering-suite"))

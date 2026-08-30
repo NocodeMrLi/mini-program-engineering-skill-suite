@@ -2,6 +2,23 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.0.0 - 2026-08-30
+
+### Added
+
+- 新增 `foundation/`（evidence-first-engineering 基础技能，领域无关、可独立分发）：SKILL.md（官方 frontmatter 契约）+ 4 份通用治理文档（证据状态模型、工程门禁、判断与确认规则、脱敏规则——其中脱敏规则做了声明式通用化：一处案例句去平台词）+ 4 份通用交付模板 + VALIDATE.md（结构自检与 vendored 同步规则）。
+- 新增 `scripts/check_foundation_equivalence.py`：断言 foundation 与 shared/ 原版逐字节等价（声明的通用化差异白名单制，fail-closed）；已接入 `validate_suite.py`（篡改一个词即校验失败，实测验证）。
+- 主 SKILL 能力地图新增「基础层」条目；本套件定位为该基础层的第一个垂直应用。
+
+### Changed
+
+- 引擎（agent_cli/指纹/审计）留在 `scripts/` 不迁 foundation：独立分发的依赖关系写在 VALIDATE.md（vendored 方自带等价引擎），避免为迁移而动评测基架 import 路径。
+- shared/ 保留原文作为对照源与兼容层（不指针化）：等价性脚本保证不分叉，零既有引用改动。
+
+### Compatibility
+
+- 单仓安装、manifest 完整性、版本成组同步、fail-closed 出包全部不变；对安装者纯增量（foundation 随包分发）。
+
 ## 2.2.1 - 2026-08-30
 
 ### Added
