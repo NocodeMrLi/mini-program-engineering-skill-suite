@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.0.0-0EA5E9.svg" alt="Version: 3.0.0">
+  <img src="https://img.shields.io/badge/version-3.0.1-0EA5E9.svg" alt="Version: 3.0.1">
 </p>
 
 <p align="center">
@@ -116,6 +116,18 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 
 ---
 
+## 平台規則保鮮（2.0 新增）
+
+平台規則會持續變化，寫死在技能裡的規則終會過期。2.0 起本套件採「執行層即時保鮮、內容層受控進化」：
+
+- **執行時永遠以官方為準**：上傳、提審、審核、發布、隱私申報、配額等平台觸點步驟，Agent 會先核對套件記錄的平台事實是否仍然新鮮（每條事實帶核驗日期與來源指紋）；過期或高風險步驟直接查官方現行文件再執行。**本地版本稍舊不會導致按過期規則執行**——只影響查官方的頻率，不影響正確性。
+- **套件內容受控升級**：維護方透過漂移檢測工具（對官方文件做指紋比對）發現規則變化後，經多輪獨立審計提交更新；你可以在 Issues 用 **Platform rule drift** 模板自願上報發現的規則變化。
+- **想用最新版**：從 Releases 下載新包並 `install.sh --force` 重裝；套件永不靜默自動更新本地安裝。
+
+平台事實與規則地圖位於倉庫 `platforms/` 目錄，現覆蓋微信小程式；支付寶、抖音等平台按路線圖在後續版本加入。
+
+---
+
 ## 使用方法
 
 把本倉庫克隆到支援 `SKILL.md` 或專案規則的 Agent 應用目錄中；如果不想手動操作，可以把這句話交給你的 Agent：
@@ -183,7 +195,7 @@ python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 
 ## 目前版本
 
-目前版本：**3.0.0**。
+目前版本：**3.0.1**。
 
 ---
 

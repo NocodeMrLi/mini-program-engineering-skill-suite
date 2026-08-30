@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.0.0-0EA5E9.svg" alt="Version: 3.0.0">
+  <img src="https://img.shields.io/badge/version-3.0.1-0EA5E9.svg" alt="Version: 3.0.1">
 </p>
 
 <p align="center">
@@ -116,6 +116,18 @@ Skill ini tidak ditulis dari tutorial abstrak. Ia disarikan dari kolaborasi jang
 
 ---
 
+## Kesegaran Aturan Platform (baru di 2.0)
+
+Aturan platform terus berubah, sehingga aturan yang di-hardcode ke dalam skill pasti kedaluwarsa. Sejak 2.0 suite ini memakai "segar saat eksekusi, evolusi terkontrol":
+
+- **Eksekusi selalu mengikuti sumber resmi.** Untuk langkah yang menyentuh platform (upload, pengajuan review, rilis, deklarasi privasi, kuota), agent memeriksa dulu apakah fakta yang tercatat masih segar (setiap fakta membawa tanggal verifikasi dan sidik jari sumber); langkah kedaluwarsa atau berisiko tinggi memeriksa dokumentasi resmi terkini sebelum dieksekusi. **Versi lokal yang sedikit lama tidak akan menjalankan aturan kedaluwarsa** — hanya mengubah seberapa sering sumber resmi dikonsultasikan, bukan ketepatan.
+- **Konten berevolusi terkontrol.** Pemelihara mendeteksi perubahan aturan dengan alat drift (perbandingan sidik jari halaman resmi) dan mengirimkan pembaruan melalui audit independen beberapa putaran; Anda dapat melaporkan perubahan yang Anda temukan lewat templat **Platform rule drift** di Issues.
+- **Ingin versi terbaru?** Unduh paket baru dari Releases dan instal ulang dengan `install.sh --force`; suite tidak pernah memperbarui instalasi lokal secara diam-diam.
+
+Fakta platform dan peta aturan berada di direktori `platforms/`, saat ini mencakup WeChat; Alipay, Douyin, dan lainnya menyusul sesuai roadmap.
+
+---
+
 ## Cara Menggunakan
 
 Clone repository ini ke direktori skill atau rules pada aplikasi Agent yang mendukung `SKILL.md`. Jika tidak ingin menjalankan perintah sendiri, kirim kalimat berikut ke Agent yang Anda gunakan:
@@ -187,7 +199,7 @@ python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 
 ## Versi
 
-Versi saat ini: **3.0.0**.
+Versi saat ini: **3.0.1**.
 
 ---
 

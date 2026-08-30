@@ -75,6 +75,7 @@ REQUIRED_FILES = (
     "skills/mini-program-architecture-skill/assets/architecture-decision-record.md",
     "skills/wechat-mini-program-platform-skill/SKILL.md",
     "skills/wechat-mini-program-platform-skill/agents/openai.yaml",
+    "platforms/README.md",
     "platforms/wechat/platform-evidence-layers.md",
     "platforms/wechat/wechat-platform-checklist.md",
     "platforms/wechat/privacy-permission-matrix.md",
@@ -394,8 +395,6 @@ def validate_public_media_copy(root: Path) -> list[str]:
     return errors
 
 
-def validate(root: Path) -> dict[str, object]:
-    """Return a machine-readable validation report."""
 def discover_child_names(root: Path) -> tuple[str, ...]:
     """Enumerate child skills from the filesystem as the single source of truth."""
     skills_dir = root / "skills"

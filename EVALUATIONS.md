@@ -52,7 +52,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 门禁 | 结论 | 关键指标 | 审计元数据 |
 | --- | --- | --- | --- |
-| tier1 | PASS（重跑） | checks 22; skills 10 | engine=local |
+| tier1 | PASS（重跑） | checks 22; skills 10（根 Skill + 9 子 Skill）| engine=local |
 | foundation 等价性断言 | PASS | 8 文件：7 逐字节等价 + 1 声明差异；篡改一词即红（实测） | local |
 | tier2×2 / behavior×2 / methodology-dev | PASS（复用 2.2.1） | accuracy 1.00；skill 1.00 无回归 | 子 Skill 文本零变更 |
 | methodology-held-out | PASS（重跑） | skill 1.00; baseline 0.33; non-regression true | engine=agent; model=claude:default |
@@ -66,7 +66,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 门禁 | 结论 | 关键指标 | 审计元数据 |
 | --- | --- | --- | --- |
-| tier1 结构、预算与资源引用 | PASS（重跑） | checks 22; skills 10 | engine=local |
+| tier1 结构、预算与资源引用 | PASS（重跑） | checks 22; skills 10（根 Skill + 9 子 Skill）| engine=local |
 | 基架等价探针 | PASS（单 case） | decision/claims/actions 结构完整 | engine=agent; model=claude:default |
 | tier2×2 / tier3×4 | PASS（复用 2.2.0） | accuracy 1.00；skill 1.00 无回归 | 子 Skill 文本零变更 |
 | 结构校验 | PASS | 100 个公共文件 | local |
@@ -79,7 +79,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 门禁 | 结论 | 关键指标 | 审计元数据 |
 | --- | --- | --- | --- |
-| tier1 结构、预算与资源引用 | PASS（重跑） | checks 22; skills 10 | engine=local |
+| tier1 结构、预算与资源引用 | PASS（重跑） | checks 22; skills 10（根 Skill + 9 子 Skill）| engine=local |
 | tier2 路由评测（development/held-out） | PASS（复用 2.1.0） | accuracy 1.00 × 2 | 子 Skill 描述未变 |
 | tier3 行为评测（development/held-out） | PASS（复用 2.1.0） | skill 1.00; non-regression true | 行为类 Skill 文本未变 |
 | tier3 方法论评测（development） | PASS（重跑，敏感面抽样） | skill 1.00; baseline 0.67; non-regression true | engine=agent; model=claude:default |
@@ -94,7 +94,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 门禁 | 结论 | 关键指标 | 审计元数据 |
 | --- | --- | --- | --- |
-| tier1 结构、预算与资源引用 | PASS（重跑） | checks 22; skills 10 | engine=local |
+| tier1 结构、预算与资源引用 | PASS（重跑） | checks 22; skills 10（根 Skill + 9 子 Skill）| engine=local |
 | tier2 路由评测（development） | PASS（复用 2.0.0） | accuracy 1.00 (32/32) | 子 Skill 描述与 2.0.0 评测输入逐字节一致 |
 | tier2 路由评测（held-out） | PASS（复用 2.0.0） | accuracy 1.00 (32/32) | 同上 |
 | tier3 行为评测（development/held-out） | PASS（复用 2.0.0） | skill 1.00; non-regression true | 行为类 Skill 文本未变 |
@@ -110,7 +110,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 门禁 | 结论 | 关键指标 | 审计元数据 |
 | --- | --- | --- | --- |
-| tier1 结构、预算与资源引用 | PASS | checks 22; skills 10 | engine=local |
+| tier1 结构、预算与资源引用 | PASS | checks 22; skills 10（根 Skill + 9 子 Skill）| engine=local |
 | tier2 路由评测（development） | PASS | accuracy 1.00 (32/32); 最低 0.90 | engine=agent; model=claude:default |
 | tier2 路由评测（held-out） | PASS | accuracy 1.00 (32/32); 最低 0.90 | engine=agent; model=claude:default |
 | tier3 行为评测（development） | PASS | skill 1.00; baseline 1.00; non-regression true | engine=agent; model=claude:default |
@@ -130,7 +130,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 门禁 | 结论 | 关键指标 | 审计元数据 |
 | --- | --- | --- | --- |
-| tier1 结构、预算与资源引用 | PASS | checks 22; skills 10 | engine=local |
+| tier1 结构、预算与资源引用 | PASS | checks 22; skills 10（根 Skill + 9 子 Skill）| engine=local |
 | tier2 路由评测（development） | PASS | accuracy 1.00 (32/32); 最低 0.90 | engine=agent; model=claude:default |
 | tier2 路由评测（held-out） | PASS | accuracy 1.00 (32/32); 最低 0.90 | engine=agent; model=claude:default |
 | tier3 行为评测（development） | PASS | skill 1.00; baseline 1.00; non-regression true | engine=agent; model=claude:default |

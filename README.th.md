@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.0.0-0EA5E9.svg" alt="Version: 3.0.0">
+  <img src="https://img.shields.io/badge/version-3.0.1-0EA5E9.svg" alt="Version: 3.0.1">
 </p>
 
 <p align="center">
@@ -116,6 +116,18 @@ Skill นี้ไม่ได้เขียนจาก tutorial เชิง�
 
 ---
 
+## ความสดของกฎแพลตฟอร์ม (ใหม่ใน 2.0)
+
+กฎของแพลตฟอร์มเปลี่ยนแปลงตลอดเวลา กฎที่เขียนตายใน skill ย่อมล้าสมัย ตั้งแต่ 2.0 ชุดนี้ใช้หลัก "ปรับสดตอนทำงาน วิวัฒน์แบบควบคุม":
+
+- **ตอนทำงานยึดทางการเสมอ**: ขั้นตอนที่สัมผัสแพลตฟอร์ม (upload/ส่งทวนสอบ/審査/release/privacy/โควตา) จะตรวจความสดของข้อเท็จจริงที่บันทึกไว้ (ทุกข้อมีวันตรวจสอบและลายนิ้วมือของแหล่งที่มา) ก่อน ถ้าล้าสมัยหรือเสี่ยงสูงจะเช็คเอกสารทางการปัจจุบันก่อนทำ **เวอร์ชันท้องถิ่นเก่าหน่อยไม่ทำให้ทำตามกฎล้าสมัย** — กระทบแค่ความถี่ในการเช็ค ไม่กระทบความถูกต้อง
+- **เนื้อหาวิวัฒน์แบบควบคุม**: ผู้ดูแลตรวจจับการเปลี่ยนแปลงด้วยเครื่องมือเทียบลายนิ้วมือของหน้าเอกสารทางการ ผ่านการตรวจสอบอิสระหลายรอบก่อนอัปเดต คุณแจ้งการเปลี่ยนแปลงที่พบได้ผ่านแบบฟอร์ม **Platform rule drift** ใน Issues
+- **อยากใช้เวอร์ชันล่าสุด**: ดาวน์โหลดจาก Releases แล้ว `install.sh --force` — ไม่มีการอัปเดตเงียบโดยไม่แจ้ง
+
+ข้อเท็จจริงและแผนที่กฎอยู่ใน `platforms/` ปัจจุบันครอบ WeChat; Alipay/Douyin ตามโรดแมปในอนาคต
+
+---
+
 ## วิธีใช้
 
 clone repository นี้ไปยัง directory ของ Agent app ที่รองรับ `SKILL.md` หรือ project rules ถ้าไม่อยากติดตั้งเอง ให้ส่งข้อความนี้ให้ Agent ที่คุณใช้อยู่:
@@ -187,7 +199,7 @@ python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 
 ## เวอร์ชัน
 
-เวอร์ชันปัจจุบัน: **3.0.0**.
+เวอร์ชันปัจจุบัน: **3.0.1**.
 
 ---
 

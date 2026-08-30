@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.0.0-0EA5E9.svg" alt="Version: 3.0.0">
+  <img src="https://img.shields.io/badge/version-3.0.1-0EA5E9.svg" alt="Version: 3.0.1">
 </p>
 
 <p align="center">
@@ -26,7 +26,7 @@
   <a href="./README.id.md">Bahasa Indonesia</a>
 </p>
 
-**Mini Program Engineering Skill Suite** は、Agent がミニプログラム開発を段階的に進めるためのスキル套件です。主な対象は WeChat Mini Program で、0 から 1 の開発、既存プロジェクトの引き継ぎ、リリース前の確認を支援します。
+**Mini Program Engineering Skill Suite** は、Agent がミニプログラム開発を段階的に進めるためのスキルスイートです。主な対象は WeChat Mini Program で、0 から 1 の開発、既存プロジェクトの引き継ぎ、リリース前の確認を支援します。
 
 中国語名：**小程序开发工程技能套件**。
 
@@ -116,6 +116,18 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 
 ---
 
+## プラットフォーム規則の鮮度保持（2.0 新機能）
+
+プラットフォーム規則は変化し続けるため、スキルに書き込まれた規則はいずれ陳腐化します。2.0 以降、本スイートは「実行時は常に最新、内容は管理された進化」を採用：
+
+- **実行は常に公式ソースが優先**：アップロード・審査提出・審査・リリース・プライバシー申告・枠などのプラットフォーム接触ステップでは、記録された事実の鮮度（検証日とソース指紋付き）を先に確認し、期限切れまたは高リスクのステップは公式の現行ドキュメントを確認してから実行します。**ローカル版が少し古くても、古い規則で実行されることはありません**——影響するのは公式確認の頻度だけで、正確性には影響しません。
+- **内容は管理された進化**：維持者がドリフト検出ツール（公式ページの指紋比較）で規則の変化を発見し、複数ラウンドの独立監査を経て更新します。発見した規則変化は Issues の **Platform rule drift** テンプレートで自主報告できます。
+- **最新版を使うには**：Releases から新パッケージを取得し `install.sh --force` で再インストール；ローカルをサイレント自動更新することはありません。
+
+プラットフォーム事実とルールマップはリポジトリの `platforms/` にあり、現在は WeChat ミニプログラムをカバー；Alipay・Douyin などはロードマップに沿って今後のバージョンで追加します。
+
+---
+
 ## 使い方
 
 `SKILL.md` またはプロジェクトルールを認識できる Agent アプリのスキルディレクトリに、このリポジトリを clone します。手動でコマンドを打ちたくない場合は、利用中の Agent に次の文を渡してください。
@@ -158,7 +170,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 公開前には、構造検証、機密情報スキャン、公開パッケージ出力、マニフェスト確認、ルーティング評価、行動評価、独立レビューを行います。
 
-2.0 から**プラットフォーム規則の鮮度保持**を導入：アップロード・審査提出・プライバシー申告などのプラットフォーム接触ステップは、常に公式の現行ルールに従って実行されます（套件の記録は検証日付きキャッシュ）。ローカル版が少し古くても、古いルールで実行されることはありません。評価エンジンとモデルは差し替え可能です（codex / claude / gemini / OpenAI 互換 API）。
+2.0 から**プラットフォーム規則の鮮度保持**を導入：アップロード・審査提出・プライバシー申告などのプラットフォーム接触ステップは、常に公式の現行ルールに従って実行されます（本スキルの記録は検証日付きキャッシュ）。ローカル版が少し古くても、古いルールで実行されることはありません。評価エンジンとモデルは差し替え可能です（codex / claude / gemini / OpenAI 互換 API）。
 
 評価レイヤー、証拠の境界、バージョンごとの公開サマリーは [EVALUATIONS.md](EVALUATIONS.md) を参照してください。
 
@@ -187,7 +199,7 @@ python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 
 ## バージョン
 
-現在のバージョン：**3.0.0**。
+現在のバージョン：**3.0.1**。
 
 ---
 

@@ -2,6 +2,20 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.0.1 - 2026-08-30
+
+### Fixed（交叉验证台账批量修复 #2 #3 #4 #6 #7）
+
+- #2：移除 `validate_suite.py` 中 `def validate` 空 docstring 桩（phase 4 改造残迹，双定义之一）。
+- #3：六语言 README「平台规则保鲜」专节补齐——zh-Hant/ja/th/id 四份各补完整专节（原先仅 zh/en 有），并入 `check_i18n_readme_structure.py` 章节清单受结构校验保护，不可回退。
+- #4：README.ja.md 两处中文词混入修正（スキル套件→スキルスイート；套件の記録→本スキルの記録；中文正式名称行保留）。
+- #6：EVALUATIONS.md 三处 `skills 10` 加括注（根 Skill + 9 子 Skill），消除与 validate_suite `skill_count: 9` 的表述歧义。
+- #7：新增 `platforms/README.md` 基线治理边界说明——「运行时保鲜门禁（永不写回）」与「基线刷新（工具实算 digest 走人工 PR）」两种操作的区别表、检测模式（确定性 vs manual-only）与事实标注规范；主 SKILL 链接之。终结每轮审计对「不写回声明 vs digest 存在」的表面冲突疑问。
+
+### 验证
+
+- 124 测试全绿；结构校验 112 文件；i18n 6/6（含新专节结构保护）；扫描 0 命中；foundation 等价断言 PASS。
+
 ## 3.0.0 - 2026-08-30
 
 ### Added
