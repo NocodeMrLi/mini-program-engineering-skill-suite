@@ -594,6 +594,51 @@ class V317AuditFollowUpTests(unittest.TestCase):
         self.assertEqual(r["problems"], [])
 
 
+class V318AuditFollowUpTests(unittest.TestCase):
+    """Committed regressions for the codex seventh/eighth audit fixes."""
+
+    def tearDown(self) -> None:
+        drain_active_temp_dirs()
+
+    def _run(self, proposal) -> dict:
+        proposal_path, platform_root = prepare_proposal_fixture(proposal)
+        drift_report = platform_root.parent / "drift.json"
+        drift_report.write_text(json.dumps({"platform": "wechat", "results": [{
+            "rule_id": "operations-spec-scope", "state": "updated", "fingerprint": "a" * 64,
+            "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
+        }]}))
+        with patch.object(reviewer, "run_agent", return_value=('{"consistent":"consistent","reason":"ok"}', None)):
+            return reviewer.review_guarded(proposal_path, platform_root, drift_report, rounds=1)
+
+    def test_inner_fact_id_must_match_outer_key_and_rule_id(self) -> None:
+        proposal = build_default_proposal()
+        update = proposal["changes"][0]["proposed_fact_updates"]["operations-spec-scope"]
+        update["fact_id"] = "different-inner-id"
+        report = self._run(proposal)
+        self.assertEqual(report["verdict"], "DO_NOT_APPLY")
+        self.assertTrue(any("update-fact-id-mismatch" in item for item in report["problems"]))
+
+    def test_duplicate_change_rule_id_is_rejected(self) -> None:
+        proposal = build_default_proposal()
+        proposal["changes"].append(json.loads(json.dumps(proposal["changes"][0])))
+        report = self._run(proposal)
+        self.assertEqual(report["verdict"], "DO_NOT_APPLY")
+        self.assertTrue(any("duplicate-rule-id" in item for item in report["problems"]))
+
+    def test_rule_map_duplicate_rule_and_verify_points_are_rejected(self) -> None:
+        validator = load_script("validate_suite")
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            platform_root = write_platform(root, FACTS_WITH_TEXT)
+            rule_map = json.loads(json.dumps(RULE_MAP))
+            rule_map["rules"][0]["verify_points"] *= 2
+            rule_map["rules"].append(json.loads(json.dumps(rule_map["rules"][0])))
+            (platform_root / "rule-map.json").write_text(json.dumps(rule_map), encoding="utf-8")
+            errors = validator.validate_platform_rule_maps(root)
+        self.assertTrue(any("duplicate rule id operations-spec-scope" in item for item in errors))
+        self.assertTrue(any("verify_points contains duplicates" in item for item in errors))
+
+
 class V316AuditFollowUpTests(unittest.TestCase):
     """Regressions for the codex fifth-audit batch (3.1.6)."""
 

@@ -83,6 +83,18 @@ def tag_commit(root: Path, tag: str) -> str | None:
     return result.stdout.strip() if result.returncode == 0 else None
 
 
+def is_shallow_repository(root: Path) -> bool:
+    result = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", "--is-shallow-repository"],
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if result.returncode:
+        raise ValueError(f"git-shallow-check-failed:{result.stderr.strip()[:200]}")
+    return result.stdout.strip() == "true"
+
+
 def classify_commit(paths: list[str]) -> str:
     """Pick the most significant class among the commit's touched paths (kept for callers that want one label)."""
     ranking = {"behavior": 4, "tooling": 3, "data": 2, "docs": 1, "assets": 1}
@@ -287,6 +299,21 @@ def manual_verification_status(
 def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = None) -> dict[str, Any]:
     baseline_tag: str | None
     if candidate_tag:
+        # A release candidate needs its parent and prior tags. In a depth-1
+        # checkout the candidate is a grafted root, so classifying it would
+        # treat the whole tree as one change and fabricate the release scope.
+        if is_shallow_repository(root):
+            return {
+                "recommendation": "MANUAL_VERIFICATION_REQUIRED",
+                "level": None,
+                "reasons": ["shallow repository history is incomplete; fetch full history and tags"],
+                "tag": candidate_tag,
+                "baseline_tag": None,
+                "commit_count": 0,
+                "classes": {},
+                "history_complete": False,
+                "manual_verification": {"required": True, "platforms": {}, "evidence": {}},
+            }
         # Release checkout: HEAD sits on the candidate tag. The baseline must be
         # the tag BEFORE the candidate (via its parent), never the candidate
         # itself; and HEAD must actually be the candidate commit.
@@ -296,15 +323,29 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
             return {"recommendation": "MANUAL_VERIFICATION_REQUIRED", "level": None,
                     "reasons": [f"candidate tag {candidate_tag} not found in repository"],
                     "tag": candidate_tag, "baseline_tag": None, "commit_count": 0, "classes": {},
+                    "history_complete": True,
                     "manual_verification": {"required": True, "platforms": {}, "evidence": {}}}
         if current_head != candidate_commit:
             return {"recommendation": "MANUAL_VERIFICATION_REQUIRED", "level": None,
                     "reasons": [f"HEAD {str(current_head)[:8]} != candidate tag commit {candidate_commit[:8]}"],
                     "tag": candidate_tag, "baseline_tag": None, "commit_count": 0, "classes": {},
+                    "history_complete": True,
                     "manual_verification": {"required": True, "platforms": {}, "evidence": {}}}
         baseline_tag = last_tag(root, before=f"{candidate_tag}^") or last_tag(root, before=candidate_tag)
         if baseline_tag == candidate_tag:
             baseline_tag = None
+        if baseline_tag is None:
+            return {
+                "recommendation": "MANUAL_VERIFICATION_REQUIRED",
+                "level": None,
+                "reasons": ["no preceding release tag found for candidate; release history is incomplete"],
+                "tag": candidate_tag,
+                "baseline_tag": None,
+                "commit_count": 0,
+                "classes": {},
+                "history_complete": False,
+                "manual_verification": {"required": True, "platforms": {}, "evidence": {}},
+            }
         tag = baseline_tag
     else:
         tag = last_tag(root)
@@ -316,6 +357,7 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
             return {"recommendation": "MANUAL_VERIFICATION_REQUIRED", "level": None,
                     "reasons": ["no commits between baseline tag and candidate tag"],
                     "tag": tag, "baseline_tag": tag, "commit_count": 0, "classes": {},
+                    "history_complete": True,
                     "manual_verification": {"required": True, "platforms": {}, "evidence": {}}}
         return {"recommendation": "HOLD", "level": None, "reasons": ["no-commits-since-last-tag"], "tag": tag,
                 "baseline_tag": None, "commit_count": 0, "classes": {}}
@@ -344,6 +386,7 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
                     f"threshold is {min_data_changes}; accumulate more or release on demand"
                 ],
                 "tag": tag, "baseline_tag": tag, "commit_count": len(commits), "classes": classes,
+                "history_complete": True,
             }
         level = "patch"
         reasons = [f"{classes['data']} commit(s) of platform fact data only; no behavior or methodology changes"]
@@ -352,7 +395,8 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
             "recommendation": "HOLD",
             "level": None,
             "reasons": ["only documentation/asset changes; release on demand, not required"],
-            "tag": tag, "commit_count": len(commits), "classes": classes,
+            "tag": tag, "baseline_tag": tag, "commit_count": len(commits), "classes": classes,
+            "history_complete": True,
         }
 
     verification = manual_verification_status(root, level, classes, since_tag=tag, candidate_tag=candidate_tag)
@@ -369,6 +413,7 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
             "baseline_tag": tag,
             "commit_count": len(commits),
             "classes": classes,
+            "history_complete": True,
             "manual_verification": verification,
         }
 
@@ -380,6 +425,7 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
         "baseline_tag": tag,
         "commit_count": len(commits),
         "classes": classes,
+        "history_complete": True,
         "manual_verification": verification,
     }
 

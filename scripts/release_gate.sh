@@ -119,25 +119,10 @@ if [ "$recommend_rc" -ne 0 ] || [ "$recommend_verdict" = "error" ] || [ "$recomm
   echo "release_recommendation crashed or errored; release blocked" >&2
   exit 1
 fi
-if [ "$recommend_verdict" = "MANUAL_VERIFICATION_REQUIRED" ]; then
-  echo "MANUAL_VERIFICATION_REQUIRED: record per-platform verification evidence in this release's CHANGELOG entry; release blocked" >&2
-  printf '%s\n' "$recommend_json" >&2
-  exit 1
-fi
-# With a candidate tag, HOLD is anomalous (double tag / empty range / tooling
-# drift) — it must block, not pass through as success (the P0 bypass shape).
-if [ "$recommend_verdict" = "HOLD" ] && [ -n "$candidate_tag" ]; then
-  echo "HOLD with candidate tag $candidate_tag is anomalous (empty range or mis-sequenced tags); release blocked" >&2
-  printf '%s\n' "$recommend_json" >&2
-  exit 1
-fi
-# Unknown verdict values fail closed.
-case "$recommend_verdict" in
-  RECOMMEND_RELEASE|HOLD) ;;
-  *) echo "unknown recommendation verdict '$recommend_verdict'; release blocked" >&2; exit 1 ;;
-esac
 
-# Fourth-gate details go into the summary (rewritten with the gate result):
+# A valid recommender result is evidence even when its verdict blocks. Persist
+# it before any verdict exit so the always-upload workflow step preserves the
+# complete fourth-gate trail for failed releases too.
 python3 - "$summary_path" "$candidate_tag" "$recommend_json" <<'GATEPY'
 import json
 import sys
@@ -150,6 +135,11 @@ with open(summary_path, encoding="utf-8") as handle:
 summary["candidate_tag"] = candidate_tag or None
 summary["baseline_tag"] = recommend.get("baseline_tag")
 summary["release_recommendation"] = recommend.get("recommendation")
+summary["release_level"] = recommend.get("level")
+summary["release_commit_count"] = recommend.get("commit_count")
+summary["release_classes"] = recommend.get("classes") or {}
+summary["release_reasons"] = recommend.get("reasons") or []
+summary["history_complete"] = recommend.get("history_complete")
 mv = recommend.get("manual_verification") or {}
 summary["manual_verification_required"] = mv.get("required")
 summary["manual_verification_platforms"] = {
@@ -157,6 +147,7 @@ summary["manual_verification_platforms"] = {
         "needs_verification": detail.get("needs_verification"),
         "unknown_count": detail.get("unknown_count"),
         "oldest_verified": detail.get("oldest_verified"),
+        "why": detail.get("why") or [],
     }
     for name, detail in (mv.get("platforms") or {}).items()
 }
@@ -165,3 +156,21 @@ with open(summary_path, "w", encoding="utf-8") as handle:
     json.dump(summary, handle, ensure_ascii=False, indent=2, sort_keys=True)
     handle.write("\n")
 GATEPY
+
+if [ "$recommend_verdict" = "MANUAL_VERIFICATION_REQUIRED" ]; then
+  echo "MANUAL_VERIFICATION_REQUIRED: record per-platform verification evidence in this release's CHANGELOG entry; release blocked" >&2
+  printf '%s\n' "$recommend_json" >&2
+  exit 1
+fi
+# With a candidate tag, HOLD is anomalous (double tag / empty range / tooling
+# drift) — it must block, not pass through as success (the P0 bypass shape).
+if [ "$recommend_verdict" = "HOLD" ] && [ -n "$candidate_tag" ]; then
+  echo "HOLD with candidate tag $candidate_tag is anomalous (empty range or mis-sequenced tags); release blocked" >&2
+  printf '%s\n' "$recommend_json" >&2
+  exit 1
+fi
+# Unknown verdict values fail closed after their valid payload is preserved.
+case "$recommend_verdict" in
+  RECOMMEND_RELEASE|HOLD) ;;
+  *) echo "unknown recommendation verdict '$recommend_verdict'; release blocked" >&2; exit 1 ;;
+esac
