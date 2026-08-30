@@ -60,6 +60,9 @@ jobs:
           python3 scripts/drift_watch.py $args --no-llm --output drift-report.json --emit-issues
 
       - name: Upload drift report
+        # Detection fails (rc=1) exactly when drift is actionable — that is
+        # when the audit stage needs this artifact most. Always upload.
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: drift-report
