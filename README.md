@@ -329,3 +329,5 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 ## 许可证
 
 本项目采用 **MIT License** 开源发布，详见 [LICENSE](LICENSE)。你可以自由使用、修改、分发和商用本项目，但需保留版权声明与许可说明。
+
+<!-- practice: this line exists only to learn the PR merge flow; it will be removed after the exercise -->
