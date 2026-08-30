@@ -2,6 +2,28 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.7 - 2026-08-31
+
+### Fixed（codex 六次复核批：3 P1 + 2 P2 + 1 P3 全部修复，按其建议顺序）
+
+- **P1-1 抖音事实标注与规则地图失联**（3.1.6 漏改 facts 机器注释所致）：privacy-protection 注释补指配置隐私协议页。结构性修复：`validate_facts_rule_map_binding` 新增 facts/rule-map 交叉校验——按 **fact.id == rule.id** 强绑定（不再按 URL 推导），fact.source 必须等于 rule.official.url，拒绝孤儿事实/无事实规则/重复 ID。微信旧布局（一规则多事实）一并对齐：release-review-operations 拆分为 operations-spec-scope 与 review-rejection-flow 两条规则，privacy-protection-declarations 更名 privacy-guideline-required，三平台全部 1:1。篡改任一事实 URL → validate 非零 → Release gate 阻断。
+- **P1-2 gate2 允许跨规则替换**：codex 探针（r1 陈述+r2 URL/fact）实测穿透。修复：**rule_id 为唯一入口**——change.rule_id → rule-map 规则 → official.url → 同 ID 事实，提案自报的 URL/fact 必须与 rule-map 推导一致，不一致报 `official-url-not-bound-to-rule` / `fact-source-not-bound-to-rule` / `unknown-rule`。
+- **P1-3 核验证据错误放行（三处）**：证据改为**按平台独立结构** {platform: {date, tag}}（一条 douyin 不再覆盖 alipay）；证据 tag 必须等于**候选 tag**（`--candidate-tag`，release.yml 传 RESOLVED_TAG；不再把当前 tag 当比较基线）；证据日期必须与该平台 facts.md 全部 verified 一致。合并写法「alipay/douyin facts 人工核验于…」同时为两平台记证据。**接入 release_gate.sh 第四道门**：`MANUAL_VERIFICATION_REQUIRED` / 建议器崩溃 / 解析失败 → 非零退出阻断发布（模拟仓库实测拦截生效；合法双平台证据放行）。平台目录缺失的树（夹具）视为无核验对象，结构完整性由 validate_suite 保证。
+- **P2-1 gate2 畸形输入崩溃/静默放行**：`_contract_types_valid` 类型门禁先行——requested_verify_points 必须非空字符串列表且无重复（原重复项被 set 去重后放行）；proposed_fact_updates 必须对象且每项字段集精确匹配四元组、字段非空字符串（原传列表触发 `TypeError: unhashable` 崩溃）。`review_guarded` 异常兜底：任何意外输入统一 `DO_NOT_APPLY + gate2:proposal-contract-invalid`，审计器不再可能 traceback。null/数字/嵌套/列表/重复/空串全负例实测拒绝且进程不崩。
+- **P2-2 文档自相矛盾**：15 号第五/六/七节整体重写为现行人工裁决模式（裁决词表、作者动作、诚实边界、门禁地位），旧自动合并设计移入「历史设计（已废弃，不得执行）」章节；正文残留 RECOMMEND_MERGE/自动合并进 main 全部清除（仅存于带废弃横幅的历史章节）。18 号报告速览更新至 3.1.6 终态。
+- **P3 测试临时目录泄漏**：夹具提取为模块级函数 `prepare_proposal_fixture` / `build_default_proposal`（不再手动实例化 TestCase——其 addCleanup 永不执行）；`tearDown` 统一清理，`-W error::ResourceWarning` 下全套测试零警告。
+
+### 平台核验（本批）
+
+- alipay facts 人工核验于 2026-08-31 (tag: v3.1.7)
+- douyin facts 人工核验于 2026-08-31 (tag: v3.1.7)
+
+（alipay 沿用 2026-08-30 首验结论，本批复核 facts.md 内容无变化，verified 日期统一记 2026-08-31 与证据行对齐；douyin 为二次核验：privacy 页更新时间 2026-08-28 已复核。）
+
+### 验证
+
+- 161 测试全绿（V317 探针回归：跨规则 URL/未知规则/列表 updates/重复核对点/null/数字全拒 + 合法提案通过 + 仅单平台证据 major 拒 + tag 不符拒 + 日期不齐拒 + 双平台 major 过）；validate 113 文件（含新交叉校验）；扫描 0 命中；i18n 6/6；导出复验 113 文件；`-W error::ResourceWarning` 全套零警告；release_gate.sh 带候选 tag 实测：证据齐→过、缺 alipay 证据→MANUAL_VERIFICATION_REQUIRED 阻断。
+
 ## 3.1.6 - 2026-08-31
 
 ### Fixed（codex 五次复核批：3 P1 + 4 P2 + 1 P3 全部修复）

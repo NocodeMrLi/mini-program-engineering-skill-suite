@@ -360,7 +360,53 @@ def validate_platform_rule_maps(root: Path) -> list[str]:
             points = rule.get("verify_points")
             if not isinstance(points, list) or not points or not all(isinstance(p, str) and p for p in points):
                 errors.append(f"{path}: {rule_id} verify_points must be non-empty strings")
+        validate_facts_rule_map_binding(path, data, errors)
     return errors
+
+
+FACT_ANNOTATION_LINE = re.compile(
+    r"<!--\s*fact:\s*(?P<id>[^\s]+)\s+verified=(?P<verified>[^\s]+)\s+source=(?P<source>\S+)\s+digest=(?P<digest>\S+)\s*-->"
+)
+
+
+def validate_facts_rule_map_binding(path: Path, rule_map: dict[str, object], errors: list[str]) -> None:
+    """Cross-bind facts.md annotations to rule-map rules by fact.id == rule.id.
+
+    URL-derived linkage is what let a stale annotation (privacy note still
+    pointing at the old review page) silently re-route rule associations
+    (codex sixth audit): binding by ID first, then requiring the fact's
+    source to equal the rule's official.url, catches that at validation time.
+    """
+    import sys as _sys
+
+    facts_path = path.parent / "facts.md"
+    rules = rule_map.get("rules") if isinstance(rule_map.get("rules"), list) else []
+    if not facts_path.is_file():
+        for rule in rules:
+            if isinstance(rule, dict) and isinstance(rule.get("id"), str):
+                errors.append(f"{facts_path}: missing; rule {rule['id']} has no facts file")
+        return
+    seen: dict[str, str] = {}
+    for m in FACT_ANNOTATION_LINE.finditer(facts_path.read_text(encoding="utf-8")):
+        fid, source = m.group("id"), m.group("source")
+        if fid in seen:
+            errors.append(f"{facts_path}: duplicate fact id {fid}")
+        seen[fid] = source
+    rule_ids = set()
+    for rule in rules:
+        if not isinstance(rule, dict) or not isinstance(rule.get("id"), str):
+            continue
+        rid = rule["id"]
+        rule_ids.add(rid)
+        official = rule.get("official")
+        url = official.get("url") if isinstance(official, dict) else None
+        if rid not in seen:
+            errors.append(f"{facts_path}: rule {rid} has no matching fact annotation")
+        elif url is not None and seen[rid] != url:
+            errors.append(f"{facts_path}: fact {rid} source != rule-map official.url ({seen[rid]} != {url})")
+    for fid in seen:
+        if fid not in rule_ids:
+            errors.append(f"{facts_path}: orphan fact {fid} has no rule with the same id")
 
 
 def read_mp4_duration_seconds(path: Path) -> float | None:

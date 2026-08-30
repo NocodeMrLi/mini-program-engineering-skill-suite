@@ -104,60 +104,77 @@ def collect_commits(root: Path, tag: str | None) -> list[dict[str, Any]]:
     return commits
 
 
-CHANGELOG_VERIFICATION_RE = re.compile(
-    r"(?:alipay|douyin)\s+facts\s+人工核验于\s*(?P<date>\d{4}-\d{2}-\d{2})(?:\s*\([^)]*tag[:：]\s*(?P<tag>[v0-9.]+)[^)]*\))?",
+PLATFORM_TOKEN = r"(?:alipay(?:\s*/\s*douyin)?|douyin(?:\s*/\s*alipay)?)"
+PLATFORM_VERIFICATION_RE = re.compile(
+    PLATFORM_TOKEN
+    + r"\s+facts\s+人工核验于\s*(?P<date>\d{4}-\d{2}-\d{2})"
+    + r"(?:\s*\([^)]*tag[:：]\s*(?P<tag>[v0-9.]+)[^)]*\))?",
     re.IGNORECASE,
 )
 
 
-def changelog_verification_evidence(root: Path, since_tag: str | None) -> dict[str, Any]:
-    """Read manual-verification evidence from CHANGELOG entries after the last tag.
+def changelog_verification_evidence(root: Path, since_tag: str | None) -> dict[str, dict[str, str | None]]:
+    """Parse per-platform manual-verification evidence from this cycle's CHANGELOG.
 
-    Policy option (a): the CHANGELOG entry for the version being released
-    records 'alipay/douyin facts 人工核验于 YYYY-MM-DD'，optionally with the
-    tag it applies to (e.g. '... 人工核验于 2026-08-31 (tag: v3.1.6)'). A
-    verification recorded THIS release cycle satisfies the requirement even
-    for major releases — the date alone (which only proves 'sometime in the
-    past') never could.
+    Returns {platform: {date, tag}}. A single douyin line must never satisfy
+    alipay (the global-boolean bug, codex sixth audit); a tag that does not
+    equal the candidate tag is not evidence for this release; the evidence
+    date must also match every facts.md verified date for that platform.
     """
     changelog = root / "CHANGELOG.md"
+    empty: dict[str, dict[str, str | None]] = {}
     if not changelog.is_file():
-        return {"found": False, "dates": [], "tags": []}
+        return empty
     text = changelog.read_text(encoding="utf-8")
     if since_tag:
-        # keep only the portion after the previous tag's version header
         version = since_tag.lstrip("v")
         marker = f"## {version} "
         idx = text.find(marker)
         if idx > 0:
             text = text[:idx]
     else:
-        # no previous tag: only the topmost (unreleased) version block counts
-        # — a verification recorded in an older entry is not this-cycle.
         first = text.find("\n## ")
         if first >= 0:
             second = text.find("\n## ", first + 1)
             text = text[first:second] if second > 0 else text[first:]
-    dates: list[str] = []
-    tags: list[str] = []
-    for m in CHANGELOG_VERIFICATION_RE.finditer(text):
-        dates.append(m.group("date"))
-        if m.group("tag"):
-            tags.append(m.group("tag"))
-    return {"found": bool(dates), "dates": dates, "tags": tags}
+    evidence: dict[str, dict[str, str | None]] = {}
+    for m in PLATFORM_VERIFICATION_RE.finditer(text):
+        entry = {"date": m.group("date"), "tag": m.group("tag")}
+        matched = m.group(0).lower()
+        for platform in MANUAL_ONLY_PLATFORMS:
+            if platform in matched:
+                evidence[platform] = dict(entry)
+    return evidence
+
+
+def _valid_utc_date(value: str | None) -> bool:
+    if not value:
+        return False
+    try:
+        datetime.strptime(value, "%Y-%m-%d")
+        return True
+    except ValueError:
+        return False
 
 
 def manual_verification_status(
-    root: Path, level: str, classes: dict[str, int], since_tag: str | None = None
+    root: Path,
+    level: str,
+    classes: dict[str, int],
+    since_tag: str | None = None,
+    candidate_tag: str | None = None,
 ) -> dict[str, Any]:
     """Check manual-only platform fact verification against the release policy.
 
-    - major: every fact must be verified, with THIS-cycle evidence.
-    - minor: verified within VERIFICATION_MAX_AGE_DAYS or with this-cycle
-      evidence (required when this release touches platform facts/governance).
-    - patch: only when this release touches platform facts.
-    Evidence of a verification done for THIS release (CHANGELOG line, option a)
-    satisfies the requirement; a bare past date alone does not.
+    Evidence is per-platform, from THIS cycle's CHANGELOG block, and must
+    carry the candidate tag (option a). Checks per platform:
+    - evidence exists for THIS platform (a douyin line never covers alipay)
+    - evidence tag == candidate tag when a candidate is supplied
+    - evidence date is a valid UTC date
+    - every facts.md verified date for the platform == evidence date
+    Level rules: major requires both platforms; minor requires platforms that
+    are stale (>90d) or touched by this release (data class); patch requires
+    platforms whose facts this release touches.
     """
     now = datetime.now(timezone.utc)
     evidence = changelog_verification_evidence(root, since_tag)
@@ -166,7 +183,12 @@ def manual_verification_status(
     for platform in MANUAL_ONLY_PLATFORMS:
         facts_path = root / "platforms" / platform / "facts.md"
         if not facts_path.is_file():
-            details[platform] = {"status": "no-facts-file"}
+            # Platform directory absent in this tree (fixture or trimmed repo):
+            # no facts to verify. Structural completeness (all bundled platforms
+            # present) is enforced by validate_suite's rule-map/facts binding,
+            # not by the verification gate.
+            details[platform] = {"status": "no-facts-file", "needs_verification": False,
+                                 "why": ["platform not present in this tree"]}
             continue
         verified_dates = [
             m.group("verified")
@@ -180,52 +202,61 @@ def manual_verification_status(
             except ValueError:
                 continue
         oldest = min(dated) if dated else None
-        this_cycle_verified = evidence["found"]
-        needs = False
-        why: list[str] = []
+
+        # does this release REQUIRE verification for this platform?
+        must_verify = False
+        trigger = ""
         if level == "major":
-            needs = not this_cycle_verified
-            why.append(
-                "this-cycle CHANGELOG verification evidence present"
-                if this_cycle_verified
-                else "major releases require re-verification recorded in this release's CHANGELOG entry"
-            )
+            must_verify = True
+            trigger = "major release requires both manual-only platforms"
         elif level == "minor":
             if classes.get("data"):
-                needs = not this_cycle_verified
-                why.append(
-                    "this release touches platform fact data; CHANGELOG verification evidence present"
-                    if this_cycle_verified
-                    else "this release touches platform fact data and lacks this-cycle verification evidence"
-                )
+                must_verify = True
+                trigger = "this release touches platform fact data"
             elif oldest is None or now - oldest > timedelta(days=VERIFICATION_MAX_AGE_DAYS):
-                needs = not this_cycle_verified
-                why.append(
-                    f"{'CHANGELOG evidence present'}" if this_cycle_verified
-                    else f"last verification older than {VERIFICATION_MAX_AGE_DAYS} days and no this-cycle evidence"
-                )
+                must_verify = True
+                trigger = f"last verification older than {VERIFICATION_MAX_AGE_DAYS} days"
         elif classes.get("data"):
-            needs = not this_cycle_verified
-            why.append(
-                "this release touches platform fact data; verification evidence present"
-                if this_cycle_verified
-                else "this release touches platform fact data and lacks verification evidence"
-            )
-        if unknown and (level == "major" or needs):
-            needs = True
+            must_verify = True
+            trigger = "this release touches platform fact data"
+
+        if not must_verify:
+            details[platform] = {
+                "needs_verification": False,
+                "why": ["no verification trigger for this platform at this level"],
+                "unknown_count": len(unknown),
+                "oldest_verified": oldest.date().isoformat() if oldest else None,
+            }
+            continue
+
+        why: list[str] = [trigger]
+        ev = evidence.get(platform)
+        if ev is None:
+            why.append(f"no {platform} evidence line in this cycle's CHANGELOG")
+        else:
+            if candidate_tag and ev.get("tag") != candidate_tag:
+                why.append(f"evidence tag {ev.get('tag')} != candidate {candidate_tag}")
+            if not _valid_utc_date(ev.get("date")):
+                why.append("evidence date is not a valid UTC date")
+            # every fact's verified date must equal the evidence date
+            mismatched = [v for v in verified_dates if v != ev.get("date")]
+            if mismatched:
+                why.append(f"{len(mismatched)} fact(s) verified date != evidence date {ev.get('date')}")
+        if unknown:
             why.append(f"{len(unknown)} fact(s) still verified=unknown")
+        needs = bool(why[1:]) or bool(unknown)
         if needs:
             required = True
         details[platform] = {
-            "unknown_count": len(unknown),
-            "oldest_verified": oldest.date().isoformat() if oldest else None,
             "needs_verification": needs,
             "why": why,
+            "unknown_count": len(unknown),
+            "oldest_verified": oldest.date().isoformat() if oldest else None,
         }
-    return {"required": required, "platforms": details}
+    return {"required": required, "platforms": details, "evidence": evidence}
 
 
-def recommend(root: Path, min_data_changes: int) -> dict[str, Any]:
+def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = None) -> dict[str, Any]:
     tag = last_tag(root)
     commits = collect_commits(root, tag)
     if not commits:
@@ -267,7 +298,7 @@ def recommend(root: Path, min_data_changes: int) -> dict[str, Any]:
             "tag": tag, "commit_count": len(commits), "classes": classes,
         }
 
-    verification = manual_verification_status(root, level, classes, since_tag=tag)
+    verification = manual_verification_status(root, level, classes, since_tag=tag, candidate_tag=candidate_tag)
     if verification["required"]:
         return {
             "recommendation": "MANUAL_VERIFICATION_REQUIRED",
@@ -298,10 +329,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("root", nargs="?", type=Path, default=Path("."), help="Repository root")
     parser.add_argument("--min-data-changes", type=int, default=1, help="Minimum data commits for a patch release")
+    parser.add_argument("--candidate-tag", help="Tag being released (e.g. v3.1.7); verification evidence must carry this tag")
     parser.add_argument("--format", choices=("json", "text"), default="text")
     args = parser.parse_args(argv)
     try:
-        report = recommend(args.root.resolve(), args.min_data_changes)
+        report = recommend(args.root.resolve(), args.min_data_changes, candidate_tag=args.candidate_tag)
     except ValueError as exc:
         print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
         return 2

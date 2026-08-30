@@ -38,7 +38,7 @@ RULE_MAP = {
     "allowed_domains": ["example-official.test"],
     "rules": [
         {
-            "id": "release-review-operations",
+            "id": "operations-spec-scope",
             "step_class": "upload/review/release",
             "ttl_days": 0,
             "official": {
@@ -127,33 +127,67 @@ class DriftFetchTests(unittest.TestCase):
 
 class ProposalReviewTests(unittest.TestCase):
     def build_proposal(self, **overrides) -> dict:
-        change = {
-            "rule_id": "release-review-operations",
-            "state": "updated",
-            "official_url": "https://example-official.test/product/",
-            "fingerprint": "a" * 64,
-            "requested_verify_points": ["提审与发布流程要求"],
-            "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
-            "proposed_fact_updates": {
-                "operations-spec-scope": {
-                    "fact_id": "operations-spec-scope",
-                    "current_text": "运营规范当前覆盖提审与发布要求，以平台当前版本为准。",
-                    "proposed_text": "提审与发布流程要求: 提审前须完成安全检测。",
-                    "source_digest": "a" * 64,
-                }
-            },
-        }
-        change.update(overrides)
-        return {"format_version": 2, "platform": "wechat", "changes": [change]}
+        return build_default_proposal(**overrides)
+
+
+def build_default_proposal(**overrides) -> dict:
+    change = {
+        "rule_id": "operations-spec-scope",
+        "state": "updated",
+        "official_url": "https://example-official.test/product/",
+        "fingerprint": "a" * 64,
+        "requested_verify_points": ["提审与发布流程要求"],
+        "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
+        "proposed_fact_updates": {
+            "operations-spec-scope": {
+                "fact_id": "operations-spec-scope",
+                "current_text": "运营规范当前覆盖提审与发布要求，以平台当前版本为准。",
+                "proposed_text": "提审与发布流程要求: 提审前须完成安全检测。",
+                "source_digest": "a" * 64,
+            }
+        },
+    }
+    change.update(overrides)
+    return {"format_version": 2, "platform": "wechat", "changes": [change]}
 
     def prepare(self, proposal: dict) -> tuple[Path, Path]:
-        temp = tempfile.TemporaryDirectory()
-        root = Path(temp.name)
-        platform_root = write_platform(root, FACTS_WITH_TEXT)
-        proposal_path = root / "proposal.json"
-        proposal_path.write_text(json.dumps(proposal), encoding="utf-8")
-        self.addCleanup(temp.cleanup)
-        return proposal_path, platform_root
+        return prepare_proposal_fixture(proposal)
+
+
+def prepare_proposal_fixture(proposal: dict) -> tuple[Path, Path]:
+    """Module-level fixture builder: usable from any test class without
+    instantiating a TestCase (whose addCleanup would never run — codex P3)."""
+    temp = tempfile.TemporaryDirectory()
+    root = Path(temp.name)
+    platform_root = write_platform(root, FACTS_WITH_TEXT)
+    proposal_path = root / "proposal.json"
+    proposal_path.write_text(json.dumps(proposal), encoding="utf-8")
+    # register cleanup against any running TestCase; fall back to atexit-safe
+    # explicit cleanup by returning the temp dir handle on the paths' parent.
+    _ACTIVE_TEMP_DIRS.append(temp)
+    return proposal_path, platform_root
+
+
+_ACTIVE_TEMP_DIRS: list[tempfile.TemporaryDirectory] = []
+
+
+def drain_active_temp_dirs() -> None:
+    """Cleanup hook: called from tearDown of every fixture-using test class."""
+    while _ACTIVE_TEMP_DIRS:
+        _ACTIVE_TEMP_DIRS.pop().cleanup()
+
+
+class ProposalReviewGateTests(unittest.TestCase):
+    """Gate-level tests that keep using the class fixture helpers."""
+
+    def build_proposal(self, **overrides) -> dict:
+        return build_default_proposal(**overrides)
+
+    def prepare(self, proposal: dict) -> tuple[Path, Path]:
+        return prepare_proposal_fixture(proposal)
+
+    def tearDown(self) -> None:
+        drain_active_temp_dirs()
 
     def test_scope_and_domain_red_lines_reject_without_llm(self) -> None:
         proposal_path, platform_root = self.prepare(self.build_proposal(official_url="https://evil.test/x"))
@@ -184,7 +218,7 @@ class ProposalReviewTests(unittest.TestCase):
                     "platform": "wechat",
                     "results": [
                         {
-                            "rule_id": "release-review-operations",
+                            "rule_id": "operations-spec-scope",
                             "state": "updated",
                             "fingerprint": "a" * 64,
                             "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
@@ -243,6 +277,7 @@ class ReleaseRecommendationTests(unittest.TestCase):
             (repo / "platforms" / "facts.md").write_text("fact", encoding="utf-8")
             subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
             subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "data"], check=True)
+            # manual-only platforms absent in this fixture: no verification trigger
             report = recommendation.recommend(repo, min_data_changes=1)
         self.assertEqual(report["recommendation"], "RECOMMEND_RELEASE")
         self.assertEqual(report["level"], "patch")
@@ -500,24 +535,85 @@ class AuditFixRegressionTests(unittest.TestCase):
         self.assertNotIn("assets/readme-cover-2000x849-v2.webp", vs.REQUIRED_FILES)
 
 
+class V317AuditFollowUpTests(unittest.TestCase):
+    """Regressions for the codex sixth-audit batch (3.1.7)."""
+
+    def tearDown(self) -> None:
+        drain_active_temp_dirs()
+
+    def _run(self, proposal) -> dict:
+        proposal_path, platform_root = prepare_proposal_fixture(proposal)
+        drift = platform_root.parent / "drift.json"
+        drift.write_text(json.dumps({"platform": "wechat", "results": [{
+            "rule_id": "operations-spec-scope", "state": "updated", "fingerprint": "a" * 64,
+            "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"}}]}))
+        with patch.object(reviewer, "run_agent", return_value=('{"consistent":"consistent","reason":"ok"}', None)):
+            return reviewer.review_guarded(proposal_path, platform_root, drift, rounds=1)
+
+    def test_cross_rule_url_rejected(self) -> None:
+        # codex probe: rule A's statements + rule B's URL must fail.
+        p = build_default_proposal()
+        p["changes"][0]["official_url"] = "https://example-official.test/other/"
+        r = self._run(p)
+        self.assertEqual(r["verdict"], "DO_NOT_APPLY")
+        self.assertTrue(any("official-url-not-bound-to-rule" in x for x in r["problems"]))
+
+    def test_unknown_rule_rejected(self) -> None:
+        p = build_default_proposal()
+        p["changes"][0]["rule_id"] = "no-such-rule"
+        r = self._run(p)
+        self.assertTrue(any("unknown-rule" in x for x in r["problems"]))
+
+    def test_malformed_updates_fail_closed_no_crash(self) -> None:
+        # list updates used to raise TypeError (unhashable dict).
+        p = build_default_proposal()
+        p["changes"][0]["proposed_fact_updates"] = [{"fact_id": "x"}]
+        r = self._run(p)  # must not raise
+        self.assertEqual(r["verdict"], "DO_NOT_APPLY")
+
+    def test_duplicated_verify_points_rejected(self) -> None:
+        # duplicates used to pass after set() dedup.
+        p = build_default_proposal()
+        p["changes"][0]["requested_verify_points"] = ["提审与发布流程要求", "提审与发布流程要求"]
+        r = self._run(p)
+        self.assertTrue(any("requested-verify-points-duplicated" in x for x in r["problems"]))
+
+    def test_null_and_numeric_inputs_fail_closed(self) -> None:
+        for mutate in (
+            lambda c: c["changes"][0].update(requested_verify_points=None),
+            lambda c: c["changes"][0].update(extracted_statements={"p": 123}),
+        ):
+            p = build_default_proposal()
+            mutate(p)
+            r = self._run(p)
+            self.assertEqual(r["verdict"], "DO_NOT_APPLY")
+
+    def test_legitimate_proposal_passes(self) -> None:
+        r = self._run(build_default_proposal())
+        self.assertEqual(r["verdict"], "PROPOSAL_CONSISTENT_WITH_EXTRACTION")
+        self.assertEqual(r["problems"], [])
+
+
 class V316AuditFollowUpTests(unittest.TestCase):
     """Regressions for the codex fifth-audit batch (3.1.6)."""
 
+    def tearDown(self) -> None:
+        drain_active_temp_dirs()
+
     def test_tampered_proposal_rejected_by_gate2(self) -> None:
         # codex probe: FAKE_POINT substitution + invented fact id must NOT pass.
-        case = ProposalReviewTests("test_rounds_below_one_is_rejected")
-        proposal = case.build_proposal()
+        proposal = build_default_proposal()
         proposal["changes"][0]["extracted_statements"] = {"FAKE_POINT": "任意"}
         proposal["changes"][0]["requested_verify_points"] = ["FAKE_POINT"]
         proposal["changes"][0]["proposed_fact_updates"]["unknown-fact"] = {
             "fact_id": "unknown-fact", "current_text": "捏造", "proposed_text": "x", "source_digest": "a" * 64
         }
-        proposal_path, platform_root = case.prepare(proposal)
+        proposal_path, platform_root = prepare_proposal_fixture(proposal)
         drift_report = platform_root.parent / "drift.json"
         drift_report.write_text(json.dumps({
             "platform": "wechat",
             "results": [{
-                "rule_id": "release-review-operations", "state": "updated", "fingerprint": "a" * 64,
+                "rule_id": "operations-spec-scope", "state": "updated", "fingerprint": "a" * 64,
                 "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
             }],
         }))
@@ -529,13 +625,12 @@ class V316AuditFollowUpTests(unittest.TestCase):
         self.assertTrue(any("extracted-statements-diverge-from-report" in p_ for p_ in report["problems"]))
 
     def test_legitimate_proposal_still_passes_gate2(self) -> None:
-        case = ProposalReviewTests("test_shadow_mode_exit_code_is_never_merge")
-        proposal_path, platform_root = case.prepare(case.build_proposal())
+        proposal_path, platform_root = prepare_proposal_fixture(build_default_proposal())
         drift_report = platform_root.parent / "drift.json"
         drift_report.write_text(json.dumps({
             "platform": "wechat",
             "results": [{
-                "rule_id": "release-review-operations", "state": "updated", "fingerprint": "a" * 64,
+                "rule_id": "operations-spec-scope", "state": "updated", "fingerprint": "a" * 64,
                 "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
             }],
         }))

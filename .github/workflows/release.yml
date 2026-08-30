@@ -58,12 +58,14 @@ jobs:
           printf 'tag=%s\n' "$release_tag" >> "$GITHUB_OUTPUT"
 
       - name: Run release gates
+        env:
+          RESOLVED_TAG: ${{ steps.release.outputs.tag }}
         run: |
           set -euo pipefail
           # Gating logic lives in scripts/release_gate.sh so it has committed
           # regression tests (tests/test_release_gate.py); the summary is written
           # outside the tree because export_public_package.py scans fail-closed.
-          bash scripts/release_gate.sh . /tmp/unittest.log /tmp/gate-summary.json
+          bash scripts/release_gate.sh . /tmp/unittest.log /tmp/gate-summary.json "$RESOLVED_TAG"
 
       - name: Upload gate summary (even on failure)
         # The gate writes its summary even when it blocks the release (that is

@@ -139,18 +139,45 @@ def check_scope_red_lines(proposal: dict[str, Any]) -> list[str]:
     return problems
 
 
-def check_reproducibility(proposal: dict[str, Any], drift_report: Path | None, platform_root: Path | None = None) -> list[str]:
-    """Gate 2: bind the proposal to the drift report and facts.md across the full contract.
+def _contract_types_valid(change: dict[str, Any]) -> str | None:
+    """Type-gate a change before any set()/items() work (fail-closed, no crash).
 
-    Previously only state+fingerprint were compared, so a tampered proposal
-    (substituted verify points, invented fact ids, rewritten statements)
-    sailed through (codex probe). Now every dimension is bound:
-    - requested verify points == rule-map's verify_points (order-insensitive)
-    - extracted_statements == drift report's extracted_statements verbatim
-    - proposed_fact_updates keys == facts linked to the rule (no unknown facts)
-    - each update has exactly fact_id/current_text/proposed_text/source_digest
-    - current_text == the recorded fact text from facts.md
-    - source_digest == fingerprint == drift report fingerprint
+    Malformed shapes (list updates, duplicated verify points, nulls, nested
+    arrays) used to either raise TypeError or silently pass after set()
+    dedup — codex sixth audit. Returns a problem code or None.
+    """
+    rid = change.get("rule_id", "<no-rule-id>")
+    points = change.get("requested_verify_points")
+    if (
+        not isinstance(points, list)
+        or not points
+        or not all(isinstance(x, str) and x for x in points)
+    ):
+        return f"gate2:requested-verify-points-invalid:{rid}"
+    if len(set(points)) != len(points):
+        return f"gate2:requested-verify-points-duplicated:{rid}"
+    updates = change.get("proposed_fact_updates")
+    if not isinstance(updates, dict) or not updates:
+        return f"gate2:no-fact-updates:{rid}"
+    for fid, update in updates.items():
+        if not isinstance(fid, str) or not fid:
+            return f"gate2:update-structure-invalid:{rid}"
+        if not isinstance(update, dict) or set(update) != {"fact_id", "current_text", "proposed_text", "source_digest"}:
+            return f"gate2:update-structure-invalid:{rid}:{fid}"
+        for value in update.values():
+            if not isinstance(value, str) or not value:
+                return f"gate2:update-structure-invalid:{rid}:{fid}"
+    return None
+
+
+def check_reproducibility(proposal: dict[str, Any], drift_report: Path | None, platform_root: Path | None = None) -> list[str]:
+    """Gate 2: bind the proposal to rule-map/facts via rule_id as the ONLY entry.
+
+    Linkage used to be derived from the proposal's own official_url, so a
+    change could carry rule A's extraction with rule B's URL and fact
+    (codex cross-rule probe passed). Now the chain is:
+    change.rule_id -> rule-map rule -> official.url -> same-id fact.
+    The proposal's URL/fact claims must match what rule-map dictates.
     """
     if drift_report is None:
         return ["gate2:drift-report-not-supplied"]
@@ -177,7 +204,28 @@ def check_reproducibility(proposal: dict[str, Any], drift_report: Path | None, p
     results = {item.get("rule_id"): item for item in report.get("results", [])}
     problems: list[str] = []
     for change in proposal["changes"]:
+        type_problem = _contract_types_valid(change)
+        if type_problem:
+            problems.append(type_problem)
+            continue
         rid = change.get("rule_id")
+        # --- rule_id is the single source of truth from here on ---
+        rule = rules_by_id.get(rid)
+        if rule is None:
+            problems.append(f"gate2:unknown-rule:{rid}")
+            continue
+        expected_url = rule.get("official", {}).get("url")
+        if change.get("official_url") != expected_url:
+            problems.append(f"gate2:official-url-not-bound-to-rule:{rid}")
+        # verify points must equal the rule-map's own list
+        if set(change.get("requested_verify_points", [])) != set(rule.get("verify_points", [])):
+            problems.append(f"gate2:verify-points-not-bound-to-rule-map:{rid}")
+        # the fact with this rule's id must exist and point at the same URL
+        fact = annotations.get(rid)
+        if fact is None:
+            problems.append(f"gate2:fact-missing-for-rule:{rid}")
+        elif fact.get("source") != expected_url:
+            problems.append(f"gate2:fact-source-not-bound-to-rule:{rid}")
         result = results.get(rid)
         if not result:
             problems.append(f"gate2:change-not-in-drift-report:{rid}")
@@ -186,31 +234,14 @@ def check_reproducibility(proposal: dict[str, Any], drift_report: Path | None, p
             problems.append(f"gate2:state-mismatch:{rid}")
         if result.get("fingerprint") != change.get("fingerprint"):
             problems.append(f"gate2:fingerprint-mismatch:{rid}")
-        # 1. verify-point set must equal the rule-map's own list
-        if rules_by_id:
-            expected_points = set(rules_by_id.get(rid, {}).get("verify_points", []))
-            requested = set(change.get("requested_verify_points", []))
-            if requested != expected_points:
-                problems.append(f"gate2:verify-points-not-bound-to-rule-map:{rid}")
-        # 2. statements must equal the drift report's verbatim
         if (result.get("extracted_statements") or {}) != (change.get("extracted_statements") or {}):
             problems.append(f"gate2:extracted-statements-diverge-from-report:{rid}")
-        # 3-6. fact-update structure and bindings
+        # update keys must be exactly the rule's own fact id (1:1 by design)
         updates = change.get("proposed_fact_updates") or {}
-        if not updates:
-            problems.append(f"gate2:no-fact-updates:{rid}")
-        url = change.get("official_url", "")
-        linked = {fid for fid, meta in annotations.items() if meta["source"] == url}
-        if set(updates) != linked:
+        if set(updates) != {rid}:
             problems.append(f"gate2:fact-id-set-diverges-from-facts:{rid}")
         for fid, update in updates.items():
-            if not isinstance(update, dict) or set(update) != {"fact_id", "current_text", "proposed_text", "source_digest"}:
-                problems.append(f"gate2:update-structure-invalid:{rid}:{fid}")
-                continue
-            if update["fact_id"] != fid:
-                problems.append(f"gate2:update-fact-id-mismatch:{rid}:{fid}")
-            recorded_text = annotations.get(fid, {}).get("text")
-            if recorded_text is not None and update["current_text"] != recorded_text:
+            if fact is not None and update["current_text"] != (fact.get("text") or ""):
                 problems.append(f"gate2:current-text-mismatch:{rid}:{fid}")
             if update["source_digest"] != change.get("fingerprint"):
                 problems.append(f"gate2:update-digest-mismatch:{rid}:{fid}")
@@ -346,6 +377,28 @@ def review(
     }
 
 
+def review_guarded(
+    proposal_path: Path,
+    platform_root: Path,
+    drift_report: Path | None,
+    rounds: int,
+    shadow: bool = True,
+) -> dict[str, Any]:
+    """review() with an exception backstop: unexpected malformed input must
+    become DO_NOT_APPLY with a contract problem code, never a traceback."""
+    try:
+        return review(proposal_path, platform_root, drift_report, rounds, shadow)
+    except Exception:  # noqa: BLE001 — the whole point is fail-closed, not crash
+        return {
+            "verdict": "DO_NOT_APPLY",
+            "shadow": shadow,
+            "problems": ["gate2:proposal-contract-invalid"],
+            "audits": [],
+            "audited_at_utc": utc_now(),
+            "engine": engine_metadata(),
+        }
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("proposal", type=Path, help="Proposal JSON path")
@@ -353,7 +406,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--drift-report", type=Path, help="Drift report JSON for gate 2")
     parser.add_argument("--rounds", type=int, default=3, help="Consistency audit rounds (default 3)")
     args = parser.parse_args(argv)
-    report = review(args.proposal.resolve(), args.platform_root.resolve(), args.drift_report, args.rounds, True)
+    report = review_guarded(args.proposal.resolve(), args.platform_root.resolve(), args.drift_report, args.rounds, True)
     print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
     # Shadow mode is permanent now: the verdict is always informational. Exit 0
     # when the audit chain completed (whatever it concluded), 1 on failures.

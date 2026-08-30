@@ -1,24 +1,28 @@
 #!/usr/bin/env bash
-# Release gate runner: unittest + validate + sensitive scan -> gate-summary.json.
-# Extracted from .github/workflows/release.yml so the gating logic is testable
-# (tests/test_release_gate.py drives it with fixtures). The workflow calls this
-# script; behavior must stay identical.
+# Release gate runner: unittest + validate + sensitive scan + manual-verification
+# gate -> gate-summary.json. Extracted from .github/workflows/release.yml so the
+# gating logic is testable (tests/test_release_gate.py drives it with fixtures).
+# The workflow calls this script; behavior must stay identical.
 #
-# Failure-path contract (three distinct shapes, never conflated):
+# Failure-path contract (four distinct shapes, never conflated):
 #   1. GATE FAILURE  - validate/scan emit valid JSON and report failure
 #                      (valid=false or finding_count>0). The summary IS written
 #                      (it is the evidence of which gate blocked the release).
 #   2. TOOL CRASH    - validate/scan exit non-zero with NON-JSON output (import
 #                      error, broken checkout). Blocked with a "crashed" reason.
 #   3. unittest      - failure or zero-test discovery blocks before tools run.
+#   4. MANUAL VERIFICATION - release_recommendation returns
+#                      MANUAL_VERIFICATION_REQUIRED (or crashes / reports an
+#                      error): blocked. The recommender is a GATE, not advice.
 #
-# Usage: release_gate.sh <repo-root> <log-file-path> <summary-output-path>
+# Usage: release_gate.sh <repo-root> <log-file-path> <summary-output-path> [candidate-tag]
 # Exit codes: 0 = all gates pass; 1 = gate failure/blocked; 2 = usage error.
 set -uo pipefail
 
 root="${1:-.}"
 log_path="${2:-/tmp/unittest.log}"
 summary_path="${3:-/tmp/gate-summary.json}"
+candidate_tag="${4:-}"
 
 cd "$root" || exit 2
 
@@ -98,3 +102,25 @@ PYEOF
 }
 
 run_summary_python "$test_count" "$validate_json" "$scan_json" "$summary_path"
+
+# Manual-verification gate (fourth): MANUAL_VERIFICATION_REQUIRED, tool crash,
+# or an error payload all block the release. The recommender is a hard gate.
+set +e
+if [ -n "$candidate_tag" ]; then
+  recommend_json="$(python3 scripts/release_recommendation.py . --candidate-tag "$candidate_tag" --format json)"
+else
+  recommend_json="$(python3 scripts/release_recommendation.py . --format json)"
+fi
+recommend_rc=$?
+set -e
+recommend_verdict="$(printf '%s' "$recommend_json" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("recommendation", "error"))' 2>/dev/null || echo crashed)"
+
+if [ "$recommend_rc" -ne 0 ] || [ "$recommend_verdict" = "error" ] || [ "$recommend_verdict" = "crashed" ]; then
+  echo "release_recommendation crashed or errored; release blocked" >&2
+  exit 1
+fi
+if [ "$recommend_verdict" = "MANUAL_VERIFICATION_REQUIRED" ]; then
+  echo "MANUAL_VERIFICATION_REQUIRED: record per-platform verification evidence in this release's CHANGELOG entry; release blocked" >&2
+  printf '%s\n' "$recommend_json" >&2
+  exit 1
+fi

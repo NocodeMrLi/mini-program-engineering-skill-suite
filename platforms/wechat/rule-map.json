@@ -7,7 +7,7 @@
   ],
   "rules": [
     {
-      "id": "release-review-operations",
+      "id": "operations-spec-scope",
       "step_class": "upload/review/release",
       "ttl_days": 0,
       "official": {
@@ -21,7 +21,21 @@
       ]
     },
     {
-      "id": "privacy-protection-declarations",
+      "id": "review-rejection-flow",
+      "step_class": "upload/review/release",
+      "ttl_days": 0,
+      "official": {
+        "url": "https://developers.weixin.qq.com/miniprogram/product/",
+        "title": "微信小程序平台运营规范",
+        "section": "审核规范与发布要求"
+      },
+      "verify_points": [
+        "审核被驳回后的修正与重新提审流程",
+        "驳回原因的官方查询入口"
+      ]
+    },
+    {
+      "id": "privacy-guideline-required",
       "step_class": "privacy/permission",
       "ttl_days": 30,
       "official": {
