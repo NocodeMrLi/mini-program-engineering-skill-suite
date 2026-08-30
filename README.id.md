@@ -7,7 +7,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
-  <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
+  <img src="https://img.shields.io/badge/platform-WeChat%20%7C%20Alipay%20%7C%20Douyin-07C160.svg" alt="Platform: WeChat | Alipay | Douyin">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
   <img src="https://img.shields.io/badge/stack-Taro%20%7C%20uni--app%20%7C%20native-4CAF50.svg" alt="Stack: Taro / uni-app / native">
@@ -30,7 +30,18 @@
 
 Nama Tionghoa: **小程序开发工程技能套件**.
 
-> Catatan: suite ini saat ini berpusat pada metode engineering untuk WeChat Mini Program. Untuk LINE MINI App, Telegram Mini Apps, Alipay+ Mini Program, atau ekosistem mini app lain, prinsipnya dapat dijadikan referensi, tetapi aturan platform, permission, pembayaran, dan runtime tetap perlu diadaptasi secara terpisah.
+> Catatan: lapisan fakta platform kini mencakup WeChat, Alipay, dan Douyin (kemampuan deteksi dilabeli jujur — lihat "Kesegaran Aturan Platform" di bawah). Untuk LINE MINI App, Telegram Mini Apps, atau ekosistem mini app lain, prinsip suite ini dapat dijadikan referensi, tetapi aturan platform tetap perlu diadaptasi secara terpisah.
+
+---
+
+## Sorotan Utama
+
+- **Lapisan fakta tiga platform**: satu sumber kebenaran aturan platform WeChat / Alipay / Douyin, dengan capability doctor yang mendeteksi stack dan platform target secara otomatis. Kemampuan deteksi dilabeli jujur: WeChat mendukung pemantauan fingerprint deterministik, sementara Alipay / Douyin mengandalkan pemeriksaan dokumen resmi saat runtime dan laporan pengguna, bukan berpura-pura deteksi otomatis (lihat [Kesegaran Aturan Platform](#kesegaran-aturan-platform)).
+- **Pipeline kesegaran aturan platform**: eksekusi selalu selaras dengan dokumen resmi terkini saat runtime, sementara lapisan konten menjalankan deteksi drift otomatis mingguan (perbandingan fingerprint → ekstraksi → audit bayangan → issue putusan). Instalasi lokal yang sedikit lama tidak akan membuat tugas dieksekusi dengan aturan kedaluwarsa (lihat [Kesegaran Aturan Platform](#kesegaran-aturan-platform)).
+- **Verifikasi gerbang penuh di Agent CLI nyata**: gerbang rilis tiga tingkat (struktur / routing / perilaku) beserta penandatanganan independen berjalan penuh dalam sesi Agent CLI nyata — versi awal diuji terima melalui Codex CLI, dan engine evaluasi kini dapat ditukar (Codex CLI / Claude Code / Gemini / API kompatibel OpenAI). Lolos lintas engine adalah bukti yang lebih kuat (lihat [Verifikasi](#verifikasi) dan [EVALUATIONS.md](EVALUATIONS.md)).
+- **Disiplin rekayasa berbasis bukti**: setiap klaim status harus didukung bukti yang cocok, jika tidak maka dilabeli unknown secara jujur. Sejak 3.0 disiplin ini dirapikan menjadi lapisan skill fondasi `foundation/` yang netral domain dan dapat digunakan ulang oleh suite rekayasa Agent mana pun (lihat [Prinsip Desain](#prinsip-desain)).
+- **Evaluasi berlapis + penandatanganan independen**: evaluasi tiga tingkat tier1 struktur / tier2 routing / tier3 perilaku, penilaian independen with-skill vs. baseline, dan batch held-out yang tetap dibekukan hingga rilis — semua gerbang harus PASS sebelum rilis (lihat [EVALUATIONS.md](EVALUATIONS.md)).
+- **Tata kelola rilis kelas supply chain**: SHA256 + dual manifest + packaging fail-closed + verifikasi ulang sisi penerima + pemindaian informasi sensitif tanpa temuan; konsistensi struktur README enam bahasa dijaga oleh skrip (lihat [Integritas Paket](#integritas-paket)).
 
 ---
 
@@ -116,7 +127,7 @@ Skill ini tidak ditulis dari tutorial abstrak. Ia disarikan dari kolaborasi jang
 
 ---
 
-## Kesegaran Aturan Platform (baru di 2.0)
+## Kesegaran Aturan Platform
 
 Aturan platform terus berubah, sehingga aturan yang di-hardcode ke dalam skill pasti kedaluwarsa. Sejak 2.0 suite ini memakai "segar saat eksekusi, evolusi terkontrol":
 
@@ -124,7 +135,7 @@ Aturan platform terus berubah, sehingga aturan yang di-hardcode ke dalam skill p
 - **Konten berevolusi terkontrol.** Pemelihara mendeteksi perubahan aturan dengan alat drift (perbandingan sidik jari halaman resmi) dan mengirimkan pembaruan melalui audit independen beberapa putaran; Anda dapat melaporkan perubahan yang Anda temukan lewat templat **Platform rule drift** di Issues.
 - **Ingin versi terbaru?** Unduh paket baru dari Releases dan instal ulang dengan `install.sh --force`; suite tidak pernah memperbarui instalasi lokal secara diam-diam.
 
-Fakta platform dan peta aturan berada di direktori `platforms/`, saat ini mencakup WeChat; Alipay, Douyin, dan lainnya menyusul sesuai roadmap.
+Fakta platform dan peta aturan berada di direktori `platforms/`, kini mencakup WeChat, Alipay, dan Douyin. WeChat mendukung pemantauan fingerprint deterministik dengan deteksi drift otomatis mingguan; pusat dokumen Alipay dan Douyin bersifat client-rendered sehingga fingerprint tidak dapat mengamati perubahan konten dan keduanya dilabeli jujur sebagai `manual-only` — kesegaran bergantung pada pemeriksaan dokumen resmi saat runtime dan laporan pengguna, bukan berpura-pura deteksi otomatis. Platform di luar cakupan selalu diperiksa ke sumber resmi dan dibiarkan `unknown`, tidak pernah ditebak.
 
 ---
 

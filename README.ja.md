@@ -7,7 +7,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
-  <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
+  <img src="https://img.shields.io/badge/platform-WeChat%20%7C%20Alipay%20%7C%20Douyin-07C160.svg" alt="Platform: WeChat | Alipay | Douyin">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
   <img src="https://img.shields.io/badge/stack-Taro%20%7C%20uni--app%20%7C%20native-4CAF50.svg" alt="Stack: Taro / uni-app / native">
@@ -30,7 +30,18 @@
 
 中国語名：**小程序开发工程技能套件**。
 
-> 注意：このスイートは現時点では WeChat Mini Program の工程管理を中心にしています。LINE MINI App、Telegram Mini Apps、Alipay+ Mini Program などに使う場合は、考え方は参考にできますが、各プラットフォームの審査・権限・決済・実行環境に合わせた追加適配が必要です。
+> 注意：プラットフォームファクト層は現在 WeChat・Alipay・Douyin の 3 プラットフォームをカバーしています（検出能力は正直に区分、下記「プラットフォーム規則の鮮度保持」参照）。LINE MINI App、Telegram Mini Apps などのその他のエコシステムにも考え方を転用できますが、各プラットフォームの規則に合わせた追加適配は必要です。
+
+---
+
+## ハイライト
+
+- **3プラットフォームのファクト層**：WeChat / Alipay / Douyin のプラットフォーム規則の単一の事実ソース。capability doctor がプロジェクトの技術スタックと対象プラットフォームを自動判定します。検出能力は正直に区分——WeChat は決定論的フィンガープリント監視に対応し、Alipay / Douyin は実行時の公式確認とユーザー報告に依存するもので、自動検出できるとは偽りません（[プラットフォーム規則の鮮度保持](#プラットフォーム規則の鮮度保持)参照）。
+- **プラットフォーム規則の鮮度保持パイプライン**：実行層は常に公式の現行ドキュメントに即時整合し、内容層は週次の自動ドリフト検出（指紋比較 → 抽出 → シャドウ監査 → 判定 issue）を行います。ローカルのバージョンが少し古くても、タスクが期限切れの規則で実行されることはありません（[プラットフォーム規則の鮮度保持](#プラットフォーム規則の鮮度保持)参照）。
+- **実 Agent CLI によるフルゲート検証**：リリースゲートの 3 層評価（構造 / ルーティング / 振る舞い）と独立署名は、実際の Agent CLI セッションでフル実行されます——初期バージョンは Codex CLI で実測受入され、現在の評価エンジンは差し替え可能（Codex CLI / Claude Code / Gemini / OpenAI 互換 API）。エンジンを跨いだ合格はより強い証拠です（[検証](#検証)と [EVALUATIONS.md](EVALUATIONS.md) 参照）。
+- **証拠優先のエンジニアリング規律**：ステータスには必ず対応する証拠が必要で、なければ unknown と正直に記録します。3.0 からはこの規律がドメイン非依存の基礎スキル層 `foundation/` として整理され、任意の Agent エンジニアリングスイートで再利用可能です（[設計原則](#設計原則)参照）。
+- **層別評価と独立署名**：tier1 構造 / tier2 ルーティング / tier3 振る舞いの 3 層評価、with-skill と baseline の独立判定、リリースまで凍結される held-out バッチ——全ゲート PASS でのみリリースします（[EVALUATIONS.md](EVALUATIONS.md) 参照）。
+- **サプライチェーン級のリリースガバナンス**：SHA256 + 二重 manifest + fail-closed パッケージング + 受け側再検証 + 機密情報スキャンゼロ。6 言語 README の構造一致性もスクリプトで守ります（[パッケージ完全性](#パッケージ完全性)参照）。
 
 ---
 
@@ -116,7 +127,7 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 
 ---
 
-## プラットフォーム規則の鮮度保持（2.0 新機能）
+## プラットフォーム規則の鮮度保持
 
 プラットフォーム規則は変化し続けるため、スキルに書き込まれた規則はいずれ陳腐化します。2.0 以降、本スイートは「実行時は常に最新、内容は管理された進化」を採用：
 
@@ -124,7 +135,7 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 - **内容は管理された進化**：維持者がドリフト検出ツール（公式ページの指紋比較）で規則の変化を発見し、複数ラウンドの独立監査を経て更新します。発見した規則変化は Issues の **Platform rule drift** テンプレートで自主報告できます。
 - **最新版を使うには**：Releases から新パッケージを取得し `install.sh --force` で再インストール；ローカルをサイレント自動更新することはありません。
 
-プラットフォーム事実とルールマップはリポジトリの `platforms/` にあり、現在は WeChat ミニプログラムをカバー；Alipay・Douyin などはロードマップに沿って今後のバージョンで追加します。
+プラットフォーム事実とルールマップはリポジトリの `platforms/` にあり、現在は WeChat・Alipay・Douyin の 3 プラットフォームをカバーします。WeChat は決定論的フィンガープリント監視（週次の自動ドリフト検出）に対応。Alipay と Douyin の公式ドキュメントはクライアントサイドレンダリングのため、指紋では内容変化を観測できず、正直にも `manual-only` と記録しています——鮮度保持は実行時の公式確認とユーザー報告に依存し、自動検出できると偽りません。未収録のプラットフォームは一律で公式を確認し `unknown` を保持し、推測しません。
 
 ---
 

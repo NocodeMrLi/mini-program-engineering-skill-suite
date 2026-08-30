@@ -15,6 +15,8 @@ from typing import Iterable, Sequence
 
 SKIP_DIRS = {".git", ".planning", "__pycache__", "tests"}
 SKIP_NAMES = {".DS_Store"}
+# Cover redesign drafts share the assets/ directory; not package content.
+SKIP_NAME_PATTERNS = ("readme-cover-2000x",)
 
 
 @dataclass(frozen=True)
@@ -110,6 +112,8 @@ def iter_scannable_files(root: Path) -> Iterable[Path]:
         return
     for path in sorted(root.rglob("*")):
         if not path.is_file() or path.name in SKIP_NAMES:
+            continue
+        if path.name.startswith(SKIP_NAME_PATTERNS):
             continue
         relative = path.relative_to(root)
         if any(part in SKIP_DIRS for part in relative.parts):

@@ -17,7 +17,10 @@ from verify_public_package import verify_package
 
 
 EXCLUDED_PARTS = {".git", ".planning", "tests", "__pycache__", ".pytest_cache"}
-IGNORED_NAMES = {".DS_Store", ".gitignore"}
+IGNORED_NAMES = {".DS_Store", ".gitignore", "_codex_patch_probe.txt"}
+# Cover redesign produces draft exports in assets/ while the shipped cover is
+# readme-cover.webp; drafts are authoring material, never package content.
+IGNORED_NAME_PATTERNS = ("readme-cover-2000x",)
 PUBLIC_PATHS = frozenset(REQUIRED_FILES)
 
 
@@ -25,6 +28,8 @@ def iter_source_candidates(root: Path) -> Iterable[Path]:
     """Yield every file outside explicitly private development boundaries."""
     for path in sorted(root.rglob("*")):
         if not path.is_file() or path.name in IGNORED_NAMES:
+            continue
+        if path.name.startswith(IGNORED_NAME_PATTERNS):
             continue
         relative = path.relative_to(root)
         if any(part in EXCLUDED_PARTS for part in relative.parts):

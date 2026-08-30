@@ -7,7 +7,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
-  <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
+  <img src="https://img.shields.io/badge/platform-WeChat%20%7C%20Alipay%20%7C%20Douyin-07C160.svg" alt="Platform: WeChat | Alipay | Douyin">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
   <img src="https://img.shields.io/badge/stack-Taro%20%7C%20uni--app%20%7C%20native-4CAF50.svg" alt="Stack: Taro / uni-app / native">
@@ -30,7 +30,18 @@
 
 英文名：**Mini Program Engineering Skill Suite**。
 
-> 說明：本套件目前以微信小程式工程方法為核心。LINE MINI App、Telegram Mini Apps、Alipay+ Mini Program 等其他生態可借鑑方法，但仍需要針對平台規則另行適配。
+> 說明：平台事實層現已覆蓋微信、支付寶、抖音三個平台（檢測能力如實分級，見下文「平台規則保鮮」）。LINE MINI App、Telegram Mini Apps 等其他生態可借鑑本套件方法，但仍需針對平台規則另行適配。
+
+---
+
+## 核心亮點
+
+- **三平台事實層**：微信 / 支付寶 / 抖音的平台規則單一事實源，capability doctor 自動識別專案技術棧與目標平台；檢測能力如實分級——微信支援確定性指紋監測，支付寶 / 抖音依賴執行時查官方與用戶上報，不假裝能自動檢測（見[平台規則保鮮](#平台規則保鮮)）。
+- **平台規則保鮮流水線**：執行層即時對齊官方現行文件，內容層每週自動漂移檢測（指紋比對 → 抽取 → 影子審計 → 裁決 issue）；本地安裝的版本稍舊，也不會導致任務按過期規則執行（見[平台規則保鮮](#平台規則保鮮)）。
+- **真實 Agent CLI 全量驗證**：發布門禁的三層評測（結構 / 路由 / 行為）與獨立簽署在真實 Agent CLI 會話中全量執行——早期版本經 Codex CLI 實測驗收，現行評測引擎可插拔（Codex CLI / Claude Code / Gemini / OpenAI 相容 API），跨引擎通過是更強證據（見[驗證](#驗證)與 [EVALUATIONS.md](EVALUATIONS.md)）。
+- **證據優先工程紀律**：狀態必須由匹配證據支撐，沒有證據就如實標註 unknown；3.0 起這套紀律沉澱為領域無關的基礎技能層 `foundation/`，可被任何 Agent 工程套件復用（見[設計原則](#設計原則)）。
+- **分層評測 + 獨立簽署**：tier1 結構 / tier2 路由 / tier3 行為三層評測、with-skill 與 baseline 獨立判定、held-out 批凍結前不可用於調參，門禁全 PASS 才發布（見 [EVALUATIONS.md](EVALUATIONS.md)）。
+- **供應鏈級發布治理**：SHA256 + 雙 manifest + fail-closed 出包 + 接收端複驗 + 敏感資訊掃描清零，六語言 README 結構一致性由腳本守護（見[包完整性](#包完整性)）。
 
 ---
 
@@ -116,7 +127,7 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 
 ---
 
-## 平台規則保鮮（2.0 新增）
+## 平台規則保鮮
 
 平台規則會持續變化，寫死在技能裡的規則終會過期。2.0 起本套件採「執行層即時保鮮、內容層受控進化」：
 
@@ -124,7 +135,7 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 - **套件內容受控升級**：維護方透過漂移檢測工具（對官方文件做指紋比對）發現規則變化後，經多輪獨立審計提交更新；你可以在 Issues 用 **Platform rule drift** 模板自願上報發現的規則變化。
 - **想用最新版**：從 Releases 下載新包並 `install.sh --force` 重裝；套件永不靜默自動更新本地安裝。
 
-平台事實與規則地圖位於倉庫 `platforms/` 目錄，現覆蓋微信小程式；支付寶、抖音等平台按路線圖在後續版本加入。
+平台事實與規則地圖位於倉庫 `platforms/` 目錄，現覆蓋微信、支付寶、抖音三個平台：微信支援確定性指紋監測（每週自動漂移檢測）；支付寶與抖音的官方文件為客戶端渲染，確定性指紋無法觀測內容變化，如實標註為 manual-only——保鮮依賴執行時查官方與用戶上報，不假裝能自動檢測。未收錄的平台一律查官方並保持 unknown，不猜測。
 
 ---
 

@@ -7,7 +7,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
-  <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
+  <img src="https://img.shields.io/badge/platform-WeChat%20%7C%20Alipay%20%7C%20Douyin-07C160.svg" alt="Platform: WeChat | Alipay | Douyin">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
   <img src="https://img.shields.io/badge/stack-Taro%20%7C%20uni--app%20%7C%20native-4CAF50.svg" alt="Stack: Taro / uni-app / native">
@@ -30,7 +30,18 @@
 
 ชื่อภาษาจีน: **小程序开发工程技能套件**.
 
-> หมายเหตุ: ชุดนี้โฟกัสที่กระบวนการวิศวกรรมของ WeChat Mini Program เป็นหลัก หากต้องการใช้กับ LINE MINI App, Telegram Mini Apps หรือ Alipay+ Mini Program สามารถนำแนวคิดไปปรับใช้ได้ แต่ต้องตรวจสอบกฎ แพลตฟอร์ม สิทธิ์ การชำระเงิน และ runtime ของแต่ละระบบแยกต่างหาก
+> หมายเหตุ: ชั้นข้อเท็จจริงของแพลตฟอร์มครอบคลุม WeChat, Alipay และ Douyin แล้ว (ความสามารถในการตรวจจับระบุอย่างตรงไปตรงมา ดู "ความสดของกฎแพลตฟอร์ม" ด้านล่าง) สำหรับ LINE MINI App, Telegram Mini Apps หรือระบบอื่น ๆ สามารถนำแนวคิดไปปรับใช้ได้ แต่ยังต้องปรับกฎแพลตฟอร์มแยกต่างหาก
+
+---
+
+## จุดเด่นหลัก
+
+- **ชั้นข้อเท็จจริง 3 แพลตฟอร์ม**: แหล่งความจริงเดียวของกฎแพลตฟอร์ม WeChat / Alipay / Douyin โดย capability doctor ตรวจจับเทคโนโลยีและแพลตฟอร์มเป้าหมายของโปรเจกต์โดยอัตโนมัติ ความสามารถตรวจจับระบุอย่างตรงไปตรงมา — WeChat รองรับการเฝ้าระวังลายนิ้วมือแบบ deterministic ส่วน Alipay / Douyin อาศัยการเช็คเอกสารทางการขณะรันและการรายงานจากผู้ใช้ ไม่แอบอ้างว่าตรวจจับอัตโนมัติได้ (ดู [ความสดของกฎแพลตฟอร์ม](#ความสดของกฎแพลตฟอร์ม))
+- **ไปป์ไลน์ความสดของกฎแพลตฟอร์ม**: ฝั่ง execution ตรวจสอบกับเอกสารทางการฉบับปัจจุบันทุกครั้งที่รัน ฝั่งเนื้อหาตรวจจับ drift อัตโนมัติรายสัปดาห์ (เทียบลายนิ้วมือ → ดึงข้อมูล → ตรวจแบบเงา → ออก verdict issue) แม้เวอร์ชันในเครื่องจะเก่า งานก็ไม่ถูกรันตามกฎหมดอายุ (ดู [ความสดของกฎแพลตฟอร์ม](#ความสดของกฎแพลตฟอร์ม))
+- **ตรวจเต็มรูปแบบบน Agent CLI จริง**: เกตรีลีส 3 ชั้น (โครงสร้าง / routing / พฤติกรรม) และการลงนามอิสระ รันเต็มรูปแบบใน session ของ Agent CLI จริง — เวอร์ชันแรก ๆ ผ่านการยอมรับด้วย Codex CLI ปัจจุบัน engine ประเมินสลับได้ (Codex CLI / Claude Code / Gemini / OpenAI-compatible API) การผ่านข้าม engine เป็นหลักฐานที่แข็งแรงกว่า (ดู [การตรวจสอบ](#การตรวจสอบ) และ [EVALUATIONS.md](EVALUATIONS.md))
+- **วินัยวิศวกรรมที่ให้หลักฐานมาก่อน**: ทุกสถานะต้องมีหลักฐานตรงกันรองรับ ไม่งั้นระบุ unknown อย่างตรงไปตรงมา ตั้งแต่ 3.0 วินัยนี้แยกเป็นชั้นพื้นฐาน `foundation/` ที่ไม่ผูกโดเมน ชุด engineering ของ Agent ใดก็นำกลับไปใช้ได้ (ดู [หลักการออกแบบ](#หลักการออกแบบ))
+- **ประเมินเป็นชั้น + ลงนามอิสระ**: tier1 โครงสร้าง / tier2 routing / tier3 พฤติกรรม ตัดสินอิสระระหว่าง with-skill กับ baseline และชุด held-out ที่ตรึงจนถึงวันรีลีส — ต้องผ่านเกตครบจึงรีลีส (ดู [EVALUATIONS.md](EVALUATIONS.md))
+- **ธรรมาภิบาลรีลีสระดับ supply chain**: SHA256 + dual manifest + fail-closed packaging + ตรวจซ้ำฝั่งผู้รับ + สแกนข้อมูลอ่อนไหวเป็นศูนย์ ความสม่ำเสมอโครงสร้าง README 6 ภาษามีสคริปต์เฝ้าไว้ (ดู [ความสมบูรณ์ของ package](#ความสมบูรณ์ของ-package))
 
 ---
 
@@ -116,7 +127,7 @@ Skill นี้ไม่ได้เขียนจาก tutorial เชิง�
 
 ---
 
-## ความสดของกฎแพลตฟอร์ม (ใหม่ใน 2.0)
+## ความสดของกฎแพลตฟอร์ม
 
 กฎของแพลตฟอร์มเปลี่ยนแปลงตลอดเวลา กฎที่เขียนตายใน skill ย่อมล้าสมัย ตั้งแต่ 2.0 ชุดนี้ใช้หลัก "ปรับสดตอนทำงาน วิวัฒน์แบบควบคุม":
 
@@ -124,7 +135,7 @@ Skill นี้ไม่ได้เขียนจาก tutorial เชิง�
 - **เนื้อหาวิวัฒน์แบบควบคุม**: ผู้ดูแลตรวจจับการเปลี่ยนแปลงด้วยเครื่องมือเทียบลายนิ้วมือของหน้าเอกสารทางการ ผ่านการตรวจสอบอิสระหลายรอบก่อนอัปเดต คุณแจ้งการเปลี่ยนแปลงที่พบได้ผ่านแบบฟอร์ม **Platform rule drift** ใน Issues
 - **อยากใช้เวอร์ชันล่าสุด**: ดาวน์โหลดจาก Releases แล้ว `install.sh --force` — ไม่มีการอัปเดตเงียบโดยไม่แจ้ง
 
-ข้อเท็จจริงและแผนที่กฎอยู่ใน `platforms/` ปัจจุบันครอบ WeChat; Alipay/Douyin ตามโรดแมปในอนาคต
+ข้อเท็จจริงและแผนที่กฎอยู่ใน `platforms/` ปัจจุบันครอบคลุม WeChat, Alipay และ Douyin — WeChat รองรับการเฝ้าระวังลายนิ้วมือแบบ deterministic พร้อมตรวจจับ drift อัตโนมัติรายสัปดาห์; เอกสารทางการของ Alipay และ Douyin เป็น client-rendered จึงสังเกตการเปลี่ยนแปลงเนื้อหาด้วยลายนิ้วมือไม่ได้ จึงระบุอย่างตรงไปตรงมาว่า `manual-only` — ความสดพึ่งการเช็คเอกสารทางการขณะรันและการรายงานจากผู้ใช้ ไม่แอบอ้างว่าตรวจจับอัตโนมัติได้ แพลตฟอร์มที่ยังไม่รวมจะเช็คเอกสารทางการเสมอและคงสถานะ `unknown` ไม่เดา
 
 ---
 

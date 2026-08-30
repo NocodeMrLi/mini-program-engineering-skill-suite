@@ -7,7 +7,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
-  <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
+  <img src="https://img.shields.io/badge/platform-WeChat%20%7C%20Alipay%20%7C%20Douyin-07C160.svg" alt="Platform: WeChat | Alipay | Douyin">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
   <img src="https://img.shields.io/badge/stack-Taro%20%7C%20uni--app%20%7C%20native-4CAF50.svg" alt="Stack: Taro / uni-app / native">
@@ -29,6 +29,17 @@
 **Mini Program Engineering Skill Suite** is an Agent Skill suite for zero-to-one mini-program development, existing project takeover, and release-readiness governance. It turns the hard parts of mini-program work into an executable agent workflow: clarifying what should be built, deciding how it should be built, proving what has been done, and keeping external actions explicitly authorized.
 
 中文名：**小程序开发工程技能套件**。
+
+---
+
+## Highlights
+
+- **Three-platform fact layer**: a single source of truth for WeChat / Alipay / Douyin platform rules, with capability doctor auto-detecting the project stack and target platform. Detection capability is labeled honestly: WeChat supports deterministic fingerprint monitoring, while Alipay / Douyin rely on runtime checks against official docs and user reports instead of pretending to auto-detect (see [Platform Rule Freshness](#platform-rule-freshness)).
+- **Platform rule freshness pipeline**: execution always aligns with current official docs at run time, while the content layer runs weekly automated drift detection (fingerprint comparison → extraction → shadow audit → verdict issue). A slightly outdated local install never causes a task to follow stale rules (see [Platform Rule Freshness](#platform-rule-freshness)).
+- **Full gate verification on real agent CLIs**: the three-tier release gates (structure / routing / behavior) and independent signing run in real agent CLI sessions — early versions were acceptance-tested through Codex CLI, and the evaluation engine is now pluggable (Codex CLI / Claude Code / Gemini / OpenAI-compatible API). Passing across engines is stronger evidence (see [Verification](#verification) and [EVALUATIONS.md](EVALUATIONS.md)).
+- **Evidence-first engineering discipline**: every status claim must be backed by matching evidence, otherwise it is honestly labeled unknown. Since 3.0 this discipline ships as a domain-neutral foundation skill layer (`foundation/`) that any agent engineering suite can reuse (see [Design Principles](#design-principles)).
+- **Tiered evaluation with independent signing**: tier1 structure / tier2 routing / tier3 behavior evaluations, independent with-skill vs. baseline judgment, and held-out batches that stay frozen until release — every gate must PASS before shipping (see [EVALUATIONS.md](EVALUATIONS.md)).
+- **Supply-chain-grade release governance**: SHA256 checksums, dual manifests, fail-closed packaging, receiver-side re-verification, and a sensitive-content scan with zero findings; six-language README structure consistency is enforced by script (see [Package Integrity](#package-integrity)).
 
 ---
 
@@ -104,7 +115,7 @@ This Skill suite was not written from an abstract tutorial. It was distilled fro
 
 ---
 
-## Platform Rule Freshness (new in 2.0)
+## Platform Rule Freshness
 
 Platform rules keep changing, so any rule hardcoded into a skill goes stale. Since 2.0 the suite follows "fresh at execution, controlled in evolution":
 
@@ -112,7 +123,7 @@ Platform rules keep changing, so any rule hardcoded into a skill goes stale. Sin
 - **Suite content evolves under control.** The maintainer detects rule changes with drift tooling (fingerprint comparison against official pages) and lands updates through multi-round independent audits; you can report a rule change you spotted via the **Platform rule drift** issue template (voluntary, pre-filled).
 - **Want the latest copy?** Download the new package from [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) and reinstall with `install.sh --force`. The suite never silently auto-updates a local install.
 
-Platform facts and the rule map live in the `platforms/` directory, currently covering WeChat; Alipay, Douyin, and more join in later versions per the roadmap.
+Platform facts and the rule map live in the `platforms/` directory, now covering WeChat, Alipay, and Douyin. WeChat supports deterministic fingerprint monitoring with weekly automated drift detection; the Alipay and Douyin doc centers are client-rendered, so deterministic fingerprints cannot observe content changes and they are honestly marked `manual-only` — freshness there relies on runtime checks against official docs and user reports rather than pretending to auto-detect. Platforms outside the map are always checked against official sources and kept `unknown`, never guessed.
 
 ---
 

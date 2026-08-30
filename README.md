@@ -7,7 +7,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT">
   <img src="https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/actions/workflows/ci.yml/badge.svg" alt="CI">
-  <img src="https://img.shields.io/badge/platform-WeChat%20Mini%20Program-07C160.svg" alt="Platform: WeChat Mini Program">
+  <img src="https://img.shields.io/badge/platform-WeChat%20%7C%20Alipay%20%7C%20Douyin-07C160.svg" alt="Platform: WeChat | Alipay | Douyin">
   <img src="https://img.shields.io/badge/type-Agent%20Skill%20Suite-7B61FF.svg" alt="Type: Agent Skill Suite">
   <img src="https://img.shields.io/badge/category-Evidence--First%20Engineering-FF6B35.svg" alt="Category: Evidence-First Engineering">
   <img src="https://img.shields.io/badge/stack-Taro%20%7C%20uni--app%20%7C%20native-4CAF50.svg" alt="Stack: Taro / uni-app / native">
@@ -29,6 +29,17 @@
 **小程序开发工程技能套件** 是一套面向 Agent 的技能套件，专为小程序从 0 到 1 开发、已有项目接管和上线前治理设计。它把「先弄清楚要做什么、怎么做、做到哪一步、有没有证据」这条链路拆成可执行的工程流程，帮助不熟悉小程序开发的人在 Agent 辅助下少踩坑、少返工、不越权。
 
 英文名：**Mini Program Engineering Skill Suite**。
+
+---
+
+## 核心亮点
+
+- **三平台事实层**：微信 / 支付宝 / 抖音的平台规则单一事实源，capability doctor 自动识别项目技术栈与目标平台；检测能力如实分级——微信支持确定性指纹监测，支付宝 / 抖音依赖执行时查官方与用户上报，不假装能自动检测（见[平台规则保鲜](#平台规则保鲜)）。
+- **平台规则保鲜流水线**：执行层即时对齐官方现行文档，内容层每周自动漂移检测（指纹比对 → 抽取 → 影子审计 → 裁决 issue）；本地安装的版本稍旧，也不会导致任务按过期规则执行（见[平台规则保鲜](#平台规则保鲜)）。
+- **真实 Agent CLI 全量验证**：发布门禁的三层评测（结构 / 路由 / 行为）与独立签署在真实 Agent CLI 会话中全量执行——早期版本经 Codex CLI 实测验收，现行评测引擎可插拔（Codex CLI / Claude Code / Gemini / OpenAI 兼容 API），跨引擎通过是更强证据（见[验证](#验证)与 [EVALUATIONS.md](EVALUATIONS.md)）。
+- **证据优先工程纪律**：状态必须由匹配证据支撑，没有证据就如实标注 unknown；3.0 起这套纪律沉淀为领域无关的基础技能层 `foundation/`，可被任何 Agent 工程套件复用（见[设计原则](#设计原则)）。
+- **分层评测 + 独立签署**：tier1 结构 / tier2 路由 / tier3 行为三层评测、with-skill 与 baseline 独立判定、held-out 批冻结前不可用于调参，门禁全 PASS 才发布（见 [EVALUATIONS.md](EVALUATIONS.md)）。
+- **供应链级发布治理**：SHA256 + 双 manifest + fail-closed 出包 + 接收端复验 + 敏感信息扫描清零，六语言 README 结构一致性由脚本守护（见[包完整性](#包完整性)）。
 
 ---
 
@@ -89,7 +100,7 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 
 ---
 
-## 平台规则保鲜（2.0 新增）
+## 平台规则保鲜
 
 平台规则会持续变化，任何写死在技能里的规则都会过期。这套套件从 2.0 起采用「**执行层即时保鲜，内容层受控进化**」：
 
@@ -97,7 +108,7 @@ https://github.com/user-attachments/assets/73f542b6-f90d-4f1b-bb75-bb19db341dc5
 - **套件内容受控升级**：维护方通过漂移检测工具（对官方文档做指纹比对）发现规则变化后，经多轮独立审计提交更新；你可以在 [Issues](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/issues) 用 **Platform rule drift** 模板上报你发现的规则变化（自愿，预填好格式）。
 - **想用最新版教材**：从 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) 下载新包并 `install.sh --force` 重装即可；套件永远不会静默自动更新你的本地安装。
 
-平台事实与规则地图位于仓库 `platforms/` 目录，当前覆盖微信小程序；支付宝、抖音等平台按路线图在后续版本加入。
+平台事实与规则地图位于仓库 `platforms/` 目录，当前覆盖微信、支付宝、抖音三个平台：微信支持确定性指纹监测（每周自动漂移检测）；支付宝与抖音的官方文档为客户端渲染，确定性指纹无法观测内容变化，如实标注为 manual-only——保鲜依赖执行时查官方与用户上报，不假装能自动检测。未收录的平台一律查官方并保持 unknown，不猜测。
 
 ---
 
