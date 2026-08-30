@@ -193,10 +193,20 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.emit_issues:
-        if not args.report or not args.report.is_file():
-            print(json.dumps({"error": "report-missing"}, ensure_ascii=False))
+        # Fresh detection run in the same invocation: write/read our own report
+        # (the CI detect step passes --output + --emit-issues together; requiring
+        # a separate --report file made every first run fail with report-missing).
+        only = None
+        if args.platform_dir:
+            only = Path(args.platform_dir).name
+        report = run(Path.cwd(), only, args.no_llm)
+        if report is None:
+            print(json.dumps({"error": "no-platform-dirs"}, ensure_ascii=False))
             return 2
-        return emit_issues(json.loads(args.report.read_text(encoding="utf-8")), args.repo)
+        if args.output:
+            args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
+        return emit_issues(report, args.repo)
 
     only = None
     if args.platform_dir:
