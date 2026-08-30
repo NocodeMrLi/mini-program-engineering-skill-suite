@@ -258,7 +258,7 @@ class DriftWatchTests(unittest.TestCase):
         self.assertEqual([p.name for p in dirs], ["wechat"])
 
     def test_bundled_platform_layers_present_and_valid(self) -> None:
-        for platform, detection in (("wechat", None), ("alipay", "manual-only")):
+        for platform, detection in (("wechat", None), ("alipay", "manual-only"), ("douyin", "manual-only")):
             rule_map = json.loads(
                 (ROOT / "platforms" / platform / "rule-map.json").read_text(encoding="utf-8")
             )

@@ -5,7 +5,7 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.9+ for bundled scripts; framework adapters are optional and discovered read-only.
 metadata:
-  version: "2.1.0"
+  version: "2.2.0"
   author: "Mini Program Engineering Suite contributors"
   maintainers: "Mini Program Engineering Suite contributors"
   language: "zh-CN"
@@ -94,7 +94,8 @@ metadata:
 - 平台事实层（按目标平台路由，doctor 的 `target_platforms` 决定入口）：
   - 微信：[platforms/wechat/](platforms/wechat/platform-evidence-layers.md)（证据层、核对清单、隐私矩阵、[规则地图](platforms/wechat/rule-map.json) 与 [核验标注](platforms/wechat/facts.md)；支持确定性漂移检测）；
   - 支付宝：[规则地图](platforms/alipay/rule-map.json) 与 [核验标注](platforms/alipay/facts.md)（官方文档为客户端渲染 SPA，确定性指纹不可观测，保鲜依赖运行时查官方与用户上报，规则地图标 `manual-only`）；
-  - 未收录平台（如抖音）：无平台事实层，平台触点步骤一律查官方当前资料并保持 `unknown`，不猜测。
+  - 抖音：[规则地图](platforms/douyin/rule-map.json) 与 [核验标注](platforms/douyin/facts.md)（官方文档为客户端渲染同构壳页，确定性指纹不可观测文章内容，同样标 `manual-only`）；
+  - 未收录平台：无平台事实层，平台触点步骤一律查官方当前资料并保持 `unknown`，不猜测。
 - 工程流程层遇到平台触点时引用对应平台事实层，不内置平台规则。
 - [工程实现 Skill](skills/mini-program-implementation-skill/SKILL.md)：在明确边界内保护用户改动，以测试驱动小步实施并交付验证入口。
 - [界面与真机适配 Skill](skills/mini-program-ui-device-skill/SKILL.md)：按参考目标处理预览、确认、集成、屏幕/内容边界、手势和真机证据。

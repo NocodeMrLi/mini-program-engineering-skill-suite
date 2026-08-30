@@ -71,6 +71,8 @@ REQUIRED_FILES = (
     "platforms/wechat/rule-map.json",
     "platforms/alipay/facts.md",
     "platforms/alipay/rule-map.json",
+    "platforms/douyin/facts.md",
+    "platforms/douyin/rule-map.json",
     "skills/mini-program-implementation-skill/SKILL.md",
     "skills/mini-program-implementation-skill/agents/openai.yaml",
     "skills/mini-program-implementation-skill/references/implementation-workflow.md",

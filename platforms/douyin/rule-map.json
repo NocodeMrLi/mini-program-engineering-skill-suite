@@ -1,0 +1,41 @@
+{
+  "format_version": 1,
+  "platform": "douyin",
+  "allowed_domains": [
+    "developer.open-douyin.com",
+    "microapp.bytedance.com"
+  ],
+  "detection": "manual-only",
+  "detection_note": "Douyin developer docs serve a byte-similar client-rendered shell for every URL (all candidate paths return ~946KB shells whose extracted text is navigation-only; review/privacy keywords appear at most once). Deterministic L0/L1 cannot observe article content here, so drift detection is disabled and freshness relies on the runtime gate plus voluntary user reports. Verified 2026-08-30 by probing multiple candidate URLs.",
+  "rules": [
+    {
+      "id": "release-review-flow",
+      "step_class": "upload/review/release",
+      "ttl_days": 0,
+      "official": {
+        "url": "https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/operation/review",
+        "title": "抖音开放平台",
+        "section": "小程序运营 / 审核与发布"
+      },
+      "verify_points": [
+        "版本上传与提审入口",
+        "审核要求与驳回处理",
+        "发布流程"
+      ]
+    },
+    {
+      "id": "privacy-protection",
+      "step_class": "privacy/permission",
+      "ttl_days": 30,
+      "official": {
+        "url": "https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/develop/guide/privacy",
+        "title": "抖音开放平台",
+        "section": "隐私与安全 / 用户隐私保护"
+      },
+      "verify_points": [
+        "隐私接口与声明要求",
+        "用户授权与撤回路径"
+      ]
+    }
+  ]
+}
