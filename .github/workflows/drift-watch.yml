@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: detect
-    if: ${{ !github.event.inputs.skip-audit }}
+    if: ${{ github.event.inputs.skip-audit != true }}
 
     steps:
       - name: Checkout repository

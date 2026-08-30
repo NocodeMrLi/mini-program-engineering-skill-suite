@@ -206,7 +206,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.output:
             args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
-        return emit_issues(report, args.repo)
+        emit_issues(report, args.repo)
+        # Propagate the detection verdict: actionable findings must make the
+        # job reflect them even after issues were emitted.
+        return 1 if report["actionable_count"] else 0
 
     only = None
     if args.platform_dir:
