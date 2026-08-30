@@ -1,0 +1,217 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2000" height="849" viewBox="0 0 2000 849">
+  <defs>
+    <linearGradient id="bgGlow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset="0.5" stop-color="#111936"/>
+      <stop offset="1" stop-color="#0B1220"/>
+    </linearGradient>
+    <radialGradient id="purpleAura" cx="43%" cy="28%" r="56%">
+      <stop offset="0" stop-color="#7B61FF" stop-opacity="0.32"/>
+      <stop offset="0.48" stop-color="#7B61FF" stop-opacity="0.08"/>
+      <stop offset="1" stop-color="#7B61FF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orangeAura" cx="75%" cy="65%" r="45%">
+      <stop offset="0" stop-color="#FF6B35" stop-opacity="0.24"/>
+      <stop offset="0.52" stop-color="#FF6B35" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#FF6B35" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="dotGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.25" fill="#FFFFFF" opacity="0.13"/>
+    </pattern>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="28" stdDeviation="24" flood-color="#020711" flood-opacity="0.45"/>
+    </filter>
+    <filter id="smallGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="greenGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#07C160" flood-opacity="0.8"/>
+    </filter>
+    <filter id="blueGlow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="0" stdDeviation="8" flood-color="#1677FF" flood-opacity="0.86"/>
+    </filter>
+    <filter id="cyanPinkGlow" x="-70%" y="-70%" width="240%" height="240%">
+      <feDropShadow dx="-7" dy="0" stdDeviation="7" flood-color="#25F4EE" flood-opacity="0.78"/>
+      <feDropShadow dx="7" dy="0" stdDeviation="7" flood-color="#FE2C55" flood-opacity="0.74"/>
+    </filter>
+    <linearGradient id="editorFill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#151C2C"/>
+      <stop offset="1" stop-color="#090E19"/>
+    </linearGradient>
+    <linearGradient id="screenWeChat" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#122738"/>
+      <stop offset="1" stop-color="#09131D"/>
+    </linearGradient>
+    <linearGradient id="screenBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#142641"/>
+      <stop offset="1" stop-color="#07101F"/>
+    </linearGradient>
+    <linearGradient id="screenDark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#131622"/>
+      <stop offset="1" stop-color="#05070D"/>
+    </linearGradient>
+    <g id="check">
+      <path d="M5 16.5 13 24 29 7" fill="none" stroke="#07C160" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="phoneFrame">
+      <rect x="0" y="0" width="248" height="454" rx="44" fill="#07101E"/>
+      <rect x="14" y="16" width="220" height="422" rx="34" fill="#101827"/>
+      <rect x="96" y="28" width="56" height="8" rx="4" fill="#28344D"/>
+    </g>
+    <g id="docIcon">
+      <path d="M23 12h23l15 15v45H23z" fill="#111827" stroke="#9AA6BD" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M46 12v16h15" fill="none" stroke="#9AA6BD" stroke-width="4" stroke-linejoin="round"/>
+      <path d="M32 41h20M32 53h24" stroke="#7B61FF" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <g id="wrenchIcon">
+      <path d="M60 21a20 20 0 0 1-26 25L18 62a8 8 0 0 1-11-11l16-16A20 20 0 0 1 48 9l-12 12 12 12z" fill="#111827" stroke="#9AA6BD" stroke-width="4" stroke-linejoin="round"/>
+      <circle cx="13" cy="56" r="3" fill="#FF6B35"/>
+    </g>
+    <g id="shieldIcon">
+      <path d="M40 8 66 19v19c0 21-12 34-26 41-14-7-26-20-26-41V19z" fill="#111827" stroke="#9AA6BD" stroke-width="4" stroke-linejoin="round"/>
+      <path d="m28 42 9 9 18-21" fill="none" stroke="#07C160" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="rocketIcon">
+      <path d="M40 11c16 6 25 20 27 42L51 69 27 45C20 27 25 16 40 11z" fill="#111827" stroke="#9AA6BD" stroke-width="4" stroke-linejoin="round"/>
+      <circle cx="44" cy="35" r="8" fill="#1677FF"/>
+      <path d="M26 46 14 54l15 4M50 70l-8 13-5-16" fill="#FF6B35" stroke="#FF6B35" stroke-width="3" stroke-linejoin="round"/>
+    </g>
+  </defs>
+
+  <rect width="2000" height="849" fill="#0B1220"/>
+  <rect width="2000" height="849" fill="url(#bgGlow)"/>
+  <rect width="2000" height="849" fill="url(#dotGrid)" opacity="0.42"/>
+  <rect width="2000" height="849" fill="url(#purpleAura)"/>
+  <rect width="2000" height="849" fill="url(#orangeAura)"/>
+
+  <path d="M72 124C247 72 440 52 649 65c166 10 296 47 389 112" fill="none" stroke="#7B61FF" stroke-width="2" opacity="0.18"/>
+  <path d="M1096 128c152-52 333-56 508-10 132 35 229 92 292 170" fill="none" stroke="#FF6B35" stroke-width="2" opacity="0.16"/>
+
+  <g transform="translate(138 147)" filter="url(#softShadow)">
+    <rect width="770" height="482" rx="34" fill="url(#editorFill)" stroke="#27314A" stroke-width="2"/>
+    <rect x="0" y="0" width="770" height="66" rx="34" fill="#0E1524"/>
+    <path d="M0 34a34 34 0 0 1 34-34h702a34 34 0 0 1 34 34v32H0z" fill="#111A2C"/>
+    <circle cx="40" cy="34" r="8" fill="#FF6B35"/>
+    <circle cx="67" cy="34" r="8" fill="#FFC145"/>
+    <circle cx="94" cy="34" r="8" fill="#07C160"/>
+    <rect x="132" y="26" width="175" height="16" rx="8" fill="#2B3550"/>
+    <rect x="330" y="26" width="95" height="16" rx="8" fill="#222C45"/>
+
+    <g transform="translate(54 103)">
+      <rect x="0" y="0" width="474" height="286" rx="24" fill="#0B1020" stroke="#202A42"/>
+      <g transform="translate(34 34)">
+        <use href="#check" transform="scale(.72)"/>
+        <rect x="42" y="4" width="136" height="12" rx="6" fill="#34415F"/>
+        <rect x="196" y="4" width="52" height="12" rx="6" fill="#07C160" opacity="0.75"/>
+        <text x="269" y="17" fill="#07C160" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" letter-spacing="0">PASS</text>
+      </g>
+      <g transform="translate(34 88)">
+        <use href="#check" transform="scale(.72)"/>
+        <rect x="42" y="4" width="208" height="12" rx="6" fill="#3B4664"/>
+        <rect x="270" y="4" width="78" height="12" rx="6" fill="#7B61FF" opacity="0.85"/>
+      </g>
+      <g transform="translate(34 142)">
+        <use href="#check" transform="scale(.72)"/>
+        <rect x="42" y="4" width="168" height="12" rx="6" fill="#34415F"/>
+        <rect x="232" y="4" width="116" height="12" rx="6" fill="#FF6B35" opacity="0.78"/>
+      </g>
+      <g transform="translate(34 196)">
+        <circle cx="13" cy="13" r="13" fill="#13251F"/>
+        <use href="#check" transform="translate(3 3) scale(.62)"/>
+        <rect x="42" y="5" width="118" height="12" rx="6" fill="#3B4664"/>
+        <rect x="184" y="5" width="146" height="12" rx="6" fill="#263451"/>
+      </g>
+    </g>
+
+    <g transform="translate(64 424)">
+      <rect width="514" height="34" rx="17" fill="#090E18" stroke="#1F2942"/>
+      <circle cx="23" cy="17" r="5" fill="#07C160"/>
+      <rect x="43" y="12" width="76" height="10" rx="5" fill="#7B61FF"/>
+      <rect x="134" y="12" width="205" height="10" rx="5" fill="#33405E"/>
+      <rect x="357" y="12" width="18" height="10" rx="2" fill="#FF6B35"/>
+    </g>
+
+    <g transform="translate(570 126)">
+      <circle cx="72" cy="72" r="71" fill="#131A2C" stroke="#7B61FF" stroke-width="4" opacity="0.95"/>
+      <circle cx="72" cy="72" r="56" fill="none" stroke="#31405F" stroke-width="2"/>
+      <path d="M72 28 107 43v27c0 29-16 48-35 58-19-10-35-29-35-58V43z" fill="#0B1220" stroke="#9AA6BD" stroke-width="4" stroke-linejoin="round"/>
+      <path d="m55 72 13 13 27-31" fill="none" stroke="#07C160" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="72" y="166" text-anchor="middle" fill="#E7ECF8" font-family="Inter, Arial, sans-serif" font-size="25" font-weight="800" letter-spacing="0">VERIFIED</text>
+      <text x="72" y="195" text-anchor="middle" fill="#07C160" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" letter-spacing="0">PASS</text>
+    </g>
+  </g>
+
+  <g transform="translate(1018 143)">
+    <g transform="translate(0 36)" filter="url(#greenGlow)">
+      <use href="#phoneFrame"/>
+      <rect x="28" y="56" width="192" height="344" rx="22" fill="url(#screenWeChat)" stroke="#07C160" stroke-width="3" opacity="0.98"/>
+      <rect x="55" y="93" width="68" height="68" rx="18" fill="#07C160" opacity="0.22"/>
+      <rect x="139" y="102" width="52" height="10" rx="5" fill="#07C160" opacity="0.85"/>
+      <rect x="139" y="128" width="38" height="10" rx="5" fill="#CFFBE4" opacity="0.28"/>
+      <rect x="55" y="196" width="139" height="17" rx="8.5" fill="#293853"/>
+      <rect x="55" y="235" width="166" height="58" rx="16" fill="#15243A"/>
+      <rect x="76" y="254" width="70" height="10" rx="5" fill="#07C160" opacity="0.85"/>
+      <rect x="76" y="276" width="103" height="8" rx="4" fill="#BFEFD2" opacity="0.25"/>
+      <circle cx="81" cy="344" r="16" fill="#07C160" opacity="0.28"/>
+      <rect x="112" y="337" width="80" height="13" rx="6.5" fill="#07C160" opacity="0.82"/>
+    </g>
+    <g transform="translate(285 0)" filter="url(#blueGlow)">
+      <use href="#phoneFrame"/>
+      <rect x="28" y="56" width="192" height="344" rx="22" fill="url(#screenBlue)" stroke="#1677FF" stroke-width="3" opacity="0.98"/>
+      <rect x="55" y="89" width="136" height="78" rx="18" fill="#1677FF" opacity="0.2"/>
+      <circle cx="84" cy="128" r="19" fill="#1677FF" opacity="0.9"/>
+      <rect x="116" y="111" width="54" height="10" rx="5" fill="#B8D7FF" opacity="0.42"/>
+      <rect x="116" y="137" width="75" height="10" rx="5" fill="#1677FF" opacity="0.92"/>
+      <rect x="55" y="204" width="155" height="15" rx="7.5" fill="#33415E"/>
+      <rect x="55" y="241" width="60" height="68" rx="14" fill="#15243A"/>
+      <rect x="132" y="241" width="60" height="68" rx="14" fill="#15243A"/>
+      <rect x="68" y="326" width="121" height="14" rx="7" fill="#1677FF" opacity="0.85"/>
+      <rect x="68" y="356" width="87" height="10" rx="5" fill="#B8D7FF" opacity="0.35"/>
+    </g>
+    <g transform="translate(570 36)" filter="url(#cyanPinkGlow)">
+      <use href="#phoneFrame"/>
+      <rect x="28" y="56" width="192" height="344" rx="22" fill="url(#screenDark)" stroke="#222B3E" stroke-width="3" opacity="0.99"/>
+      <path d="M75 105h42v132H75z" fill="#25F4EE" opacity="0.68"/>
+      <path d="M117 130h42v132h-42z" fill="#FE2C55" opacity="0.68"/>
+      <rect x="65" y="286" width="118" height="14" rx="7" fill="#25F4EE" opacity="0.85"/>
+      <rect x="65" y="318" width="86" height="12" rx="6" fill="#FE2C55" opacity="0.85"/>
+      <circle cx="179" cy="351" r="20" fill="#25F4EE" opacity="0.2"/>
+      <circle cx="72" cy="351" r="20" fill="#FE2C55" opacity="0.2"/>
+      <rect x="97" y="347" width="52" height="8" rx="4" fill="#E7ECF8" opacity="0.26"/>
+    </g>
+  </g>
+
+  <g transform="translate(0 0)">
+    <path d="M296 751H1704" stroke="#2A3551" stroke-width="5" stroke-linecap="round"/>
+    <path d="M296 751H1704" stroke="#7B61FF" stroke-width="2" stroke-linecap="round" opacity="0.56"/>
+
+    <g transform="translate(252 695)">
+      <circle cx="44" cy="56" r="44" fill="#111A2B" stroke="#3B4664" stroke-width="3"/>
+      <use href="#docIcon" transform="translate(5 17) scale(.88)"/>
+      <circle cx="72" cy="27" r="15" fill="#082B21" stroke="#07C160" stroke-width="2"/>
+      <use href="#check" transform="translate(62 18) scale(.45)"/>
+    </g>
+    <g transform="translate(704 695)">
+      <circle cx="44" cy="56" r="44" fill="#111A2B" stroke="#3B4664" stroke-width="3"/>
+      <use href="#wrenchIcon" transform="translate(8 20) scale(.88)"/>
+      <circle cx="72" cy="27" r="15" fill="#082B21" stroke="#07C160" stroke-width="2"/>
+      <use href="#check" transform="translate(62 18) scale(.45)"/>
+    </g>
+    <g transform="translate(1156 695)">
+      <circle cx="44" cy="56" r="44" fill="#111A2B" stroke="#3B4664" stroke-width="3"/>
+      <use href="#shieldIcon" transform="translate(8 14) scale(.88)"/>
+      <circle cx="72" cy="27" r="15" fill="#082B21" stroke="#07C160" stroke-width="2"/>
+      <use href="#check" transform="translate(62 18) scale(.45)"/>
+    </g>
+    <g transform="translate(1608 695)">
+      <circle cx="44" cy="56" r="44" fill="#111A2B" stroke="#3B4664" stroke-width="3"/>
+      <use href="#rocketIcon" transform="translate(8 12) scale(.88)"/>
+      <circle cx="72" cy="27" r="15" fill="#082B21" stroke="#07C160" stroke-width="2"/>
+      <use href="#check" transform="translate(62 18) scale(.45)"/>
+    </g>
+  </g>
+</svg>
