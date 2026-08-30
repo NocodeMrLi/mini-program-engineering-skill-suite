@@ -187,7 +187,7 @@ def run_agent(cwd: Path, prompt: str, attempts: int = 4) -> tuple[str, str | Non
                 candidate = extract_json_object(raw)
                 if candidate is not None:
                     return candidate, None
-                error = f"agent-output-not-json:{raw[:200]}" if raw.strip() else "agent-output-empty"
+                error = f"agent-output-not-json:len={len(raw)}" if raw.strip() else "agent-output-empty"
         return "", error or "agent-output-missing"
     model = resolve_model()
     last_error = "agent-output-missing"
@@ -213,7 +213,7 @@ def run_agent(cwd: Path, prompt: str, attempts: int = 4) -> tuple[str, str | Non
                 raw = (result.stdout or "").strip()
             candidate = extract_json_object(raw)
             if candidate is None:
-                last_error = f"agent-output-not-json:{raw[:200]}" if raw.strip() else "agent-output-empty"
+                last_error = f"agent-output-not-json:len={len(raw)}" if raw.strip() else "agent-output-empty"
                 continue
             return candidate, None
     return "", last_error

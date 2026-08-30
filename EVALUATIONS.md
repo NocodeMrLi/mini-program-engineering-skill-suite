@@ -41,10 +41,24 @@ python3 scripts/summarize_evaluations.py \
 
 | 版本 | 日期 | 摘要 | 说明 |
 | --- | --- | --- | --- |
+| 2.2.1 | 2026-08-30 | 全部门禁 PASS（精准最小评测，见下） | 引擎 `claude:default`；tier1 重跑 + 单 case 基架等价探针（agent_cli 仅错误路径变更，成功路径行为与 2.2.0 等价）；六项评测产物复用 2.2.0（零子 Skill 文本变更）；独立终审与签署 PASS |
 | 2.2.0 | 2026-08-30 | 全部门禁 PASS（增量评测，见下表） | 引擎 `claude:default`（DeepSeek 后端）；tier1 与 methodology-development 重跑（敏感面抽样），其余五项复用 2.1.0 PASS 产物（九个子 Skill 文本与评测基架与 v2.1.0 评测输入逐字节一致）；独立终审与签署 PASS |
 | 2.1.0 | 2026-08-30 | 全部门禁 PASS（增量评测，见下表） | 引擎 `claude:default`（DeepSeek 后端）；tier1 与 methodology 重跑（2.1 变更影响面），routing 与 behavior 复用 2.0.0 PASS 产物（九个子 Skill 描述与行为文本与 v2.0.0 评测输入逐字节一致）；独立终审与签署 PASS |
 | 2.0.0 | 2026-08-29 | 全部门禁 PASS（见下表） | 引擎 `claude:default`（DeepSeek 后端）；tier2 路由 64/64；四个 tier3 判定 skill 1.00 且无回归，methodology-development 呈现最强对照（skill 1.00 / baseline 0.00）；独立终审与签署 PASS |
 | 1.4.0 | 2026-08-29 | 全部门禁 PASS（见下表） | 引擎 `claude:default`；tier2 路由 64/64；四个 tier3 判定 skill 1.00 且无回归；独立终审与签署 PASS |
+
+### 2.2.1 评测摘要（精准最小）
+
+| 门禁 | 结论 | 关键指标 | 审计元数据 |
+| --- | --- | --- | --- |
+| tier1 结构、预算与资源引用 | PASS（重跑） | checks 22; skills 10 | engine=local |
+| 基架等价探针 | PASS（单 case） | decision/claims/actions 结构完整 | engine=agent; model=claude:default |
+| tier2×2 / tier3×4 | PASS（复用 2.2.0） | accuracy 1.00；skill 1.00 无回归 | 子 Skill 文本零变更 |
+| 结构校验 | PASS | 100 个公共文件 | local |
+| 敏感信息扫描 | PASS | findings 0 | local |
+| 公共包清单复验 | PASS | files 100；双 manifest 一致 | local |
+| 独立判定 | PASS | 精准范围与复用理由被独立复核接受 | engine=agent; model=claude:default |
+| 独立终审签署 | PASS | errors 0; not-proven 0 | local |
 
 ### 2.2.0 评测摘要（增量）
 

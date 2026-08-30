@@ -1,9 +1,12 @@
 name: Drift watch
 
-# Weekly platform-rule freshness check (deterministic L0/L1 only; zero tokens).
-# Schedule decided by the author: Saturdays at 02:00 UTC = 10:00 Beijing time,
-# in the DeepSeek weekend low-price window (L2 audits, when triggered locally,
-# cost less). No agent credentials live in CI; L2 extraction always runs locally.
+# Weekly platform-rule freshness pipeline (decided by the author):
+# Saturdays 02:00 UTC = Beijing Saturday 10:00, inside the DeepSeek weekend
+# low-price window. Stage 1 is deterministic (L0/L1, zero tokens). Stage 2 runs
+# L2 extraction plus shadow-mode review through the HTTP engine using the
+# AGENT_API_* secrets configured by the author; without the secrets the run
+# degrades to detection-only and still opens detection issues. Shadow mode is
+# ON: verdicts are reported on issues, nothing merges automatically.
 on:
   schedule:
     - cron: "0 2 * * 6"  # Saturdays 02:00 UTC = Beijing Saturday 10:00
@@ -13,6 +16,11 @@ on:
         description: "Platform directory to check (empty = all)"
         required: false
         default: ""
+      skip-audit:
+        description: "Run detection only (skip L2/review)"
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -38,21 +46,63 @@ jobs:
           python-version: "3.11"
 
       - name: Run deterministic drift check
-        id: drift
         run: |
           set -uo pipefail
           args=""
           if [ -n "${{ github.event.inputs.platform }}" ]; then
             args="--platform-dir platforms/${{ github.event.inputs.platform }}"
           fi
-          # --no-llm keeps CI on the deterministic path: L2 extraction never runs here
-          # (and the report's "mode" field reflects deterministic rather than full).
+          # --no-llm keeps detection on the deterministic path (L0/L1 only).
           python3 scripts/drift_watch.py $args --no-llm --output drift-report.json
-          echo "exit=$?" >> "$GITHUB_OUTPUT"
 
-      - name: Create or update drift issues
-        if: always()
+      - name: Upload drift report
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-report
+          path: drift-report.json
+          if-no-files-found: warn
+
+  audit:
+    name: L2 extraction and shadow-mode review
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: detect
+    if: ${{ !github.event.inputs.skip-audit }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Download drift report
+        uses: actions/download-artifact@v4
+        with:
+          name: drift-report
+
+      - name: Run audit (L2 + shadow-mode review, verdict issues)
+        if: ${{ secrets.AGENT_API_KEY != '' }}
+        env:
+          AGENT_API_BASE_URL: ${{ secrets.AGENT_API_BASE_URL }}
+          AGENT_API_KEY: ${{ secrets.AGENT_API_KEY }}
+          AGENT_API_MODEL: ${{ secrets.AGENT_API_MODEL }}
+          EVAL_ENGINE: http
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          args=""
+          if [ -n "${{ github.event.inputs.platform }}" ]; then
+            args="--platform-dir platforms/${{ github.event.inputs.platform }}"
+          fi
+          python3 scripts/drift_audit.py $args --rounds 3 --out-dir audit-out --emit-issues
+
+      - name: Degrade gracefully when no engine credentials
+        if: ${{ secrets.AGENT_API_KEY == '' }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          python3 scripts/drift_watch.py --emit-issues --report drift-report.json
+          echo "AGENT_API_* secrets not configured; skipping cloud audit."
+          echo "Detection issues were opened by the detect job; run L2 locally per issue instructions."

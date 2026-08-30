@@ -105,6 +105,7 @@ REQUIRED_FILES = (
     "scripts/agent_cli.py",
     "scripts/platform_drift.py",
     "scripts/drift_watch.py",
+    "scripts/drift_audit.py",
     "scripts/review_drift_proposal.py",
     "scripts/release_recommendation.py",
     "scripts/summarize_evaluations.py",

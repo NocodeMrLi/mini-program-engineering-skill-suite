@@ -271,5 +271,57 @@ class DriftWatchTests(unittest.TestCase):
                 self.assertIn(domain, rule_map["allowed_domains"])
 
 
+class DriftAuditUnitTests(unittest.TestCase):
+    """Zero-LLM lockups for the audit orchestration semantics (2.1.1)."""
+
+    def test_audit_actionable_includes_full_l2_vocabulary(self) -> None:
+        from drift_watch import AUDIT_ACTIONABLE, DETECTION_ACTIONABLE, actionable
+
+        results = [
+            {"rule_id": "a", "state": "unchanged"},
+            {"rule_id": "b", "state": "fingerprint-changed"},
+            {"rule_id": "c", "state": "unverifiable"},
+            {"rule_id": "d", "state": "updated"},
+            {"rule_id": "e", "state": "conflicting"},
+        ]
+        detection_ids = [item["rule_id"] for item in actionable(results)]
+        audit_ids = [item["rule_id"] for item in actionable(results, AUDIT_ACTIONABLE)]
+        self.assertEqual(detection_ids, ["b", "c"])
+        self.assertEqual(audit_ids, ["b", "c", "d", "e"])
+        self.assertEqual(DETECTION_ACTIONABLE, {"fingerprint-changed", "unverifiable"})
+
+    def test_shared_url_facts_with_mixed_digests_fail_closed(self) -> None:
+        rule = {"id": "r1", "official": {"url": "https://x.test/a", "title": "T"}}
+        annotations = {
+            "f1": {"verified": "2026-01-01", "source": "https://x.test/a", "digest": "a" * 64},
+            "f2": {"verified": "2026-01-01", "source": "https://x.test/a", "digest": "b" * 64},
+        }
+        outcome = drift.check_rule(rule, annotations, ["x.test"], force_l2=False)
+        self.assertEqual(outcome["state"], "unverifiable")
+        self.assertEqual(outcome["error"], "inconsistent-baseline-digests")
+
+    def test_agent_errors_never_carry_raw_model_output(self) -> None:
+        # When the engine replies with non-JSON prose containing a secret-looking
+        # payload, the returned error must carry a length marker only, never the text.
+        with patch.object(agent_cli, "resolve_engine", return_value="claude"):
+            with patch.object(
+                agent_cli,
+                "build_command",
+                return_value=["true"],
+            ):
+                with patch.object(
+                    agent_cli.subprocess,
+                    "run",
+                    return_value=subprocess.CompletedProcess(
+                        args=[], returncode=0, stdout="here is a raw secret-looking reply", stderr=""
+                    ),
+                ):
+                    agent_cli.os.environ.pop("EVAL_ENGINE", None)
+                    _, error = agent_cli.run_agent(Path("/tmp"), "PROMPT", attempts=1)
+        self.assertIsNotNone(error)
+        self.assertIn("agent-output-not-json:len=", error)
+        self.assertNotIn("raw secret-looking", error)
+
+
 if __name__ == "__main__":
     unittest.main()

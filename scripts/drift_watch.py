@@ -99,8 +99,13 @@ def platform_dirs(root: Path, only: str | None) -> list[Path]:
     return dirs
 
 
-def actionable(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [item for item in results if item["state"] in {"fingerprint-changed", "unverifiable"}]
+DETECTION_ACTIONABLE = {"fingerprint-changed", "unverifiable"}
+AUDIT_ACTIONABLE = {"fingerprint-changed", "unverifiable", "updated", "conflicting"}
+
+
+def actionable(results: list[dict[str, Any]], states: set[str] | None = None) -> list[dict[str, Any]]:
+    """Filter results needing attention; CI detection and full audits use different vocabularies."""
+    return [item for item in results if item["state"] in (states or DETECTION_ACTIONABLE)]
 
 
 def gh_available() -> bool:
