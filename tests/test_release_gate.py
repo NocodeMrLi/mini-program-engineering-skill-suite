@@ -175,3 +175,48 @@ class GateFailurePathTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Gate4VerdictHandlingTests(unittest.TestCase):
+    """The gate's fourth-stage verdict handling: HOLD blocks when a candidate
+    tag is present; unknown verdicts fail closed (P0 fix)."""
+
+    GATE_SNIPPET = "scripts/release_gate.sh"
+
+    def _verdict_branch(self, verdict: str, candidate_tag: str) -> int:
+        import subprocess
+        script = r"""
+set -uo pipefail
+recommend_verdict="$1"; candidate_tag="$2"
+if [ "$recommend_verdict" = "MANUAL_VERIFICATION_REQUIRED" ]; then exit 1; fi
+if [ "$recommend_verdict" = "HOLD" ] && [ -n "$candidate_tag" ]; then exit 1; fi
+case "$recommend_verdict" in
+  RECOMMEND_RELEASE|HOLD) ;;
+  *) exit 1 ;;
+esac
+exit 0
+"""
+        r = subprocess.run(["bash", "-c", script, "--", verdict, candidate_tag],
+                           capture_output=True, text=True)
+        return r.returncode
+
+    def test_hold_with_candidate_tag_blocks(self) -> None:
+        self.assertNotEqual(self._verdict_branch("HOLD", "v3.1.8"), 0)
+
+    def test_hold_without_candidate_tag_passes(self) -> None:
+        self.assertEqual(self._verdict_branch("HOLD", ""), 0)
+
+    def test_manual_verification_blocks(self) -> None:
+        self.assertNotEqual(self._verdict_branch("MANUAL_VERIFICATION_REQUIRED", "v3.1.8"), 0)
+
+    def test_unknown_verdict_blocks(self) -> None:
+        self.assertNotEqual(self._verdict_branch("SOMETHING_NEW", "v3.1.8"), 0)
+
+    def test_release_passes(self) -> None:
+        self.assertEqual(self._verdict_branch("RECOMMEND_RELEASE", "v3.1.8"), 0)
+
+    def test_gate_script_contains_verdict_gates(self) -> None:
+        text = (Path(__file__).resolve().parents[1] / self.GATE_SNIPPET).read_text(encoding="utf-8")
+        self.assertIn('recommend_verdict" = "HOLD" ] && [ -n "$candidate_tag" ]', text)
+        self.assertIn("unknown recommendation verdict", text)
+        self.assertIn("candidate_tag", text)  # summary records the fourth gate

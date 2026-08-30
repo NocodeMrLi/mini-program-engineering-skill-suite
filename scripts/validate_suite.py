@@ -335,6 +335,7 @@ def validate_platform_rule_maps(root: Path) -> list[str]:
         if not isinstance(rules, list) or not rules:
             errors.append(f"{path}: rules must be a non-empty list")
             continue
+        seen_rule_ids: set[str] = set()
         for rule in rules:
             if not isinstance(rule, dict):
                 errors.append(f"{path}: rule must be an object")
@@ -343,6 +344,9 @@ def validate_platform_rule_maps(root: Path) -> list[str]:
             if not isinstance(rule_id, str) or not rule_id:
                 errors.append(f"{path}: rule missing string id")
                 continue
+            if rule_id in seen_rule_ids:
+                errors.append(f"{path}: duplicate rule id {rule_id}")
+            seen_rule_ids.add(rule_id)
             ttl = rule.get("ttl_days")
             if not isinstance(ttl, int) or isinstance(ttl, bool) or ttl < 0:
                 errors.append(f"{path}: {rule_id} ttl_days must be a non-negative integer")
@@ -360,6 +364,8 @@ def validate_platform_rule_maps(root: Path) -> list[str]:
             points = rule.get("verify_points")
             if not isinstance(points, list) or not points or not all(isinstance(p, str) and p for p in points):
                 errors.append(f"{path}: {rule_id} verify_points must be non-empty strings")
+            elif len(set(points)) != len(points):
+                errors.append(f"{path}: {rule_id} verify_points contains duplicates")
         validate_facts_rule_map_binding(path, data, errors)
     return errors
 
@@ -377,8 +383,6 @@ def validate_facts_rule_map_binding(path: Path, rule_map: dict[str, object], err
     (codex sixth audit): binding by ID first, then requiring the fact's
     source to equal the rule's official.url, catches that at validation time.
     """
-    import sys as _sys
-
     facts_path = path.parent / "facts.md"
     rules = rule_map.get("rules") if isinstance(rule_map.get("rules"), list) else []
     if not facts_path.is_file():

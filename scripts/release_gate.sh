@@ -124,3 +124,44 @@ if [ "$recommend_verdict" = "MANUAL_VERIFICATION_REQUIRED" ]; then
   printf '%s\n' "$recommend_json" >&2
   exit 1
 fi
+# With a candidate tag, HOLD is anomalous (double tag / empty range / tooling
+# drift) — it must block, not pass through as success (the P0 bypass shape).
+if [ "$recommend_verdict" = "HOLD" ] && [ -n "$candidate_tag" ]; then
+  echo "HOLD with candidate tag $candidate_tag is anomalous (empty range or mis-sequenced tags); release blocked" >&2
+  printf '%s\n' "$recommend_json" >&2
+  exit 1
+fi
+# Unknown verdict values fail closed.
+case "$recommend_verdict" in
+  RECOMMEND_RELEASE|HOLD) ;;
+  *) echo "unknown recommendation verdict '$recommend_verdict'; release blocked" >&2; exit 1 ;;
+esac
+
+# Fourth-gate details go into the summary (rewritten with the gate result):
+python3 - "$summary_path" "$candidate_tag" "$recommend_json" <<'GATEPY'
+import json
+import sys
+from datetime import datetime, timezone
+
+summary_path, candidate_tag, recommend_json = sys.argv[1:4]
+recommend = json.loads(recommend_json)
+with open(summary_path, encoding="utf-8") as handle:
+    summary = json.load(handle)
+summary["candidate_tag"] = candidate_tag or None
+summary["baseline_tag"] = recommend.get("baseline_tag")
+summary["release_recommendation"] = recommend.get("recommendation")
+mv = recommend.get("manual_verification") or {}
+summary["manual_verification_required"] = mv.get("required")
+summary["manual_verification_platforms"] = {
+    name: {
+        "needs_verification": detail.get("needs_verification"),
+        "unknown_count": detail.get("unknown_count"),
+        "oldest_verified": detail.get("oldest_verified"),
+    }
+    for name, detail in (mv.get("platforms") or {}).items()
+}
+summary["gate4_generated_at_utc"] = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+with open(summary_path, "w", encoding="utf-8") as handle:
+    json.dump(summary, handle, ensure_ascii=False, indent=2, sort_keys=True)
+    handle.write("\n")
+GATEPY

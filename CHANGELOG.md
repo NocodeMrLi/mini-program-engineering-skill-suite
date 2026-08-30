@@ -2,6 +2,28 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.8 - 2026-08-31
+
+### Fixed（codex 七次复核批：1 P0 + 2 P1 + 2 P2 + 1 优化项，P0 为正式发布路径门禁绕过）
+
+- **P0 正式 Release 中人工核验门禁被整体绕过**：Release checkout 候选 tag 后，`git describe` 把候选自身当作上一版 → 候选..HEAD 零提交 → HOLD → gate 放行，核验门从未执行（v3.1.7 Release 日志证实无核验判定输出）。修复：候选 tag 场景下 baseline 改为 `git describe --tags --abbrev=0 候选^`（真上一版）+ 候选 tag commit 必须等于 HEAD + 候选区间零提交视为异常直接 `MANUAL_VERIFICATION_REQUIRED`（不再 HOLD 放行）；release_gate.sh 对 **HOLD+候选 tag 阻断**、未知 recommendation 值 fail-closed。CHANGELOG 证据裁剪修正（版本头无尾随空格时匹配失败导致读了旧版证据）。隔离仓四场景验证（缺证据拦/齐证据过/HEAD 不符拦/无候选本地 HOLD 保持）+ gate verdict 分支 6 项 shell 测试。
+- **P1 四元组内部错位可通过**：强制 `update.fact_id == 外层键 == rule_id` 三者全等（codex 探针 DIFFERENT-INNER-ID 原可过）；提案顶层拒绝重复 `rule_id`（重复 change 原可通过）。类型层短路修正：unknown-rule / verify-points 绑定 / fact-id 集 / statements 比对四项独立于 updates 形状报告，不再被类型问题遮蔽。
+- **P1 重复规则 ID 不被拒**：validate 新增 `seen_rule_ids`（同 ID 两规则原只靠 URL 错位间接拦）+ 重复 `verify_points` 拒绝；七格回归矩阵全绿（重复规则/重复事实/孤儿/缺失/URL 错位/重复核对点/合法）。
+- **P2 gate-summary 缺第四道门**：summary 现写入 candidate_tag / baseline_tag / release_recommendation / manual_verification_required / 各平台核验状态——哪版、比哪版、缺哪个平台、多少 unknown 一目了然。
+- **P2 文档口径**：CHANGELOG/EVALUATIONS 测试数以 Release 工件为准修正（161→167）；18 号报告删除上一版失实的「门禁首次实战拦截」表述并如实更正（拦截仅验于本地路径，正式 Release 未执行核验——与"空壳指纹"同类的 A 路径验证冒称 B 路径问题）；15 号清理"自动开 PR""影子模式观察期"残留。
+- **优化**：`review_guarded` 异常兜底输出异常类型到 stderr（公开码保持脱敏，真实缺陷与恶意输入可区分）；删除 validate 死导入。
+
+### 平台核验（本批）
+
+- alipay facts 人工核验于 2026-08-31 (tag: v3.1.8)
+- douyin facts 人工核验于 2026-08-31 (tag: v3.1.8)
+
+（本批复核两平台 facts 无内容变化，核验沿用 2026-08-31 实核结论；证据行 tag 指向本版候选。）
+
+### 验证
+
+- 173 测试全绿（+6：gate verdict 分支 5 项 + P1-1 两负例并入既有探针组）；`-W error::ResourceWarning` 零警告；validate 113 文件；扫描 0 命中；i18n 6/6；导出复验 113 文件；summary 第四道门字段实测写入；**真实失败路径验证见发布说明**（临时 tag 删证据 → Release 必须失败后清理）。
+
 ## 3.1.7 - 2026-08-31
 
 ### Fixed（codex 六次复核批：3 P1 + 2 P2 + 1 P3 全部修复，按其建议顺序）
@@ -22,7 +44,7 @@
 
 ### 验证
 
-- 161 测试全绿（V317 探针回归：跨规则 URL/未知规则/列表 updates/重复核对点/null/数字全拒 + 合法提案通过 + 仅单平台证据 major 拒 + tag 不符拒 + 日期不齐拒 + 双平台 major 过）；validate 113 文件（含新交叉校验）；扫描 0 命中；i18n 6/6；导出复验 113 文件；`-W error::ResourceWarning` 全套零警告；release_gate.sh 带候选 tag 实测：证据齐→过、缺 alipay 证据→MANUAL_VERIFICATION_REQUIRED 阻断。
+- 161 测试（Release 工件实测 167，含 +6 V317 回归）；validate 113 文件（含新交叉校验）；扫描 0 命中；`-W error::ResourceWarning` 零警告。**更正（codex 七次复核）**：原记「release_gate.sh 带候选 tag 实测：缺证据→阻断」仅验于本地（HEAD 领先 tag 的场景）；正式 Release 工作流 checkout 候选 tag 后 `git describe` 将候选自身当作上一版 → 零提交 → HOLD → gate 放行，**核验门在正式路径被整体跳过**（v3.1.7 Release 未执行核验判定）。该 P0 已在 3.1.8 修复。
 
 ## 3.1.6 - 2026-08-31
 

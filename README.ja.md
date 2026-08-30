@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.1.7" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.1.8" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.1.7-0EA5E9.svg" alt="Version: 3.1.7">
+  <img src="https://img.shields.io/badge/version-3.1.8-0EA5E9.svg" alt="Version: 3.1.8">
 </p>
 
 <p align="center">
@@ -206,19 +206,19 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-v3.1.7 の例（Release からダウンロード後）：
+v3.1.8 の例（Release からダウンロード後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.1.7.tar.gz
-python3 mini-program-engineering-suite-v3.1.7/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.1.7
+tar -xzf mini-program-engineering-suite-v3.1.8.tar.gz
+python3 mini-program-engineering-suite-v3.1.8/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.1.8
 ```
 
 ---
 
 ## バージョン
 
-現在のバージョン：**3.1.7**。
+現在のバージョン：**3.1.8**。
 
 ---
 

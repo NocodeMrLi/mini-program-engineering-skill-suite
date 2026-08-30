@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.1.7" alt="小程式開發工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.1.8" alt="小程式開發工程技能套件 封面" width="100%">
 </p>
 
 # 小程式開發工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.1.7-0EA5E9.svg" alt="Version: 3.1.7">
+  <img src="https://img.shields.io/badge/version-3.1.8-0EA5E9.svg" alt="Version: 3.1.8">
 </p>
 
 <p align="center">
@@ -202,19 +202,19 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 ```
 
-以 v3.1.7 為例（從 Release 下載後）：
+以 v3.1.8 為例（從 Release 下載後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.1.7.tar.gz
-python3 mini-program-engineering-suite-v3.1.7/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.1.7
+tar -xzf mini-program-engineering-suite-v3.1.8.tar.gz
+python3 mini-program-engineering-suite-v3.1.8/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.1.8
 ```
 
 ---
 
 ## 目前版本
 
-目前版本：**3.1.7**。
+目前版本：**3.1.8**。
 
 ---
 

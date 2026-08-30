@@ -167,6 +167,10 @@ def _contract_types_valid(change: dict[str, Any]) -> str | None:
         for value in update.values():
             if not isinstance(value, str) or not value:
                 return f"gate2:update-structure-invalid:{rid}:{fid}"
+        # inner fact_id == outer key == rule_id, all three (codex seventh
+        # audit: a DIFFERENT-INNER-ID inside a correctly-keyed update passed).
+        if update["fact_id"] != fid or fid != change.get("rule_id"):
+            return f"gate2:update-fact-id-mismatch:{rid}:{fid}"
     return None
 
 
@@ -203,12 +207,37 @@ def check_reproducibility(proposal: dict[str, Any], drift_report: Path | None, p
     rules_by_id = {rule.get("id"): rule for rule in rule_map.get("rules", [])}
     results = {item.get("rule_id"): item for item in report.get("results", [])}
     problems: list[str] = []
+    seen_rule_ids: set[str] = set()
     for change in proposal["changes"]:
+        if isinstance(change, dict) and isinstance(change.get("rule_id"), str):
+            if change["rule_id"] in seen_rule_ids:
+                problems.append(f"gate2:duplicate-rule-id:{change['rule_id']}")
+            seen_rule_ids.add(change["rule_id"])
+        if not isinstance(change, dict) or not isinstance(change.get("rule_id"), str):
+            problems.append("gate2:proposal-contract-invalid")
+            continue
+        rid = change["rule_id"]
         type_problem = _contract_types_valid(change)
         if type_problem:
             problems.append(type_problem)
+            # Field-level bindings below are skipped for malformed payloads,
+            # but rule existence and verify-point binding are independent of
+            # the update payload's shape and stay visible.
+            if rid not in rules_by_id:
+                problems.append(f"gate2:unknown-rule:{rid}")
+            else:
+                if isinstance(change.get("requested_verify_points"), list):
+                    expected_points = set(rules_by_id[rid].get("verify_points", []) or [])
+                    if set(change["requested_verify_points"]) != expected_points:
+                        problems.append(f"gate2:verify-points-not-bound-to-rule-map:{rid}")
+                if isinstance(change.get("proposed_fact_updates"), dict):
+                    if set(change["proposed_fact_updates"]) != {rid}:
+                        problems.append(f"gate2:fact-id-set-diverges-from-facts:{rid}")
+            if isinstance(change.get("extracted_statements"), dict):
+                result = results.get(rid)
+                if result is not None and (result.get("extracted_statements") or {}) != change["extracted_statements"]:
+                    problems.append(f"gate2:extracted-statements-diverge-from-report:{rid}")
             continue
-        rid = change.get("rule_id")
         # --- rule_id is the single source of truth from here on ---
         rule = rules_by_id.get(rid)
         if rule is None:
@@ -388,7 +417,11 @@ def review_guarded(
     become DO_NOT_APPLY with a contract problem code, never a traceback."""
     try:
         return review(proposal_path, platform_root, drift_report, rounds, shadow)
-    except Exception:  # noqa: BLE001 — the whole point is fail-closed, not crash
+    except Exception as exc:  # noqa: BLE001 — the whole point is fail-closed, not crash
+        # Public result keeps a stable redacted code; the exception TYPE (not
+        # message — messages can quote attacker content) goes to stderr for
+        # troubleshooting so real bugs stay distinguishable from bad input.
+        print(f"[review_guarded] contract violation: {type(exc).__name__}", file=sys.stderr)
         return {
             "verdict": "DO_NOT_APPLY",
             "shadow": shadow,

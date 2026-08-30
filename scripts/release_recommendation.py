@@ -51,9 +51,33 @@ def git(root: Path, *args: str) -> str:
     return result.stdout
 
 
-def last_tag(root: Path) -> str | None:
+def last_tag(root: Path, before: str | None = None) -> str | None:
+    """Newest tag, optionally strictly BEFORE a given rev.
+
+    With before=None this is the plain "most recent tag" (HEAD-relative). With
+    before="<candidate>^" it returns the last tag that precedes the candidate's
+    parent — the true baseline for a release checkout, where HEAD sits ON the
+    candidate tag and a plain describe would return the candidate itself
+    (the P0 bypass: candidate..HEAD = empty -> HOLD -> gate skipped).
+    """
+    args = ["git", "-C", str(root), "describe", "--tags", "--abbrev=0"]
+    if before is not None:
+        args.append(before)
+    result = subprocess.run(args, capture_output=True, check=False, text=True)
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def head_commit(root: Path) -> str | None:
     result = subprocess.run(
-        ["git", "-C", str(root), "describe", "--tags", "--abbrev=0"],
+        ["git", "-C", str(root), "rev-parse", "HEAD"],
+        capture_output=True, check=False, text=True,
+    )
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def tag_commit(root: Path, tag: str) -> str | None:
+    result = subprocess.run(
+        ["git", "-C", str(root), "rev-parse", f"{tag}^{{}}"],
         capture_output=True, check=False, text=True,
     )
     return result.stdout.strip() if result.returncode == 0 else None
@@ -128,10 +152,14 @@ def changelog_verification_evidence(root: Path, since_tag: str | None) -> dict[s
     text = changelog.read_text(encoding="utf-8")
     if since_tag:
         version = since_tag.lstrip("v")
-        marker = f"## {version} "
-        idx = text.find(marker)
-        if idx > 0:
-            text = text[:idx]
+        # match the version header with or without a trailing suffix
+        # ("## 3.1.6 - date" or "## 3.1.6\n"); a bare "## 3.1.6 " with a
+        # trailing space missed headers written without one.
+        for marker in (f"\n## {version} ", f"\n## {version}\n"):
+            idx = text.find(marker)
+            if idx > 0:
+                text = text[: idx + 1]
+                break
     else:
         first = text.find("\n## ")
         if first >= 0:
@@ -257,11 +285,40 @@ def manual_verification_status(
 
 
 def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = None) -> dict[str, Any]:
-    tag = last_tag(root)
+    baseline_tag: str | None
+    if candidate_tag:
+        # Release checkout: HEAD sits on the candidate tag. The baseline must be
+        # the tag BEFORE the candidate (via its parent), never the candidate
+        # itself; and HEAD must actually be the candidate commit.
+        candidate_commit = tag_commit(root, candidate_tag)
+        current_head = head_commit(root)
+        if candidate_commit is None:
+            return {"recommendation": "MANUAL_VERIFICATION_REQUIRED", "level": None,
+                    "reasons": [f"candidate tag {candidate_tag} not found in repository"],
+                    "tag": candidate_tag, "baseline_tag": None, "commit_count": 0, "classes": {},
+                    "manual_verification": {"required": True, "platforms": {}, "evidence": {}}}
+        if current_head != candidate_commit:
+            return {"recommendation": "MANUAL_VERIFICATION_REQUIRED", "level": None,
+                    "reasons": [f"HEAD {str(current_head)[:8]} != candidate tag commit {candidate_commit[:8]}"],
+                    "tag": candidate_tag, "baseline_tag": None, "commit_count": 0, "classes": {},
+                    "manual_verification": {"required": True, "platforms": {}, "evidence": {}}}
+        baseline_tag = last_tag(root, before=f"{candidate_tag}^") or last_tag(root, before=candidate_tag)
+        if baseline_tag == candidate_tag:
+            baseline_tag = None
+        tag = baseline_tag
+    else:
+        tag = last_tag(root)
     commits = collect_commits(root, tag)
     if not commits:
+        if candidate_tag:
+            # A candidate release with zero commits since baseline is anomalous
+            # (double-tagged or mis-sequenced): must block, not HOLD-through.
+            return {"recommendation": "MANUAL_VERIFICATION_REQUIRED", "level": None,
+                    "reasons": ["no commits between baseline tag and candidate tag"],
+                    "tag": tag, "baseline_tag": tag, "commit_count": 0, "classes": {},
+                    "manual_verification": {"required": True, "platforms": {}, "evidence": {}}}
         return {"recommendation": "HOLD", "level": None, "reasons": ["no-commits-since-last-tag"], "tag": tag,
-                "commit_count": 0, "classes": {}}
+                "baseline_tag": None, "commit_count": 0, "classes": {}}
 
     classes: dict[str, int] = {}
     for commit in commits:
@@ -286,7 +343,7 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
                     f"only {classes['data']} data-only commit(s) since {tag or 'start'}; "
                     f"threshold is {min_data_changes}; accumulate more or release on demand"
                 ],
-                "tag": tag, "commit_count": len(commits), "classes": classes,
+                "tag": tag, "baseline_tag": tag, "commit_count": len(commits), "classes": classes,
             }
         level = "patch"
         reasons = [f"{classes['data']} commit(s) of platform fact data only; no behavior or methodology changes"]
@@ -309,6 +366,7 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
                 if detail.get("needs_verification")
             ],
             "tag": tag,
+            "baseline_tag": tag,
             "commit_count": len(commits),
             "classes": classes,
             "manual_verification": verification,
@@ -319,6 +377,7 @@ def recommend(root: Path, min_data_changes: int, candidate_tag: str | None = Non
         "level": level,
         "reasons": reasons,
         "tag": tag,
+        "baseline_tag": tag,
         "commit_count": len(commits),
         "classes": classes,
         "manual_verification": verification,
