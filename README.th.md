@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.0.1" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite

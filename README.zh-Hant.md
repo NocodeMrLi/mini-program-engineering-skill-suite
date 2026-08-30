@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp" alt="小程式開發工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.0.1" alt="小程式開發工程技能套件 封面" width="100%">
 </p>
 
 # 小程式開發工程技能套件
