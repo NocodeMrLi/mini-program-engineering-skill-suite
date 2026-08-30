@@ -50,9 +50,38 @@ jobs:
 
       - name: Run release gates
         run: |
-          python3 -m unittest discover -s tests -q
-          python3 scripts/validate_suite.py .
-          python3 scripts/scan_sensitive_content.py . --format json
+          set -uo pipefail
+          mkdir -p dist
+          # gate-summary.json records what the gates ACTUALLY produced (test count,
+          # checked files, scan findings). Release claims must quote these numbers;
+          # filling them from memory caused four consecutive versions of undercounted
+          # test totals (117/119, 117/119, 120/122, 120/122).
+          python3 -m unittest discover -s tests -q 2>&1 | tee /tmp/unittest.log
+          test_count="$(grep -Eo 'Ran [0-9]+ tests' /tmp/unittest.log | grep -Eo '[0-9]+' | head -1)"
+          validate_json="$(python3 scripts/validate_suite.py .)"
+          scan_json="$(python3 scripts/scan_sensitive_content.py . --format json)"
+          python3 - "$test_count" "$validate_json" "$scan_json" <<'PYEOF'
+          import json, sys
+          from datetime import datetime, timezone
+          test_count = int(sys.argv[1])
+          validate = json.loads(sys.argv[2])
+          scan = json.loads(sys.argv[3])
+          summary = {
+              "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
+              "tests_passed": test_count,
+              "validate_valid": validate["valid"],
+              "validate_checked_files": validate["checked_files"],
+              "skill_count": validate["skill_count"],
+              "scan_candidate_count": scan["candidate_count"],
+              "scan_finding_count": scan["finding_count"],
+          }
+          with open("dist/gate-summary.json", "w", encoding="utf-8") as handle:
+              json.dump(summary, handle, ensure_ascii=False, indent=2, sort_keys=True)
+              handle.write("\n")
+          print(json.dumps(summary, ensure_ascii=False))
+          if not validate["valid"] or scan["finding_count"]:
+              sys.exit(1)
+          PYEOF
 
       - name: Export public package
         run: |
@@ -79,13 +108,23 @@ jobs:
         run: |
           tag="${{ steps.release.outputs.tag }}"
           notes_file="$(mktemp)"
+          # Gate numbers below are quoted from dist/gate-summary.json (produced by
+          # the gates step in this same run) — never typed from memory.
+          gate_tests="$(python3 -c 'import json; print(json.load(open("dist/gate-summary.json"))["tests_passed"])')"
+          gate_files="$(python3 -c 'import json; print(json.load(open("dist/gate-summary.json"))["validate_checked_files"])')"
           {
             echo "Verified public package for $tag."
+            echo
+            echo "Gate summary (measured by this run):"
+            echo "- tests passed: $gate_tests"
+            echo "- validated public files: $gate_files"
+            echo "- sensitive-scan findings: 0"
             echo
             echo "Assets:"
             echo "- mini-program-engineering-suite-$tag.tar.gz"
             echo "- package-manifest.json"
             echo "- SHA256SUMS"
+            echo "- gate-summary.json"
             echo
             echo "Integrity check:"
             echo '```bash'

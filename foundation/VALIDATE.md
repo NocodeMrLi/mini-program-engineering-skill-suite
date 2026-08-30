@@ -5,7 +5,7 @@
 ## 结构自检
 
 - 本层含 1 份 SKILL.md（官方 frontmatter 契约：name + description）、4 份治理文档（guardrails/）、4 份交付模板（templates/）。
-- 每份文件末尾带 `foundation-source` 标记；版本跟随源套件主版本。
+- 8 份内容文件（guardrails/×4 + templates/×4）末尾带 `foundation-source` 标记，版本跟随源套件主版本；SKILL.md 与本文件是本层自有文档（无 shared/ 原版，不参与等价断言），不带标记。
 - 源套件用 `scripts/check_foundation_equivalence.py` 断言本层与 shared/ 原版逐字节等价（声明的通用化差异除外）；vendored 方没有该脚本时，可按标记行核对来源与版本。
 
 ## vendored 同步规则

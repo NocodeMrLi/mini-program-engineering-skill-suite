@@ -22,6 +22,8 @@
 ### Fixed
 
 - 修复 drift 审计闭环三处行为偏差（v2.2.1 独立交叉验证发现）：① `drift_audit.py` 新增 `--report` 消费 detect 作业产物，审计范围以检测报告为准而非全量重扫；② audit 目标解析跳过 `manual-only` 平台（其 digest 恒为 unknown，`no-recorded-digest` 会触发对客户端渲染壳页注定失败的 L2 重试，每规则约 4 次引擎调用——显式 `--platform-dir` 指定 manual-only 平台同样拒绝，双保险）；③ detect 作业恢复 `--emit-issues`（2.2.1 拆双作业时引入的回归：无凭据或 skip-audit 场景下漂移被检测到但无人收到通知）。补两组零 LLM 回归测试。
+- 发布门禁产出 `gate-summary.json` 工件（v3.0.0 独立交叉验证确认测试数四连少报 2 后的机制兜底）：门禁步骤把实测测试数/校验文件数/扫描数写入工件随 Release 上传，Release notes 中的门禁数字一律从工件引用，杜绝凭记忆填报。
+- 修正 `foundation/VALIDATE.md` 标记口径（v3.0.0 独立交叉验证发现）：原文「每份文件末尾带 foundation-source 标记」与实际不符——8 份内容文件（guardrails×4 + templates×4）带标记，SKILL.md 与 VALIDATE.md 为本层自有文档、不参与等价断言、不带标记；现表述与实际一致。
 
 ## 2.2.1 - 2026-08-30
 
