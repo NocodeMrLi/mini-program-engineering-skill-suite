@@ -161,23 +161,69 @@ def emit_issues(summaries: list[dict[str, Any]], repo: str | None) -> int:
     return 0
 
 
+def audit_targets(platforms_root: Path, only: Path | None, report: Path | None) -> tuple[list[Path], list[str]]:
+    """Resolve which platform dirs to audit; manual-only platforms are never audited.
+
+    The audit stage re-checks platforms named in the detection report (when
+    provided) or under platforms/ (when not), minus manual-only layers: their
+    digests are unknown by policy, so L2 against client-rendered shells is
+    guaranteed to fail and would burn engine calls every scheduled run.
+    """
+    if only is not None:
+        candidates = [only.resolve()]
+    elif report is not None:
+        detection = json.loads(report.read_text(encoding="utf-8"))
+        names = [block["platform"] for block in detection.get("platforms", [])]
+        candidates = [platforms_root / name for name in names]
+    else:
+        candidates = (
+            sorted(p for p in platforms_root.iterdir() if p.is_dir() and (p / "rule-map.json").is_file())
+            if platforms_root.is_dir()
+            else []
+        )
+    roots: list[Path] = []
+    skipped: list[str] = []
+    for candidate in candidates:
+        if not candidate.is_dir():
+            skipped.append(f"missing-platform-dir:{candidate.name}")
+            continue
+        rule_map_path = candidate / "rule-map.json"
+        if not rule_map_path.is_file():
+            skipped.append(f"missing-rule-map:{candidate.name}")
+            continue
+        try:
+            rule_map = json.loads(rule_map_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            skipped.append(f"unreadable-rule-map:{candidate.name}")
+            continue
+        if rule_map.get("detection") == "manual-only":
+            skipped.append(f"manual-only:{candidate.name}")
+            continue
+        roots.append(candidate)
+    return roots, skipped
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--platform-dir", type=Path, help="Audit only platforms/<name>")
     parser.add_argument("--rounds", type=int, default=3, help="Faithfulness audit rounds")
+    parser.add_argument("--report", type=Path, help="Consume the detect job's drift report to bound the audit scope")
     parser.add_argument("--out-dir", type=Path, help="Directory for reports and proposals")
     parser.add_argument("--emit-issues", action="store_true", help="Open one verdict issue per platform")
     parser.add_argument("--repo", help="Optional repo (owner/name) for gh commands")
     args = parser.parse_args(argv)
 
-    platforms_root = Path.cwd() / "platforms"
-    if args.platform_dir:
-        roots = [args.platform_dir.resolve()]
-    else:
-        roots = sorted(p for p in platforms_root.iterdir() if p.is_dir() and (p / "rule-map.json").is_file()) if platforms_root.is_dir() else []
+    roots, skipped = audit_targets(Path.cwd() / "platforms", args.platform_dir, args.report)
     if not roots:
-        print(json.dumps({"error": "no-platform-dirs"}, ensure_ascii=False))
+        print(
+            json.dumps(
+                {"error": "no-auditable-platforms", "skipped": skipped},
+                ensure_ascii=False,
+            )
+        )
         return 2
+    if skipped:
+        print(json.dumps({"audit_skipped": skipped}, ensure_ascii=False))
     summaries = []
     for root in roots:
         try:

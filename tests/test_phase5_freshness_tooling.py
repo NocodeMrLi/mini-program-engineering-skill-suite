@@ -290,6 +290,67 @@ class DriftAuditUnitTests(unittest.TestCase):
         self.assertEqual(audit_ids, ["b", "c", "d", "e"])
         self.assertEqual(DETECTION_ACTIONABLE, {"fingerprint-changed", "unverifiable"})
 
+    def test_audit_targets_skip_manual_only_and_honor_detection_report(self) -> None:
+        drift_audit = load_script("drift_audit")
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            platforms = root / "platforms"
+            for name, detection in (("wechat", None), ("alipay", "manual-only"), ("douyin", "manual-only")):
+                platform_dir = platforms / name
+                platform_dir.mkdir(parents=True)
+                rule_map: dict[str, object] = {
+                    "format_version": 1,
+                    "platform": name,
+                    "allowed_domains": ["x.test"],
+                    "rules": [],
+                }
+                if detection:
+                    rule_map["detection"] = detection
+                (platform_dir / "rule-map.json").write_text(json.dumps(rule_map), encoding="utf-8")
+
+            # Without a detection report: every non-manual platform is a target.
+            roots, skipped = drift_audit.audit_targets(platforms, None, None)
+            self.assertEqual([p.name for p in roots], ["wechat"])
+            self.assertEqual(sorted(skipped), ["manual-only:alipay", "manual-only:douyin"])
+
+            # With a detection report: only the platforms it scanned are audited.
+            report = root / "drift-report.json"
+            report.write_text(json.dumps({"platforms": [{"platform": "wechat"}]}), encoding="utf-8")
+            roots, skipped = drift_audit.audit_targets(platforms, None, report)
+            self.assertEqual([p.name for p in roots], ["wechat"])
+            self.assertEqual(skipped, [])
+
+            # Even an explicit manual-only --platform-dir is refused (double guard
+            # against guaranteed-failing L2 on client-rendered shells).
+            roots, skipped = drift_audit.audit_targets(platforms, platforms / "alipay", None)
+            self.assertEqual(roots, [])
+            self.assertEqual(skipped, ["manual-only:alipay"])
+
+    def test_audit_targets_report_with_only_manual_platforms_yields_no_targets(self) -> None:
+        drift_audit = load_script("drift_audit")
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            platforms = root / "platforms"
+            platforms.mkdir(parents=True)
+            (platforms / "alipay").mkdir()
+            (platforms / "alipay" / "rule-map.json").write_text(
+                json.dumps(
+                    {
+                        "format_version": 1,
+                        "platform": "alipay",
+                        "allowed_domains": ["x.test"],
+                        "detection": "manual-only",
+                        "rules": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            report = root / "drift-report.json"
+            report.write_text(json.dumps({"platforms": [{"platform": "alipay"}]}), encoding="utf-8")
+            roots, skipped = drift_audit.audit_targets(platforms, None, report)
+            self.assertEqual(roots, [])
+            self.assertEqual(skipped, ["manual-only:alipay"])
+
     def test_shared_url_facts_with_mixed_digests_fail_closed(self) -> None:
         rule = {"id": "r1", "official": {"url": "https://x.test/a", "title": "T"}}
         annotations = {

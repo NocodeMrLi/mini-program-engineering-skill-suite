@@ -19,6 +19,10 @@
 
 - 单仓安装、manifest 完整性、版本成组同步、fail-closed 出包全部不变；对安装者纯增量（foundation 随包分发）。
 
+### Fixed
+
+- 修复 drift 审计闭环三处行为偏差（v2.2.1 独立交叉验证发现）：① `drift_audit.py` 新增 `--report` 消费 detect 作业产物，审计范围以检测报告为准而非全量重扫；② audit 目标解析跳过 `manual-only` 平台（其 digest 恒为 unknown，`no-recorded-digest` 会触发对客户端渲染壳页注定失败的 L2 重试，每规则约 4 次引擎调用——显式 `--platform-dir` 指定 manual-only 平台同样拒绝，双保险）；③ detect 作业恢复 `--emit-issues`（2.2.1 拆双作业时引入的回归：无凭据或 skip-audit 场景下漂移被检测到但无人收到通知）。补两组零 LLM 回归测试。
+
 ## 2.2.1 - 2026-08-30
 
 ### Added

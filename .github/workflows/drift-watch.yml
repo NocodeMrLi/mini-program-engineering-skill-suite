@@ -46,14 +46,18 @@ jobs:
           python-version: "3.11"
 
       - name: Run deterministic drift check
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -uo pipefail
           args=""
           if [ -n "${{ github.event.inputs.platform }}" ]; then
             args="--platform-dir platforms/${{ github.event.inputs.platform }}"
           fi
-          # --no-llm keeps detection on the deterministic path (L0/L1 only).
-          python3 scripts/drift_watch.py $args --no-llm --output drift-report.json
+          # --no-llm keeps detection on the deterministic path (L0/L1 only);
+          # --emit-issues keeps the notification chain intact even when the
+          # audit stage below is skipped (no credentials or skip-audit).
+          python3 scripts/drift_watch.py $args --no-llm --output drift-report.json --emit-issues
 
       - name: Upload drift report
         uses: actions/upload-artifact@v4
@@ -97,7 +101,9 @@ jobs:
           if [ -n "${{ github.event.inputs.platform }}" ]; then
             args="--platform-dir platforms/${{ github.event.inputs.platform }}"
           fi
-          python3 scripts/drift_audit.py $args --rounds 3 --out-dir audit-out --emit-issues
+          # --report bounds the audit to the platforms the detect job scanned;
+          # manual-only layers are skipped inside drift_audit either way.
+          python3 scripts/drift_audit.py $args --report drift-report.json --rounds 3 --out-dir audit-out --emit-issues
 
       - name: Degrade gracefully when no engine credentials
         if: ${{ secrets.AGENT_API_KEY == '' }}
@@ -105,4 +111,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           echo "AGENT_API_* secrets not configured; skipping cloud audit."
-          echo "Detection issues were opened by the detect job; run L2 locally per issue instructions."
+          echo "The detect job already opened detection issues for actionable drift; run L2 locally per issue instructions."
