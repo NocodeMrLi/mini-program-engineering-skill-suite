@@ -76,13 +76,15 @@ class ReleaseGateParsingTests(unittest.TestCase):
         self.assertIn("release blocked", result.stderr)
 
 
-class GateSummaryShapeTests(unittest.TestCase):
-    def test_green_run_writes_complete_summary(self) -> None:
-        """A green scratch repo must produce a summary with every gate field.
+class GateFailurePathTests(unittest.TestCase):
+    def test_fixture_repo_blocks_on_invalid_suite_and_writes_summary(self) -> None:
+        """A fixture with passing tests but an invalid suite must:
+        - block with the gate-failure reason (NOT mislabeled as "crashed"),
+        - still write the summary, because a blocked run's summary is the
+          evidence of which gate stopped the release.
 
-        Runs against a minimal fixture repo (two passing tests plus the script
-        itself), not the real suite: the real suite takes minutes and would
-        double every CI run inside this test.
+        Real-repo green-run evidence lives in the Release gate-summary artifact
+        and EVALUATIONS.md, not in this unit test.
         """
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td) / "repo"
@@ -122,17 +124,53 @@ class GateSummaryShapeTests(unittest.TestCase):
                 ["bash", str(scripts / "release_gate.sh"), str(repo), str(Path(td) / "u.log"), str(summary)],
                 capture_output=True, text=True, timeout=300,
             )
-            # The fixture repo cannot satisfy validate_suite (missing files),
-            # and the gate must block with a clear reason. If validate crashes
-            # outright (no JSON), the hardened path reports "crashed"; either
-            # way: non-zero exit + reason surfaced + no false-green summary.
             self.assertNotEqual(result.returncode, 0)
             combined = (result.stdout + result.stderr).lower()
-            self.assertTrue("blocked" in combined, combined[-300:])
-            if summary.exists():
-                data = json.loads(summary.read_text(encoding="utf-8"))
-                self.assertFalse(data["validate_valid"])
-                self.assertGreater(data["tests_passed"], 0)
+            # JSON-failure path: reason says gate failure, NOT crashed.
+            self.assertIn("gate failure", combined)
+            self.assertNotIn("crashed", combined)
+            # The summary must exist and record the blocking verdict.
+            self.assertTrue(summary.exists(), "blocked run must persist its summary")
+            data = json.loads(summary.read_text(encoding="utf-8"))
+            self.assertFalse(data["validate_valid"])
+            self.assertGreater(data["tests_passed"], 0)
+
+
+
+    def test_crashed_tool_reports_crashed_and_writes_no_summary(self) -> None:
+        """A validate_suite that exits non-zero with non-JSON output is a crash:
+        reported as crashed (not gate failure) and no summary is fabricated."""
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td) / "repo"
+            (repo / "tests").mkdir(parents=True)
+            (repo / "scripts").mkdir(parents=True)
+            (repo / "tests" / "test_ok.py").write_text(
+                "import unittest\nclass T(unittest.TestCase):\n"
+                "    def test_ok(self):\n        self.assertTrue(True)\n",
+                encoding="utf-8",
+            )
+            (repo / "scripts" / "validate_suite.py").write_text(
+                "#!/usr/bin/env python3\nimport sys\n"
+                "print('Traceback (most recent call last): boom', file=sys.stderr)\n"
+                "sys.exit(3)\n",
+                encoding="utf-8",
+            )
+            (repo / "scripts" / "scan_sensitive_content.py").write_text(
+                "#!/usr/bin/env python3\nimport json\n"
+                "print(json.dumps({'valid': True, 'checked_files': 1, 'skill_count': 1}))\n",
+                encoding="utf-8",
+            )
+            shutil.copy(ROOT / "scripts/release_gate.sh", repo / "scripts" / "release_gate.sh")
+            summary = Path(td) / "gate-summary.json"
+            result = subprocess.run(
+                ["bash", str(repo / "scripts/release_gate.sh"), str(repo), str(Path(td) / "u.log"), str(summary)],
+                capture_output=True, text=True, timeout=120,
+            )
+        self.assertNotEqual(result.returncode, 0)
+        combined = (result.stdout + result.stderr).lower()
+        self.assertIn("crashed", combined)
+        self.assertFalse(summary.exists(), "a crashed tool must not fabricate a summary")
+
 
 
 if __name__ == "__main__":

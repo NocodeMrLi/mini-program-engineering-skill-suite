@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 # Release gate runner: unittest + validate + sensitive scan -> gate-summary.json.
 # Extracted from .github/workflows/release.yml so the gating logic is testable
-# (tests/test_release_gate.py drives it with fake unittest output). The workflow
-# calls this script; behavior must stay identical.
+# (tests/test_release_gate.py drives it with fixtures). The workflow calls this
+# script; behavior must stay identical.
+#
+# Failure-path contract (three distinct shapes, never conflated):
+#   1. GATE FAILURE  - validate/scan emit valid JSON and report failure
+#                      (valid=false or finding_count>0). The summary IS written
+#                      (it is the evidence of which gate blocked the release).
+#   2. TOOL CRASH    - validate/scan exit non-zero with NON-JSON output (import
+#                      error, broken checkout). Blocked with a "crashed" reason.
+#   3. unittest      - failure or zero-test discovery blocks before tools run.
 #
 # Usage: release_gate.sh <repo-root> <log-file-path> <summary-output-path>
-# Exit codes: 0 = all gates pass; 1 = gate failure; 2 = usage error.
+# Exit codes: 0 = all gates pass; 1 = gate failure/blocked; 2 = usage error.
 set -uo pipefail
 
 root="${1:-.}"
@@ -32,58 +40,61 @@ if [ -z "$test_count" ] || [ "$test_count" -eq 0 ]; then
   exit 1
 fi
 
-# validate/scan must emit JSON; a crash (import error, bad checkout) leaves
-# empty output which would kill the summary step with an opaque traceback.
-# Capture rc and fail with a clear reason instead.
-validate_json="$(python3 scripts/validate_suite.py .)" || {
-  echo "validate_suite crashed; release blocked" >&2
-  exit 1
-}
-scan_json="$(python3 scripts/scan_sensitive_content.py . --format json)" || {
-  echo "scan_sensitive_content crashed; release blocked" >&2
-  exit 1
-}
-python3 - "$validate_json" <<'PYCHECK'
-import json, sys
-try:
-    json.loads(sys.argv[1])
-except Exception:
-    print("validate_suite produced non-JSON output; release blocked", file=sys.stderr)
-    raise SystemExit(1)
-PYCHECK
-python3 - "$scan_json" <<'PYCHECK'
-import json, sys
-try:
-    json.loads(sys.argv[1])
-except Exception:
-    print("scan produced non-JSON output; release blocked", file=sys.stderr)
-    raise SystemExit(1)
-PYCHECK
+# validate/scan EXIT NON-ZERO ON NORMAL GATE FAILURE while still printing JSON
+# (that is their contract). So: capture stdout+rc together, parse JSON first,
+# write the summary, then block on the verdict. Only NON-JSON output is a crash.
+set +e
+validate_json="$(python3 scripts/validate_suite.py .)"
+validate_rc=$?
+scan_json="$(python3 scripts/scan_sensitive_content.py . --format json)"
+scan_rc=$?
+set -e
 
-python3 - "$test_count" "$validate_json" "$scan_json" "$summary_path" <<'PYEOF'
+run_summary_python() {
+  # Args: test_count validate_json scan_json summary_path
+  python3 - "$@" <<'PYEOF'
 import json
 import sys
 from datetime import datetime, timezone
 
-test_count = int(sys.argv[1])
-validate = json.loads(sys.argv[2])
-scan = json.loads(sys.argv[3])
-summary_path = sys.argv[4]
+test_count, validate_json, scan_json, summary_path = sys.argv[1:5]
+
+def parse_or_none(text):
+    try:
+        return json.loads(text)
+    except Exception:
+        return None
+
+validate = parse_or_none(validate_json)
+scan = parse_or_none(scan_json)
+
+# Tool crash: non-JSON output (empty stdout, traceback text, import error).
+if validate is None:
+    print("validate_suite crashed (non-JSON output); release blocked", file=sys.stderr)
+    sys.exit(1)
+if scan is None:
+    print("scan crashed (non-JSON output); release blocked", file=sys.stderr)
+    sys.exit(1)
+
 summary = {
     "generated_at_utc": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
-    "tests_passed": test_count,
+    "tests_passed": int(test_count),
     "validate_valid": validate["valid"],
-    "validate_checked_files": validate["checked_files"],
-    "skill_count": validate["skill_count"],
-    "scan_candidate_count": scan["candidate_count"],
-    "scan_finding_count": scan["finding_count"],
+    "validate_checked_files": validate.get("checked_files"),
+    "skill_count": validate.get("skill_count"),
+    "scan_candidate_count": scan.get("candidate_count"),
+    "scan_finding_count": scan.get("finding_count"),
 }
+# Persist the summary BEFORE deciding the verdict: a failed run's summary is
+# the evidence of which gate blocked the release (uploaded by the workflow).
 with open(summary_path, "w", encoding="utf-8") as handle:
     json.dump(summary, handle, ensure_ascii=False, indent=2, sort_keys=True)
     handle.write("\n")
 print(json.dumps(summary, ensure_ascii=False))
-# Always persist the summary first: a failed run's summary is the evidence of
-# which gate blocked the release (the workflow uploads it either way).
-if not validate["valid"] or scan["finding_count"]:
+if not validate["valid"] or scan.get("finding_count"):
+    print("gate failure (validate_valid/scan_finding_count); release blocked", file=sys.stderr)
     sys.exit(1)
 PYEOF
+}
+
+run_summary_python "$test_count" "$validate_json" "$scan_json" "$summary_path"

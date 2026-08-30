@@ -2,6 +2,17 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.2 - 2026-08-30
+
+### Fixed（codex 二次复核新注意项）
+
+- Release gate 失败路径三态分离：validate/scan 在正常门禁失败时就是「输出 JSON + 返回 1」（如 valid=false、finding_count>0），此前被误标为 "crashed" 且 gate-summary 不落盘——失败证据丢失且误导排障。重构 release_gate.sh：`set +e` 捕获 stdout+rc → 先解析 JSON → **失败也必写 summary**（哪道门禁拦的、数字多少）→ 按 valid/finding_count 阻断；只有非 JSON 输出才判 crashed（且不伪造 summary）。四场景实测：JSON 失败（写 summary+报 gate failure）、工具崩溃（报 crashed+无 summary）、单测失败（先拦）、真实仓库全绿（rc=0）。
+- 回归测试名实相符：`test_green_run_writes_complete_summary` 实际测的是夹具阻断路径（codex 指出的措辞偏满），改名 `test_fixture_repo_blocks_on_invalid_suite_and_writes_summary`，docstring 注明真实绿跑证据位于 Release 工件与 EVALUATIONS.md；新增崩溃路径回归（非 JSON 报 crashed、不伪造 summary）。
+
+### 验证
+
+- 135 测试全绿（+1）；真实仓库 gate 实跑 rc=0、summary 134/113/0；结构校验 113 文件；i18n 6/6；扫描 0 命中；foundation 等价 PASS；导出复验 113 文件。
+
 ## 3.1.1 - 2026-08-30
 
 ### Fixed（codex 复核报告两项注意，交叉验证后修复）
