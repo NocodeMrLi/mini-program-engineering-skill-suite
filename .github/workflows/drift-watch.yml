@@ -71,7 +71,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: detect
-    if: ${{ github.event.inputs.skip-audit != true }}
+    # Run after detect EVEN WHEN detect failed: detect fails precisely when
+    # drift is actionable, and that is when the audit (L2 + verdict) matters.
+    if: ${{ !cancelled() && github.event.inputs.skip-audit != true && needs.detect.result != 'skipped' }}
 
     steps:
       - name: Checkout repository
