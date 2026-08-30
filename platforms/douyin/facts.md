@@ -14,7 +14,7 @@
 ## 事实清单
 
 - 事实：抖音小程序版本发布需在开放平台控制台完成上传、提审与发布；审核要求与驳回处理以平台当前规则为准。
-  <!-- fact: release-review-flow verified=2026-08-30 source=https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/operation/version-review/standard digest=unknown -->
+  <!-- fact: release-review-flow verified=2026-08-31 source=https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/operation/version-review/standard digest=unknown -->
 - 事实：使用涉及用户信息的接口需按平台要求完成隐私相关配置并遵循用户授权与撤回路径；具体清单以平台当前文档为准。
   <!-- fact: privacy-protection verified=2026-08-31 source=https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/open-capacity/basic-capacities/privacy-agreement digest=unknown -->
 
