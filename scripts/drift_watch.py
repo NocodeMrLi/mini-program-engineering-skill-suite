@@ -8,7 +8,7 @@ Wraps platform_drift's L0/L1 checks for every platforms/<name>/ directory:
   (uses the repository's Platform rule drift template fields);
 - a missing or unreadable rule map fails closed (exit 2).
 
-L2 extraction and shadow-mode proposal review live in drift_audit.py. That
+L2 extraction and consistency review live in drift_audit.py. That
 stage runs in CI with the AGENT_API_* secrets configured by the author (see
 .github/workflows/drift-watch.yml) or locally with any CLI engine — the
 workflow degrades to detection-only when the secrets are absent.
@@ -128,12 +128,17 @@ def existing_open_issues(title_prefix: str) -> set[str]:
 
 
 def emit_issues(report: dict[str, Any], repo: str | None) -> int:
-    """Open one issue per actionable rule; idempotent against open duplicates."""
+    """Open one issue per actionable rule; idempotent against open duplicates.
+
+    Returns 1 when any issue creation failed so CI surfaces a broken
+    notification chain instead of silently skipping it.
+    """
     if not gh_available():
         print(json.dumps({"emit_issues": "skipped", "reason": "no-github-token"}, ensure_ascii=False))
         return 0
     existing = existing_open_issues("[Drift]")
     opened = 0
+    failed: list[str] = []
     for platform_block in report["platforms"]:
         for item in actionable(platform_block["results"]):
             title = f"[Drift] {platform_block['platform']}: {item['rule_id']} -> {item['state']}"
@@ -147,12 +152,13 @@ def emit_issues(report: dict[str, Any], repo: str | None) -> int:
                 f"- Source: {item.get('url', 'n/a')}\n"
                 f"- Checked at (UTC): {item.get('checked_at_utc')}\n"
                 f"- Detail: {item.get('error') or item.get('reason', 'fingerprint changed vs facts.md')}\n\n"
-                f"Next step (maintainer, local): run L2 extraction and the proposal reviewer:\n"
+                f"Next step (maintainer, local): run L2 extraction and the consistency reviewer:\n"
                 f"```bash\n"
                 f"python3 scripts/platform_drift.py platforms/{platform_block['platform']} --rule {item['rule_id']} --proposal-out /tmp/proposal.json\n"
                 f"python3 scripts/review_drift_proposal.py /tmp/proposal.json --platform-root platforms/{platform_block['platform']} --drift-report /tmp/drift.json\n"
                 f"```\n"
-                f"Shadow mode is ON: proposals are reported, never auto-merged."
+                f"No auto-merge exists: the reviewer's PROPOSAL_CONSISTENT_WITH_EXTRACTION only bounds the draft "
+                f"to the model extraction; the author must verify the official page before applying anything."
             )
             command = ["gh", "issue", "create", "--title", title, "--body", body, "--label", "drift"]
             if repo:
@@ -161,9 +167,10 @@ def emit_issues(report: dict[str, Any], repo: str | None) -> int:
             if result.returncode == 0:
                 opened += 1
             else:
+                failed.append(item["rule_id"])
                 print(f"issue-create-failed:{item['rule_id']}:{result.stderr.strip()[:200]}")
-    print(json.dumps({"emit_issues": "done", "opened": opened}, ensure_ascii=False))
-    return 0
+    print(json.dumps({"emit_issues": "done", "opened": opened, "failed": failed}, ensure_ascii=False))
+    return 1 if failed else 0
 
 
 def run(root: Path, only: str | None, no_llm: bool) -> dict[str, Any] | None:
@@ -206,9 +213,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         if args.output:
             args.output.write_text(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
             print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
-        emit_issues(report, args.repo)
-        # Propagate the detection verdict: actionable findings must make the
-        # job reflect them even after issues were emitted.
+        emit_rc = emit_issues(report, args.repo)
+        # Propagate both failure modes: actionable findings AND notification
+        # failures must make the job reflect them (issue-create failures used
+        # to be swallowed).
+        if emit_rc:
+            return emit_rc
         return 1 if report["actionable_count"] else 0
 
     only = None

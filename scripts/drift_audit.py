@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
-"""Run L2 extraction and shadow-mode proposal review for detected drift.
+"""Run L2 extraction and consistency review for detected drift.
 
 Executed in CI after deterministic detection (drift_watch): for every platform
 with actionable rules, fetch and extract via the pluggable engine (L2), build
-the redacted proposal, then run the deterministic gates plus faithfulness
-audits in shadow mode. One issue per platform carries the binary verdict
-(RECOMMEND_MERGE / DO_NOT_MERGE) with per-rule evidence; nothing merges
-automatically while shadow mode is on. Engine credentials arrive via
-environment (AGENT_API_*); they are never printed or written into reports.
+the redacted proposal (extracted_statements + drafted proposed_fact_updates),
+then run the deterministic gates plus K consistency audit rounds. One issue
+per platform carries the binary verdict
+(PROPOSAL_CONSISTENT_WITH_EXTRACTION / DO_NOT_APPLY) with per-rule evidence.
+Nothing ever merges automatically: even a consistency pass only bounds the
+draft to the model extraction; the author must verify the official page.
+Engine credentials arrive via environment (AGENT_API_*); they are never
+printed or written into reports.
 """
 
 from __future__ import annotations
@@ -93,7 +96,7 @@ def audit_platform(platform_root: Path, rounds: int, out_dir: Path | None) -> di
         {
             "rule_id": change["rule_id"],
             "state": change["state"],
-            "new_digest": change["new_digest"],
+            "fingerprint": change["fingerprint"],
             "reason": change.get("reason"),
         }
         for change in proposal["changes"]
@@ -103,28 +106,30 @@ def audit_platform(platform_root: Path, rounds: int, out_dir: Path | None) -> di
 
 def render_issue_body(summary: dict[str, Any]) -> str:
     lines = [
-        "Automated Saturday audit (L2 extraction + shadow-mode review).",
+        "Automated Saturday audit (L2 extraction + consistency review).",
         "",
         f"- Platform: {summary['platform']}",
         f"- Overall verdict: **{summary['verdict']}**",
         f"- Audited at (UTC): {summary['audited_at_utc']}",
         "",
-        "| Rule | State | New digest |",
+        "| Rule | State | Fingerprint |",
         "| --- | --- | --- |",
     ]
     for rule in summary.get("rules", []):
-        lines.append(f"| {rule['rule_id']} | {rule['state']} | {str(rule.get('new_digest', '-'))[:12]}… |")
+        lines.append(f"| {rule['rule_id']} | {rule['state']} | {str(rule.get('fingerprint', '-'))[:12]}… |")
     if summary.get("problems"):
         lines += ["", "Gate problems:"]
         lines += [f"- {problem}" for problem in summary["problems"]]
     if summary.get("audit_rounds"):
-        lines += ["", "Faithfulness audit rounds:"]
+        lines += ["", "Consistency audit rounds:"]
         lines += [
             f"- {entry['label']}: {entry['verdict'] or entry.get('error')}" for entry in summary["audit_rounds"]
         ]
     lines += [
         "",
-        "Shadow mode is ON: this verdict reports only; the author merges manually after inspecting the diff.",
+        "Verdict semantics: PROPOSAL_CONSISTENT_WITH_EXTRACTION only means the drafted updates stay within the "
+        "model-derived extraction. It does NOT verify the extraction against the official page — before applying "
+        "anything, open the official URL and confirm yourself. No auto-merge exists.",
         "",
         "Release recommendation right now:",
         "```",
@@ -138,12 +143,18 @@ def render_issue_body(summary: dict[str, Any]) -> str:
 
 
 def emit_issues(summaries: list[dict[str, Any]], repo: str | None) -> int:
-    """Open one verdict issue per audited platform; idempotent per title."""
+    """Open one verdict issue per audited platform; idempotent per title.
+
+    Returns 1 when any issue creation failed: a broken notification chain must
+    surface as a job failure, not a silent skip (the audit-out artifact keeps
+    the evidence, but nobody watches artifacts by default).
+    """
     if not gh_available():
         print(json.dumps({"emit_issues": "skipped", "reason": "no-github-token"}, ensure_ascii=False))
         return 0
     existing = existing_open_issues("[Drift-audit]")
     opened = 0
+    failed: list[str] = []
     for summary in summaries:
         title = f"[Drift-audit] {summary['platform']}: {summary['verdict']}"
         if title in existing:
@@ -156,9 +167,10 @@ def emit_issues(summaries: list[dict[str, Any]], repo: str | None) -> int:
         if result.returncode == 0:
             opened += 1
         else:
+            failed.append(summary["platform"])
             print(f"issue-create-failed:{summary['platform']}:{result.stderr.strip()[:200]}")
-    print(json.dumps({"emit_issues": "done", "opened": opened}, ensure_ascii=False))
-    return 0
+    print(json.dumps({"emit_issues": "done", "opened": opened, "failed": failed}, ensure_ascii=False))
+    return 1 if failed else 0
 
 
 def audit_targets(platforms_root: Path, only: Path | None, report: Path | None) -> tuple[list[Path], list[str]]:

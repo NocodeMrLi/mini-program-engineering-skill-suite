@@ -36,16 +36,20 @@ jobs:
 
       - name: Resolve release tag
         id: release
+        env:
+          # Never interpolate dispatch inputs into the script body: the tag is
+          # attacker-shaped text and ${{ }} insertion happens BEFORE bash parses
+          # any validation (command injection via v"; cmd; # forms).
+          RAW_TAG_INPUT: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            release_tag="${{ inputs.tag }}"
-          else
-            release_tag="${GITHUB_REF_NAME}"
+          set -euo pipefail
+          release_tag="$RAW_TAG_INPUT"
+          # Strict format gate: v + digits.digits.digits ONLY. Anything else
+          # (quotes, $(), semicolons, spaces, suffixes) exits before first use.
+          if ! printf '%s' "$release_tag" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Release tag must match v<major>.<minor>.<patch>; input rejected" >&2
+            exit 1
           fi
-          case "$release_tag" in
-            v*) ;;
-            *) echo "Release tag must start with v" >&2; exit 1 ;;
-          esac
           echo "tag=$release_tag" >> "$GITHUB_OUTPUT"
 
       - name: Run release gates
@@ -68,9 +72,13 @@ jobs:
           if-no-files-found: ignore
 
       - name: Export public package
+        env:
+          # Sanitized by the resolve step's strict regex; still routed via env
+          # so no expression is ever interpolated into a script body.
+          RESOLVED_TAG: ${{ steps.release.outputs.tag }}
         run: |
           version="$(cat VERSION)"
-          tag="${{ steps.release.outputs.tag }}"
+          tag="$RESOLVED_TAG"
           if [ "$tag" != "v$version" ]; then
             echo "Tag $tag does not match VERSION $version" >&2
             exit 1
@@ -90,8 +98,9 @@ jobs:
       - name: Create or update GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
+          RESOLVED_TAG: ${{ steps.release.outputs.tag }}
         run: |
-          tag="${{ steps.release.outputs.tag }}"
+          tag="$RESOLVED_TAG"
           notes_file="$(mktemp)"
           # Gate numbers below are quoted from dist/gate-summary.json (produced by
           # the gates step in this same run) — never typed from memory.

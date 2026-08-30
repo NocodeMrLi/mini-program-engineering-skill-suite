@@ -122,12 +122,16 @@ class ProposalReviewTests(unittest.TestCase):
         change = {
             "rule_id": "release-review-operations",
             "state": "updated",
-            "source": "https://example-official.test/product/",
-            "new_digest": "a" * 64,
-            "current_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
+            "official_url": "https://example-official.test/product/",
+            "fingerprint": "a" * 64,
+            "requested_verify_points": ["提审与发布流程要求"],
+            "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
+            "proposed_fact_updates": {
+                "operations-spec-scope": {"source_digest_new": "a" * 64, "extracted": "提审与发布流程要求: 提审前须完成安全检测。"}
+            },
         }
         change.update(overrides)
-        return {"format_version": 1, "platform": "wechat", "changes": [change]}
+        return {"format_version": 2, "platform": "wechat", "changes": [change]}
 
     def prepare(self, proposal: dict) -> tuple[Path, Path]:
         temp = tempfile.TemporaryDirectory()
@@ -139,17 +143,17 @@ class ProposalReviewTests(unittest.TestCase):
         return proposal_path, platform_root
 
     def test_scope_and_domain_red_lines_reject_without_llm(self) -> None:
-        proposal_path, platform_root = self.prepare(self.build_proposal(source="https://evil.test/x"))
+        proposal_path, platform_root = self.prepare(self.build_proposal(official_url="https://evil.test/x"))
         report = reviewer.review(proposal_path, platform_root, None, rounds=3, shadow=True)
-        self.assertEqual(report["verdict"], "DO_NOT_MERGE")
+        self.assertEqual(report["verdict"], "DO_NOT_APPLY")
         self.assertTrue(any(item.startswith("gate1:") for item in report["problems"]))
 
     def test_sensitive_shapes_and_digest_fail_closed(self) -> None:
         proposal_path, platform_root = self.prepare(
-            self.build_proposal(new_digest="short", page_text="smuggled official page text")
+            self.build_proposal(fingerprint="short", page_text="smuggled official page text")
         )
         report = reviewer.review(proposal_path, platform_root, None, rounds=3, shadow=True)
-        self.assertEqual(report["verdict"], "DO_NOT_MERGE")
+        self.assertEqual(report["verdict"], "DO_NOT_APPLY")
         self.assertTrue(any("invalid-digest" in item for item in report["problems"]))
         self.assertTrue(any("page-content-in-proposal" in item for item in report["problems"]))
 
@@ -158,7 +162,7 @@ class ProposalReviewTests(unittest.TestCase):
         report = reviewer.review(proposal_path, platform_root, None, rounds=3, shadow=True)
         self.assertTrue(any(item.startswith("gate2:") for item in report["problems"]))
 
-    def test_audit_engine_failure_is_do_not_merge(self) -> None:
+    def test_audit_engine_failure_is_do_not_apply(self) -> None:
         proposal_path, platform_root = self.prepare(self.build_proposal())
         drift_report = platform_root.parent / "drift.json"
         drift_report.write_text(
@@ -178,7 +182,7 @@ class ProposalReviewTests(unittest.TestCase):
         )
         with patch.object(reviewer, "run_agent", return_value=("", "agent-output-empty")):
             report = reviewer.review(proposal_path, platform_root, drift_report, rounds=2, shadow=True)
-        self.assertEqual(report["verdict"], "DO_NOT_MERGE")
+        self.assertEqual(report["verdict"], "DO_NOT_APPLY")
         self.assertTrue(any("gate5:" in item for item in report["problems"]))
 
     def test_shadow_mode_exit_code_is_never_merge(self) -> None:
@@ -187,23 +191,23 @@ class ProposalReviewTests(unittest.TestCase):
         self.assertTrue(report["shadow"])
 
     def test_rounds_below_one_is_rejected(self) -> None:
-        # rounds=0 must never shortcut deterministic gates into RECOMMEND_MERGE.
+        # rounds=0 must never shortcut deterministic gates into a pass verdict.
         proposal_path, platform_root = self.prepare(self.build_proposal())
         report = reviewer.review(proposal_path, platform_root, None, rounds=0, shadow=True)
-        self.assertEqual(report["verdict"], "DO_NOT_MERGE")
+        self.assertEqual(report["verdict"], "DO_NOT_APPLY")
         self.assertIn("rounds-below-minimum:1", report["problems"])
 
     def test_missing_statements_fail_closed_before_audit(self) -> None:
         # A proposal without extracted statements has no auditable evidence;
         # gate 3 must reject it before any agent call is attempted.
         proposal_path, platform_root = self.prepare(
-            self.build_proposal(current_statements={})
+            self.build_proposal(extracted_statements={})
         )
         with patch.object(reviewer, "run_agent") as agent:
             report = reviewer.review(proposal_path, platform_root, None, rounds=1, shadow=True)
         agent.assert_not_called()
-        self.assertEqual(report["verdict"], "DO_NOT_MERGE")
-        self.assertTrue(any("missing-current-statements" in item for item in report["problems"]))
+        self.assertEqual(report["verdict"], "DO_NOT_APPLY")
+        self.assertTrue(any("missing-extracted-statements" in item for item in report["problems"]))
 
 
 class ReleaseRecommendationTests(unittest.TestCase):
@@ -479,6 +483,98 @@ class AuditFixRegressionTests(unittest.TestCase):
         vs = load_script("validate_suite")
         self.assertIn("assets/readme-cover-2000x849-v2.webp", vs.REPO_ONLY_ASSETS)
         self.assertNotIn("assets/readme-cover-2000x849-v2.webp", vs.REQUIRED_FILES)
+
+
+class V315AuditFollowUpTests(unittest.TestCase):
+    """Regressions for the codex follow-up audit batch (3.1.5).
+
+    Every fix is locked by the negative probe that originally proved the
+    defect — the pattern the previous batch missed.
+    """
+
+    def test_l2_rejects_unrequested_points(self) -> None:
+        payload = {
+            "verify_points": [
+                {"point": "UNREQUESTED-A", "current_statement": "x"},
+                {"point": "UNREQUESTED-B", "current_statement": "y"},
+            ]
+        }
+        self.assertFalse(drift._extract_payload_valid(payload, ["真实A", "真实B"]))
+
+    def test_l2_rejects_missing_extra_and_duplicate_points(self) -> None:
+        ok = {"verify_points": [{"point": "A", "current_statement": "s"}, {"point": "B", "current_statement": "NOT_STATED"}]}
+        self.assertTrue(drift._extract_payload_valid(ok, ["A", "B"]))
+        missing = {"verify_points": [{"point": "A", "current_statement": "s"}]}
+        self.assertFalse(drift._extract_payload_valid(missing, ["A", "B"]))
+        extra = {"verify_points": ok["verify_points"] + [{"point": "C", "current_statement": "s"}]}
+        self.assertFalse(drift._extract_payload_valid(extra, ["A", "B"]))
+        dup = {"verify_points": [{"point": "A", "current_statement": "s"}, {"point": "A", "current_statement": "t"}]}
+        self.assertFalse(drift._extract_payload_valid(dup, ["A", "B"]))
+
+    def test_stray_end_tag_in_noise_region_does_not_end_skip(self) -> None:
+        # codex probe: <div class="nav"></p>SECRET</div> — the stray </p> must
+        # not pop the real noisy div; SECRET stays excluded from the fingerprint.
+        a = '<html><body><div class="nav"></p>SECRET</div><p>BODY</p></body></html>'
+        b = '<html><body><div class="nav"></p>OTHER</div><p>BODY</p></body></html>'
+        self.assertEqual(drift.normalized_fingerprint(a), drift.normalized_fingerprint(b))
+
+    def test_extractor_survives_void_and_mismatched_tags(self) -> None:
+        ok = '<html><body><div class="footer"><br><img src="x"><div><span>y</span></div></div><p>BODY</p></body></html>'
+        self.assertNotEqual(drift.normalized_fingerprint(ok), "")
+
+    def test_audit_schema_actually_enforced(self) -> None:
+        self.assertFalse(reviewer._audit_payload_valid({"consistent": "consistent"}))
+        self.assertFalse(reviewer._audit_payload_valid({"consistent": "consistent", "reason": "  "}))
+        self.assertFalse(reviewer._audit_payload_valid({"consistent": "bogus", "reason": "r"}))
+        self.assertFalse(reviewer._audit_payload_valid({"consistent": "consistent", "reason": "r", "extra": 1}))
+        self.assertTrue(reviewer._audit_payload_valid({"consistent": "consistent", "reason": "updates stay within extraction"}))
+
+    def test_gate3_requires_proposed_fact_updates(self) -> None:
+        bad = {"changes": [{
+            "rule_id": "r", "state": "updated",
+            "official_url": "https://example-official.test/product/",
+            "fingerprint": "a" * 64,
+            "extracted_statements": {"p": "s"},
+        }]}
+        out = reviewer.check_change_safety(bad)
+        self.assertTrue(any("missing-proposed-fact-updates" in item for item in out))
+
+    def test_manual_verification_gate(self) -> None:
+        rr = load_script("release_recommendation")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for plat in ("alipay", "douyin"):
+                facts = root / "platforms" / plat / "facts.md"
+                facts.parent.mkdir(parents=True)
+                facts.write_text(
+                    "- 事实A\n  <!-- fact: a verified=unknown source=https://x/ digest=unknown -->\n"
+                )
+            status = rr.manual_verification_status(root, "minor", {"data": 1})
+            self.assertTrue(status["required"])
+            status_patch = rr.manual_verification_status(root, "patch", {"tooling": 2})
+            self.assertFalse(status_patch["required"])
+
+    def test_i18n_presence_enforced(self) -> None:
+        i18n = load_script("check_i18n_readme_structure")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "VERSION").write_text("3.1.5\n", encoding="utf-8")
+            for name in i18n.README_HEADINGS:
+                (root / name).write_text("# Head\n\n## Section\n", encoding="utf-8")
+            errors: list[str] = []
+            i18n.check_fact_alignment(root, errors)
+            self.assertTrue(any("version badge missing entirely" in e for e in errors))
+            self.assertTrue(any("tarball version reference missing entirely" in e for e in errors))
+
+    def test_cross_file_anchor_validation(self) -> None:
+        vs = load_script("validate_suite")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "target.md").write_text("# A\n\n## Real\n", encoding="utf-8")
+            (root / "src.md").write_text("# B\n\n[bad](target.md#missing)\n[good](target.md#real)\n", encoding="utf-8")
+            errors = vs.validate_links(root)
+            self.assertTrue(any("broken cross-file anchor" in e for e in errors))
+            self.assertEqual(len([e for e in errors if "cross-file" in e]), 1)
 
 
 if __name__ == "__main__":

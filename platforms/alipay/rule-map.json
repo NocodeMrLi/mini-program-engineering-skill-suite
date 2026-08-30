@@ -13,9 +13,9 @@
       "step_class": "upload/review/release",
       "ttl_days": 0,
       "official": {
-        "url": "https://opendocs.alipay.com/mini/00rvyf",
-        "title": "小程序文档 - 支付宝文档中心",
-        "section": "发布管理 / 上传与提审"
+        "url": "https://opendocs.alipay.com/mini/introduce/release",
+        "title": "小程序提审、发布与运营 - 支付宝文档中心",
+        "section": "上线 / 小程序提审、发布与运营"
       },
       "verify_points": [
         "版本上传与提审入口",
@@ -28,9 +28,9 @@
       "step_class": "privacy/permission",
       "ttl_days": 30,
       "official": {
-        "url": "https://opendocs.alipay.com/mini/03l9bt",
-        "title": "小程序文档 - 支付宝文档中心",
-        "section": "隐私与安全 / 用户隐私保护"
+        "url": "https://opendocs.alipay.com/mini/03lwro",
+        "title": "小程序隐私政策 - 支付宝文档中心",
+        "section": "隐私与安全 / 小程序隐私政策"
       },
       "verify_points": [
         "隐私接口声明要求",

@@ -211,17 +211,37 @@ for entry in manifest["files"]:
     shutil.copy2(source / relative, destination)
 PY
 
-# Best-effort rollback for a failed multi-target install: remove the partially
-# copied destination and restore the newest backup if one was taken this run.
-rollback_destination() {
-  local dest="$1"
-  rm -rf "$dest"
-  local newest_backup
-  newest_backup="$(ls -1d "$dest.backup."* 2>/dev/null | sort | tail -n 1)"
-  if [ -n "$newest_backup" ]; then
-    mv "$newest_backup" "$dest"
-    echo "Rolled back $dest from $newest_backup" >&2
+# Transaction log for THIS run only: "destination<TAB>backup-or-empty" per
+# completed target. Rollback uses exactly these recorded paths — never a
+# filesystem search for the "newest backup", which could pick a stale backup
+# from a previous run (audit finding).
+TRANSACTION_LOG="$(mktemp)"
+trap 'rm -f "$TRANSACTION_LOG"' EXIT
+
+# Full transactional rollback: restore every target this run already touched,
+# in reverse order. For each target: remove whatever we wrote, and restore the
+# backup WE created this run (recorded in the log); a target installed fresh
+# (no backup) is simply removed.
+rollback_all() {
+  local failed_dest="$1"
+  echo "Install failed at: $failed_dest" >&2
+  echo "Rolling back all targets touched this run (reverse order):" >&2
+  # tac may be absent on macOS; reverse with tail -r fallback
+  if command -v tac >/dev/null 2>&1; then
+    reversed="$(tac "$TRANSACTION_LOG")"
+  else
+    reversed="$(tail -r "$TRANSACTION_LOG")"
   fi
+  while IFS=$'\t' read -r dest backup; do
+    [ -z "$dest" ] && continue
+    rm -rf "$dest"
+    if [ -n "$backup" ] && [ -d "$backup" ]; then
+      mv "$backup" "$dest"
+      echo "  restored $dest <- $backup" >&2
+    else
+      echo "  removed partial install at $dest (was fresh, no prior version)" >&2
+    fi
+  done <<< "$reversed"
 }
 
 for destination in "${DESTINATIONS[@]}"; do
@@ -248,15 +268,18 @@ for destination in "${DESTINATIONS[@]}"; do
 done
 
 for destination in "${DESTINATIONS[@]}"; do
-  parent="$(dirname "$destination")"
+  this_backup=""
   if [ -e "$destination" ]; then
-    backup="$destination.backup.$(date +%Y%m%d%H%M%S)"
-    mv "$destination" "$backup"
-    echo "Backed up existing installation: $backup"
+    this_backup="$destination.backup.$(date +%Y%m%d%H%M%S).$RANDOM"
+    if ! mv "$destination" "$this_backup"; then
+      rollback_all "$destination"
+      exit 1
+    fi
+    echo "Backed up existing installation: $this_backup"
   fi
+  printf '%s\t%s\n' "$destination" "$this_backup" >> "$TRANSACTION_LOG"
   if ! cp -R "$INSTALL_TREE" "$destination"; then
-    echo "Copy to $destination failed; rolling back already-installed targets." >&2
-    rollback_destination "$destination"
+    rollback_all "$destination"
     exit 1
   fi
   echo "Installed $SUITE_NAME -> $destination"

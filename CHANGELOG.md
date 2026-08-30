@@ -2,6 +2,34 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.5 - 2026-08-30
+
+### Fixed（codex 三次复核批：4 项 P1 残留 + 6 项 P2 残留全部修复，含一项根因再深挖）
+
+上轮「17 项全部闭环」结论被 codex 复核推翻（4 P1 + 6 P2 残留）。本批按用户裁决方案执行：9 项确定性修复 + Gate5 按方案 A 重构 + manual-only 政策落地核验。
+
+- **P1 L2 未绑定请求点与返回点**：`_extract_payload_valid` 现要求返回点集合与请求点**完全一致**（数量+内容），缺项/替换（UNREQUESTED）/额外项/重复项全部拒绝（负例实测原探针 `UNREQUESTED` 替换已拒收）。
+- **P1 Gate5 无法证明对官方忠实**：按方案 A 重构为诚实语义——`current_statements` 更名 `extracted_statements`（明确模型抽取物非官方原文）；提案新增 `proposed_fact_updates`（审计有了具体对象）；裁决词表改为 `PROPOSAL_CONSISTENT_WITH_EXTRACTION` / `DO_NOT_APPLY`（全仓清除 RECOMMEND_MERGE/DO_NOT_MERGE）；`--no-shadow` 移除（无自动合并路径）；issue 文案明确「一致性≠官方事实，合并前必须作者核对官方页面」。数据契约：official_url+fingerprint / requested_verify_points / extracted_statements / proposed_fact_updates / consistency verdict；manual approval 为独立人工动作。
+- **P1 release.yml tag 注入**：tag 经 `env: RAW_TAG_INPUT` 传入 + 严格正则 `^v[0-9]+\.[0-9]+\.[0-9]+$`（bash 探针实证原 `case v*` 可被 `v"; cmd; #` 注入）；新增 `tests/test_workflow_injection_guards.py`：禁止任何 `${{ }}` 出现在 run: 脚本体（含 steps.context）、注入形状全部拒收。顺带清除 `steps.release.outputs.tag` 内插残留。
+- **P1 manual-only 政策未履行**：本批完成首次人工核验（见下方「平台核验」）；政策更新为分级节奏（major 必核/minor 90 天或涉事实变更/patch 仅涉相关事实）并工具化：`release_recommendation.py` 新增 `manual_verification_status`，到期未核验输出 `MANUAL_VERIFICATION_REQUIRED` 不得静默通过。
+- **P2 提取器杂散闭合标签**：重写为完整解析栈（void 标签不入栈；end tag 仅匹配栈顶才弹）。codex 探针 `<div class="nav"></p>SECRET</div>` 已不再泄漏。
+- **P2 安装器非完整事务**：改为本轮事务日志 + 逆序全量回滚（所有已改目标，不只当前）；备份仅使用本轮记录路径（不再搜索历史「最新备份」）。实测中途失败：已装目标恢复旧版、fresh 目标移除。
+- **P2 i18n 缺失检测失效**：版本徽章与 tar 命令改为**必须存在**（删光即报错）；四语言 README 补齐版本化 tar 命令块。
+- **P2 Issue 创建失败被吞**：drift_watch 与 drift_audit 的 `emit_issues` 失败均传播非零退出码（CI 显性失败，不再静默漏报）。
+- **P2 FAITHFULNESS_SCHEMA 未执行**：`_audit_payload_valid` 真实执行（缺 reason/空 reason/非法枚举/额外字段全拒；原探针 `{"faithful":"faithful"}` 形状已随词表更新为 consistent 枚举并严格校验）。
+- **P2 跨文件锚点**：validate_links 新增跨文件锚点校验（`file.md#section` 对目标文件标题解析；修复 /tmp 符号链接别名导致字典键不一致的缺陷）。
+- **P2 内部文档旧状态**：06 号笔记已标注为历史快照并指向现行基线文档。
+
+### 平台核验（本批首次人工核验，2026-08-30）
+
+- **alipay facts 人工核验于 2026-08-30**：发布流程页（上传→提审 2 工作日双审→灰度→上架→回滚）证实仍准确；**隐私文档 URL 已失效**（03l9bt 现为 API 页），迁至 03lwro（提审前必须配置隐私政策；2025-04 新增第三方插件/SDK 信息功能），facts 与 rule-map 已修正。
+- **douyin facts 人工核验于 2026-08-30**：**原两个 URL 均 404**；现行结构为「经营→版本审核」分组，版本审核标准页含完整隐私保护标准（12 条），facts 与 rule-map 已修正指向。
+- **微信基线重录（根因再深挖）**：修复提取器后复跑出现 3 条告警，深挖发现**旧提取器在真实微信页面上把正文几乎全部吞掉**（噪声 div 无配对闭合导致栈永不弹出，可见文本仅 6-21 字符）——旧基线 digest 实为「空壳指纹」，从未真正监测正文。新提取器下三页正文完整提取（3.3 万/1366/273 字符），基线已用新算法重录，同页双跑逐字一致。
+
+### 验证
+
+- 156 测试全绿（+9 新回归：点集绑定四种负例/杂散闭合标签/审计 schema 五种形状/契约必含 proposed_fact_updates/核验门禁/i18n 存在性/跨文件锚点/注入防护四项）；validate 113 文件；扫描 115 候选 0 命中；i18n 6/6 含存在性检查；导出复验 113 文件；foundation 等价 PASS；drift-watch 0 告警（基线重录后）。
+
 ## 3.1.4 - 2026-08-30
 
 ### Fixed（上线前质检第二批：5 项延期加固全部落地）

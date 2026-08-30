@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.1.4" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.1.5" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.1.4-0EA5E9.svg" alt="Version: 3.1.4">
+  <img src="https://img.shields.io/badge/version-3.1.5-0EA5E9.svg" alt="Version: 3.1.5">
 </p>
 
 <p align="center">
@@ -35,7 +35,7 @@
 ## Highlights
 
 - **Three-platform fact layer**: a single source of truth for WeChat / Alipay / Douyin platform rules, with capability doctor auto-detecting the project stack and target platform. Detection capability is labeled honestly: WeChat supports deterministic fingerprint monitoring, while Alipay / Douyin rely on runtime checks against official docs and user reports instead of pretending to auto-detect (see [Platform Rule Freshness](#platform-rule-freshness)).
-- **Platform rule freshness pipeline**: execution always aligns with current official docs at run time, while the content layer runs weekly automated drift detection (fingerprint comparison → extraction → shadow audit → verdict issue). A slightly outdated local install never causes a task to follow stale rules (see [Platform Rule Freshness](#platform-rule-freshness)).
+- **Platform rule freshness pipeline**: execution always aligns with current official docs at run time, while the content layer runs weekly automated drift detection (fingerprint comparison → extraction → consistency audit → verdict issue). A slightly outdated local install never causes a task to follow stale rules (see [Platform Rule Freshness](#platform-rule-freshness)).
 - **Full gate verification on real agent CLIs**: the three-tier release gates (structure / routing / behavior) and independent signing run in real agent CLI sessions — early versions were acceptance-tested through Codex CLI, and the evaluation engine is now pluggable (Codex CLI / Claude Code / Gemini / OpenAI-compatible API). Passing across engines is stronger evidence (see [Verification](#verification) and [EVALUATIONS.md](EVALUATIONS.md)).
 - **Evidence-first engineering discipline**: every status claim must be backed by matching evidence, otherwise it is honestly labeled unknown. Since 3.0 this discipline ships as a domain-neutral foundation skill layer (`foundation/`) that any agent engineering suite can reuse (see [Design Principles](#design-principles)).
 - **Tiered evaluation with independent signing**: tier1 structure / tier2 routing / tier3 behavior evaluations, independent with-skill vs. baseline judgment, and held-out batches that stay frozen until release — every gate must PASS before shipping (see [EVALUATIONS.md](EVALUATIONS.md)).
@@ -292,9 +292,9 @@ shasum -a 256 -c SHA256SUMS
 Then extract the archive and verify the package manifest:
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.1.4.tar.gz
-python3 mini-program-engineering-suite-v3.1.4/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.1.4
+tar -xzf mini-program-engineering-suite-v3.1.5.tar.gz
+python3 mini-program-engineering-suite-v3.1.5/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.1.5
 ```
 
 If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
@@ -309,7 +309,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current working version: **3.1.4**.
+Current working version: **3.1.5**.
 
 ---
 

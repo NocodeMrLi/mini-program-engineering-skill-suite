@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.1.4" alt="小程序开发工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.1.5" alt="小程序开发工程技能套件 封面" width="100%">
 </p>
 
 # 小程序开发工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.1.4-0EA5E9.svg" alt="Version: 3.1.4">
+  <img src="https://img.shields.io/badge/version-3.1.5-0EA5E9.svg" alt="Version: 3.1.5">
 </p>
 
 <p align="center">
@@ -305,9 +305,9 @@ shasum -a 256 -c SHA256SUMS
 然后解压并复验包内清单：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.1.4.tar.gz
-python3 mini-program-engineering-suite-v3.1.4/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.1.4
+tar -xzf mini-program-engineering-suite-v3.1.5.tar.gz
+python3 mini-program-engineering-suite-v3.1.5/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.1.5
 ```
 
 如果你拿到的是其他渠道提供的包，也可以通过包内 `package-manifest.json` 重新计算每个文件的大小和 SHA-256 摘要：
@@ -322,7 +322,7 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前工作版本：**3.1.4**。
+当前工作版本：**3.1.5**。
 
 ---
 

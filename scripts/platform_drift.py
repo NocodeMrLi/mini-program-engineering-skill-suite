@@ -46,45 +46,44 @@ class TextExtractor(html.parser.HTMLParser):
 
     SKIP_TAGS = {"script", "style", "noscript", "template", "svg"}
     NOISE_CLASSES = ("banner", "nav", "footer", "header", "menu", "sidebar", "breadcrumb", "cookie")
+    # Tags that never have a closing tag; pushing them would unbalance the stack.
+    VOID_TAGS = {
+        "area", "base", "br", "col", "embed", "hr", "img", "input",
+        "link", "meta", "param", "source", "track", "wbr",
+    }
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
-        # While any skip entry is open, ALL start tags push a shadow marker so
-        # end tags pair one-to-one with start tags. Without this, a noisy
-        # <div class="nav"> followed by a plain inner <div> would let the inner
-        # </div> pop the outer skip state and leak nav text into the fingerprint
-        # (false-positive drift).
-        self._skip_stack: list[str | None] = []
+        # Full parse stack: every non-void start tag pushes an entry recording
+        # (tag, is_noise). Text is dropped while ANY noise entry is open. An
+        # end tag only pops when it matches the TOP of the stack — a stray or
+        # mismatched closer (e.g. </p> inside a noisy <div class="nav">) is
+        # ignored entirely, so it can never prematurely end a skip region or
+        # pop a real opener it does not belong to.
+        self._stack: list[tuple[str, bool]] = []
         self._chunks: list[str] = []
 
+    def _in_noise(self) -> bool:
+        return any(is_noise for _, is_noise in self._stack)
+
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        if self._skip_stack:
-            self._skip_stack.append(None)
+        if tag in self.VOID_TAGS:
             return
         class_attr = dict(attrs).get("class") or ""
-        if tag in self.SKIP_TAGS or any(marker in class_attr.lower() for marker in self.NOISE_CLASSES):
-            self._skip_stack.append(tag)
+        is_noise = tag in self.SKIP_TAGS or any(
+            marker in class_attr.lower() for marker in self.NOISE_CLASSES
+        )
+        self._stack.append((tag, is_noise))
 
     def handle_endtag(self, tag: str) -> None:
-        if not self._skip_stack:
+        if tag in self.VOID_TAGS:
             return
-        # Pop the innermost marker that belongs to this tag: a real tag name
-        # pops itself; a shadow marker only pops when it is the matching
-        # closer of a tag opened inside the skip region.
-        for index in range(len(self._skip_stack) - 1, -1, -1):
-            if self._skip_stack[index] == tag:
-                self._skip_stack.pop(index)
-                return
-        # No matching opener (stray or mismatched end tag): pop one shadow
-        # marker so the stack cannot outgrow the real nesting.
-        for index in range(len(self._skip_stack) - 1, -1, -1):
-            if self._skip_stack[index] is None:
-                self._skip_stack.pop(index)
-                return
-        self._skip_stack.pop()
+        # Only a top-of-stack match pops; anything else is a stray closer.
+        if self._stack and self._stack[-1][0] == tag:
+            self._stack.pop()
 
     def handle_data(self, data: str) -> None:
-        if not self._skip_stack and data.strip():
+        if not self._in_noise() and data.strip():
             self._chunks.append(data.strip())
 
 
@@ -206,14 +205,20 @@ EXTRACT_SCHEMA = {
 }
 
 
-def _extract_payload_valid(payload: Any) -> bool:
-    """Enforce EXTRACT_SCHEMA for real: shape, keys, types, duplicates."""
+def _extract_payload_valid(payload: Any, verify_points: list[str]) -> bool:
+    """Enforce EXTRACT_SCHEMA and bind returned points to the requested points.
+
+    The returned point set must equal the requested set exactly: same count,
+    same members. Missing points, substituted points (UNREQUESTED), extra
+    points, and duplicates are all rejected — a model answering different
+    questions than the ones asked is an extraction failure, not an update.
+    """
     if not isinstance(payload, dict) or set(payload) != {"verify_points"}:
         return False
     points = payload["verify_points"]
     if not isinstance(points, list) or not points:
         return False
-    seen: set[str] = set()
+    seen: list[str] = []
     for item in points:
         if not isinstance(item, dict) or set(item) != {"point", "current_statement"}:
             return False
@@ -222,10 +227,10 @@ def _extract_payload_valid(payload: Any) -> bool:
             return False
         if not point or not statement:
             return False
-        if point in seen:
+        if point in seen:  # duplicates
             return False
-        seen.add(point)
-    return True
+        seen.append(point)
+    return set(seen) == set(verify_points) and len(seen) == len(verify_points)
 
 
 def l2_extract(url: str, verify_points: list[str], page_text: str) -> tuple[dict[str, Any] | None, str | None]:
@@ -256,7 +261,7 @@ def l2_extract(url: str, verify_points: list[str], page_text: str) -> tuple[dict
         payload = json.loads(raw)
     except json.JSONDecodeError as exc:
         return None, f"invalid-extract-output:{type(exc).__name__}"
-    if not _extract_payload_valid(payload):
+    if not _extract_payload_valid(payload, verify_points):
         return None, "extract-output-shape-invalid"
     return payload, None
 
@@ -360,41 +365,78 @@ def check_rule(
         "verified": recorded_verified,
         "reason": reason,
         "not_stated_points": not_stated,
-        # Per-point current statements feed the faithfulness auditor (gate 5):
-        # without them the auditor has no evidence to compare the proposal
-        # against (the audit prompt asked for SOURCE EXTRACTS that were never
-        # supplied — found in the pre-release audit).
-        "current_statements": statements,
+        # Model-derived extraction per verify point (NOT_STATED when absent).
+        # Named extracted_* to make its provenance explicit: this is what the
+        # extraction model produced, NOT verified official text. Gate 5 can
+        # only check proposals against these; verifying extraction against the
+        # official page remains a manual author step.
+        "extracted_statements": statements,
         "url": url,
         "checked_at_utc": utc_now(),
     }
 
 
-def emit_proposal(platform: str, results: list[dict[str, Any]]) -> dict[str, Any] | None:
+def _draft_proposed_fact_updates(
+    rule_result: dict[str, Any], annotations: dict[str, dict[str, str]], all_results: list[dict[str, Any]]
+) -> dict[str, dict[str, str]]:
+    """Draft the fact-text updates this proposal would apply, per fact id.
+
+    The draft is mechanical: for each fact linked to the rule (same source
+    URL), the new text is composed from the extracted statements. It is the
+    concrete object gate 5 audits ("does the proposal write anything beyond
+    what was extracted?") and the starting point for the author's manual
+    review — never a final fact statement.
+    """
+    url = rule_result["url"]
+    linked = sorted(fid for fid, meta in annotations.items() if meta["source"] == url)
+    extracted = rule_result.get("extracted_statements", {})
+    draft: dict[str, dict[str, str]] = {}
+    for fid in linked:
+        draft[fid] = {
+            "source_digest_new": rule_result.get("fingerprint", ""),
+            "extracted": "; ".join(
+                f"{point}: {extracted[point]}" for point in sorted(extracted)
+            ) or "NOT_STATED-ALL-POINTS",
+        }
+    return draft
+
+
+def emit_proposal(
+    platform: str,
+    results: list[dict[str, Any]],
+    annotations: dict[str, dict[str, str]] | None = None,
+) -> dict[str, Any] | None:
     """Build a redacted revision proposal for actionable drift; None when nothing actionable."""
     actionable = [item for item in results if item["state"] in {"updated", "conflicting"}]
     if not actionable:
         return None
+    annotations = annotations or {}
     return {
-        "format_version": 1,
+        "format_version": 2,
         "platform": platform,
         "generated_at_utc": utc_now(),
         "changes": [
             {
                 "rule_id": item["rule_id"],
                 "state": item["state"],
-                "source": item["url"],
-                "new_digest": item["fingerprint"],
+                "official_url": item["url"],
+                "fingerprint": item["fingerprint"],
+                "requested_verify_points": [
+                    point
+                    for point in item.get("extracted_statements", {})
+                ],
+                "extracted_statements": item.get("extracted_statements", {}),
+                "proposed_fact_updates": _draft_proposed_fact_updates(item, annotations, results),
                 "reason": item.get("reason"),
                 "not_stated_points": item.get("not_stated_points", []),
-                "current_statements": item.get("current_statements", {}),
             }
             for item in actionable
         ],
         "evidence_note": (
-            "Proposal carries per-point current statements extracted from the official "
-            "page (NOT_STATED when absent) so faithfulness audits compare against real "
-            "evidence; page text beyond these statements stays out of the suite."
+            "extracted_statements are MODEL-DERIVED extractions, not verified official "
+            "text. Gate 5 audits only that proposed_fact_updates stay within these "
+            "extractions (PROPOSAL_CONSISTENT_WITH_EXTRACTION). The author must verify "
+            "extraction against the official page before applying anything manually."
         ),
     }
 
@@ -415,7 +457,7 @@ def run(platform_root: Path, rule_id: str | None, force_l2: bool) -> dict[str, A
         "rule_count": len(results),
         "counts": counts,
         "results": results,
-        "proposal": emit_proposal(rule_map["platform"], results),
+        "proposal": emit_proposal(rule_map["platform"], results, annotations),
     }
 
 

@@ -208,21 +208,42 @@ def heading_slug(heading: str) -> str:
 
 
 def validate_links(root: Path) -> list[str]:
-    """Check relative Markdown links and same-file anchors in public package files."""
+    """Check relative Markdown links and cross-file anchors in public package files.
+
+    Cross-file anchors (`path/to/file.md#section`) are resolved against the
+    target file's own headings. Previously only same-file anchors were
+    checked, so renaming a section in one file silently broke anchors that
+    pointed at it from every other file (audit finding).
+    """
     errors: list[str] = []
-    for path in sorted(root.rglob("*.md")):
-        if any(part in EXCLUDED_PARTS for part in path.parts):
-            continue
+    markdown_files = [
+        path.resolve()
+        for path in sorted(root.rglob("*.md"))
+        if not any(part in EXCLUDED_PARTS for part in path.parts)
+    ]
+    # Pre-compute heading slugs per file (keys resolved the same way the link
+    # targets are, so /tmp-vs-/private/tmp style symlink aliases cannot split
+    # one file into two identities) for cross-file anchor checking.
+    slugs_by_file: dict[Path, set[str]] = {}
+    for path in markdown_files:
         content = path.read_text(encoding="utf-8")
-        slugs = {heading_slug(m.group(1)) for m in re.finditer(r"^#+\s+(.+)$", content, re.MULTILINE)}
-        for target in MARKDOWN_LINK.findall(content):
-            if target.startswith(("http://", "https://")):
+        slugs_by_file[path] = {
+            heading_slug(m.group(1)) for m in re.finditer(r"^#+\s+(.+)$", content, re.MULTILINE)
+        }
+    for path in markdown_files:
+        for target in MARKDOWN_LINK.findall(path.read_text(encoding="utf-8")):
+            if target.startswith(("http://", "https://", "mailto:")):
                 continue
             clean_target, _, anchor = target.partition("#")
-            if clean_target and not (path.parent / clean_target).resolve().exists():
-                errors.append(f"{path}: broken link {target}")
+            if clean_target:
+                target_path = (path.parent / clean_target).resolve()
+                if not target_path.exists():
+                    errors.append(f"{path}: broken link {target}")
+                    continue
+                if anchor and target_path in slugs_by_file and anchor not in slugs_by_file[target_path]:
+                    errors.append(f"{path}: broken cross-file anchor {target}")
                 continue
-            if anchor and not clean_target and anchor not in slugs:
+            if anchor and anchor not in slugs_by_file[path]:
                 errors.append(f"{path}: broken same-file anchor #{anchor}")
     return errors
 

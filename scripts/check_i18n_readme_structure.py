@@ -138,7 +138,13 @@ def extract_headings(path: Path) -> list[str]:
 
 
 def check_fact_alignment(root: Path, errors: list[str]) -> None:
-    """All READMEs must carry the same version as VERSION, everywhere it appears."""
+    """All READMEs must carry the same version as VERSION, everywhere it appears.
+
+    Both directions are enforced: a present-but-drifted version is an error,
+    and a README whose version references are MISSING entirely is an error too
+    (deleting the badge and tarball commands used to pass silently — audit
+    finding: presence checks only ran when a regex had matched).
+    """
     version_file = root / "VERSION"
     canonical = version_file.read_text(encoding="utf-8").strip() if version_file.is_file() else ""
     if not canonical:
@@ -151,6 +157,12 @@ def check_fact_alignment(root: Path, errors: list[str]) -> None:
         text = path.read_text(encoding="utf-8")
         badge_versions = set(VERSION_RE.findall(text))
         tarball_versions = set(TARBALL_RE.findall(text))
+        # Presence: the version badge and the tarball command are required
+        # facts in every translation; stripping them must not pass.
+        if not badge_versions:
+            errors.append(f"{readme_name}: version badge missing entirely")
+        if not tarball_versions:
+            errors.append(f"{readme_name}: tarball version reference missing entirely")
         if badge_versions - {canonical}:
             errors.append(f"{readme_name}: badge version drift {sorted(badge_versions)} != {canonical}")
         if tarball_versions - {canonical}:

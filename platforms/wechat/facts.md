@@ -16,12 +16,12 @@
 ## 事实清单
 
 - 事实：小程序使用用户隐私接口时，须在平台配置《用户隐私保护指引》，相关接口可用性以平台申报与审核状态为准。
-  <!-- fact: privacy-guideline-required verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/ digest=d6ca28b83e144f9d47509e70764fe47823430db7089891ee3d94123858238821 -->
+  <!-- fact: privacy-guideline-required verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/ digest=549f0eb28b7409603b427e8f1da8af3bf4f4aa163cdfeee7d3cabe5fc0da0cf4 -->
 - 事实：平台运营规范覆盖注册、行为规范、内容标准与审核要求；提审前须按当前版本核对。
-  <!-- fact: operations-spec-scope verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/product/ digest=6970280c4bb4202b1efc4239b40f0af8ae9fc18a5298decf7812913220d74ef0 -->
+  <!-- fact: operations-spec-scope verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/product/ digest=e1da4495c2aec52e65278f4ec23cf7d287092f8b49b60ad4959c7e0163b19df9 -->
 - 事实：审核被驳回后可修正并重新提审；驳回原因以平台运维中心当前返回为准，不以历史截图替代。
-  <!-- fact: review-rejection-flow verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/product/ digest=6970280c4bb4202b1efc4239b40f0af8ae9fc18a5298decf7812913220d74ef0 -->
+  <!-- fact: review-rejection-flow verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/product/ digest=e1da4495c2aec52e65278f4ec23cf7d287092f8b49b60ad4959c7e0163b19df9 -->
 - 事实：开发者工具的当前稳定版本与环境要求以官方下载页为准；项目配置与构建行为兼容性变化需按当前版本核对。
-  <!-- fact: toolchain-devtools verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html digest=4c562b850b1592a64f22d489170267f1f2c7da39abf797ebd0412b9a3020f1c0 -->
+  <!-- fact: toolchain-devtools verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html digest=694dd716b1ff1a8c4fe7ce70ec8d457edb6a09a15de27576e0bad13286c129e5 -->
 
-以上事实已于 2026-08-30 完成首次基线核验：digest 为当日官方页面归一化文本指纹，verified 为核验日期（UTC）。后续变化由周频 drift-watch 比对发现；过期或 `ttl=0` 类步骤执行前仍须查官方现行资料。
+以上事实已于 2026-08-30 完成基线重录：3.1.5 提取器修复后首次以完整正文计算指纹（旧提取器因噪声栈泄漏只看到 6-21 字符的页面标题，原 digest 实为空壳指纹，监测不到正文变化）；同页双跑逐字一致。verified 为核验日期（UTC）。后续变化由周频 drift-watch 比对发现；过期或 `ttl=0` 类步骤执行前仍须查官方现行资料。

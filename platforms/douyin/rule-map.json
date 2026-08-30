@@ -13,9 +13,9 @@
       "step_class": "upload/review/release",
       "ttl_days": 0,
       "official": {
-        "url": "https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/operation/review",
-        "title": "抖音开放平台",
-        "section": "小程序运营 / 审核与发布"
+        "url": "https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/operation/version-review/standard",
+        "title": "版本审核标准_小程序_抖音开放平台",
+        "section": "经营 / 版本审核 / 版本审核标准"
       },
       "verify_points": [
         "版本上传与提审入口",
@@ -28,9 +28,9 @@
       "step_class": "privacy/permission",
       "ttl_days": 30,
       "official": {
-        "url": "https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/develop/guide/privacy",
-        "title": "抖音开放平台",
-        "section": "隐私与安全 / 用户隐私保护"
+        "url": "https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/operation/version-review/standard#五、隐私保护标准",
+        "title": "版本审核标准（五、隐私保护标准）_抖音开放平台",
+        "section": "经营 / 版本审核 / 隐私保护标准"
       },
       "verify_points": [
         "隐私接口与声明要求",

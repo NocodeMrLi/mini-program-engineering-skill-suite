@@ -2,21 +2,36 @@
 """Recommend whether the current tree deserves a release, and at which level.
 
 Deterministic and zero-LLM-cost: classifies commits since the last tag by the
-paths they touch. Output is exactly one of RECOMMEND_RELEASE (with a level) or
-HOLD, always with reasons. The author makes the final call.
+paths they touch. Output is exactly one of RECOMMEND_RELEASE (with a level),
+MANUAL_VERIFICATION_REQUIRED, or HOLD, always with reasons. The author makes
+the final call.
+
+manual-only platform policy (platforms/README.md): major releases require
+re-verification of every alipay/douyin fact; minor releases require it when
+the last verification is older than 90 days or when platform facts / release
+governance changed; patch releases only when related facts changed, a user
+report arrived, or the platform shifted. Overdue verification downgrades the
+recommendation to MANUAL_VERIFICATION_REQUIRED — it never passes silently.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Sequence
 
 
 LEVELS = ("patch", "minor", "major")
+MANUAL_ONLY_PLATFORMS = ("alipay", "douyin")
+VERIFICATION_MAX_AGE_DAYS = 90
+FACT_ANNOTATION = re.compile(
+    r"<!--\s*fact:\s*\S+\s+verified=(?P<verified>[^\s]+)\s+source=\S+\s+digest=\S+\s*-->"
+)
 # Path prefixes that classify the character of a change. Checked in order of severity.
 PATH_CLASSES: tuple[tuple[tuple[str, ...], str], ...] = (
     (("SKILL.md", "skills/", "shared/"), "behavior"),
@@ -76,6 +91,65 @@ def collect_commits(root: Path, tag: str | None) -> list[dict[str, Any]]:
     return commits
 
 
+def manual_verification_status(root: Path, level: str, classes: dict[str, int]) -> dict[str, Any]:
+    """Check manual-only platform fact verification against the release policy.
+
+    - major: every fact must be verified.
+    - minor: verified within VERIFICATION_MAX_AGE_DAYS, or re-verified because
+      this release touches platform facts / governance (classes contain data).
+    - patch: only if this release itself touches platform facts (data class).
+    Unknown/dated verification per policy; anything overdue or unverified when
+    required yields required=True with per-platform reasons.
+    """
+    now = datetime.now(timezone.utc)
+    details: dict[str, Any] = {}
+    required = False
+    for platform in MANUAL_ONLY_PLATFORMS:
+        facts_path = root / "platforms" / platform / "facts.md"
+        if not facts_path.is_file():
+            details[platform] = {"status": "no-facts-file"}
+            continue
+        verified_dates = [
+            m.group("verified")
+            for m in FACT_ANNOTATION.finditer(facts_path.read_text(encoding="utf-8"))
+        ]
+        unknown = [v for v in verified_dates if v == "unknown"]
+        dated = []
+        for value in verified_dates:
+            try:
+                dated.append(datetime.strptime(value, "%Y-%m-%d").replace(tzinfo=timezone.utc))
+            except ValueError:
+                continue
+        oldest = min(dated) if dated else None
+        needs = False
+        why: list[str] = []
+        if level == "major":
+            needs = True
+            why.append("major releases require re-verification of every manual-only fact")
+        elif level == "minor":
+            if classes.get("data"):
+                needs = True
+                why.append("this release touches platform fact data")
+            elif oldest is None or now - oldest > timedelta(days=VERIFICATION_MAX_AGE_DAYS):
+                needs = True
+                why.append(f"last verification older than {VERIFICATION_MAX_AGE_DAYS} days")
+        elif classes.get("data"):
+            needs = True
+            why.append("this release touches platform fact data")
+        if unknown and level in ("major",) or (unknown and needs):
+            needs = True
+            why.append(f"{len(unknown)} fact(s) still verified=unknown")
+        if needs:
+            required = True
+        details[platform] = {
+            "unknown_count": len(unknown),
+            "oldest_verified": oldest.date().isoformat() if oldest else None,
+            "needs_verification": needs,
+            "why": why,
+        }
+    return {"required": required, "platforms": details}
+
+
 def recommend(root: Path, min_data_changes: int) -> dict[str, Any]:
     tag = last_tag(root)
     commits = collect_commits(root, tag)
@@ -115,6 +189,22 @@ def recommend(root: Path, min_data_changes: int) -> dict[str, Any]:
             "tag": tag, "commit_count": len(commits), "classes": classes,
         }
 
+    verification = manual_verification_status(root, level, classes)
+    if verification["required"]:
+        return {
+            "recommendation": "MANUAL_VERIFICATION_REQUIRED",
+            "level": level,
+            "reasons": reasons + [
+                f"{platform}: {'; '.join(detail['why'])}"
+                for platform, detail in verification["platforms"].items()
+                if detail.get("needs_verification")
+            ],
+            "tag": tag,
+            "commit_count": len(commits),
+            "classes": classes,
+            "manual_verification": verification,
+        }
+
     return {
         "recommendation": "RECOMMEND_RELEASE",
         "level": level,
@@ -122,6 +212,7 @@ def recommend(root: Path, min_data_changes: int) -> dict[str, Any]:
         "tag": tag,
         "commit_count": len(commits),
         "classes": classes,
+        "manual_verification": verification,
     }
 
 
