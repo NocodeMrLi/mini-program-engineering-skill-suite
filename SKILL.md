@@ -5,7 +5,7 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.9+ for bundled scripts; framework adapters are optional and discovered read-only.
 metadata:
-  version: "2.0.0"
+  version: "2.1.0"
   author: "Mini Program Engineering Suite contributors"
   maintainers: "Mini Program Engineering Suite contributors"
   language: "zh-CN"
@@ -91,7 +91,11 @@ metadata:
 - [产品规格 Skill](skills/mini-program-product-spec-skill/SKILL.md)：将模糊想法收敛为范围、流程、状态矩阵与可测试验收标准，不发明产品逻辑。
 - [工程架构 Skill](skills/mini-program-architecture-skill/SKILL.md)：把稳定产品语义映射为模块、状态源、数据、接口、权限、失败策略与 ADR。
 - [微信平台适配 Skill](skills/wechat-mini-program-platform-skill/SKILL.md)：只读核对工具、构建、权限、隐私和发布证据层；时效性规则查微信官方当前资料。
-- 微信平台事实单一来源：[platforms/wechat/](platforms/wechat/platform-evidence-layers.md)（证据层、核对清单、隐私矩阵、[规则地图](platforms/wechat/rule-map.json) 与 [核验标注](platforms/wechat/facts.md)）；工程流程层遇到平台触点时引用平台事实层，不内置平台规则。
+- 平台事实层（按目标平台路由，doctor 的 `target_platforms` 决定入口）：
+  - 微信：[platforms/wechat/](platforms/wechat/platform-evidence-layers.md)（证据层、核对清单、隐私矩阵、[规则地图](platforms/wechat/rule-map.json) 与 [核验标注](platforms/wechat/facts.md)；支持确定性漂移检测）；
+  - 支付宝：[规则地图](platforms/alipay/rule-map.json) 与 [核验标注](platforms/alipay/facts.md)（官方文档为客户端渲染 SPA，确定性指纹不可观测，保鲜依赖运行时查官方与用户上报，规则地图标 `manual-only`）；
+  - 未收录平台（如抖音）：无平台事实层，平台触点步骤一律查官方当前资料并保持 `unknown`，不猜测。
+- 工程流程层遇到平台触点时引用对应平台事实层，不内置平台规则。
 - [工程实现 Skill](skills/mini-program-implementation-skill/SKILL.md)：在明确边界内保护用户改动，以测试驱动小步实施并交付验证入口。
 - [界面与真机适配 Skill](skills/mini-program-ui-device-skill/SKILL.md)：按参考目标处理预览、确认、集成、屏幕/内容边界、手势和真机证据。
 - [问题调试 Skill](skills/mini-program-debugging-skill/SKILL.md)：从最小复现、竞争假设与判别实验定位根因，并覆盖同类状态回归。

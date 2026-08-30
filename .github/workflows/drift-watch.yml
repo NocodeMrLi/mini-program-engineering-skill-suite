@@ -1,0 +1,57 @@
+name: Drift watch
+
+# Weekly platform-rule freshness check (deterministic L0/L1 only; zero tokens).
+# Schedule decided by the author: Saturdays at 02:00 UTC = 10:00 Beijing time,
+# in the DeepSeek weekend low-price window (L2 audits, when triggered locally,
+# cost less). No agent credentials live in CI; L2 extraction always runs locally.
+on:
+  schedule:
+    - cron: "0 2 * * 6"  # Saturdays 02:00 UTC = Beijing Saturday 10:00
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: "Platform directory to check (empty = all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: drift-watch
+  cancel-in-progress: false
+
+jobs:
+  detect:
+    name: Detect platform rule drift (L0/L1)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Run deterministic drift check
+        id: drift
+        run: |
+          set -uo pipefail
+          args=""
+          if [ -n "${{ github.event.inputs.platform }}" ]; then
+            args="--platform-dir platforms/${{ github.event.inputs.platform }}"
+          fi
+          # --no-llm keeps CI on the deterministic path: L2 extraction never runs here.
+          python3 scripts/drift_watch.py $args --output drift-report.json
+          echo "exit=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update drift issues
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/drift_watch.py --emit-issues --report drift-report.json

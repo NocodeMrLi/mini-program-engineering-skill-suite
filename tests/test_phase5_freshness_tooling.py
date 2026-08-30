@@ -28,6 +28,7 @@ def load_script(name: str):
 drift = load_script("platform_drift")
 reviewer = load_script("review_drift_proposal")
 recommendation = load_script("release_recommendation")
+drift_watch = load_script("drift_watch")
 agent_cli = load_script("agent_cli")
 
 
@@ -225,6 +226,49 @@ class HttpEngineTests(unittest.TestCase):
             os.environ.pop("AGENT_API_MODEL", None)
             meta = agent_cli.engine_metadata()
         self.assertEqual(meta["engine"], "http")
+
+
+class DriftWatchTests(unittest.TestCase):
+    def test_manual_only_platforms_are_skipped(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            auto = root / "platforms" / "wechat"
+            manual = root / "platforms" / "alipay"
+            auto.mkdir(parents=True)
+            manual.mkdir(parents=True)
+            (auto / "rule-map.json").write_text(
+                json.dumps({"format_version": 1, "platform": "wechat", "allowed_domains": ["a.test"], "rules": []}),
+                encoding="utf-8",
+            )
+            (manual / "rule-map.json").write_text(
+                json.dumps(
+                    {
+                        "format_version": 1,
+                        "platform": "alipay",
+                        "allowed_domains": ["b.test"],
+                        "detection": "manual-only",
+                        "rules": [],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            dirs = drift_watch.platform_dirs(root, None)
+        self.assertEqual([p.name for p in dirs], ["wechat"])
+
+    def test_bundled_platform_layers_present_and_valid(self) -> None:
+        for platform, detection in (("wechat", None), ("alipay", "manual-only")):
+            rule_map = json.loads(
+                (ROOT / "platforms" / platform / "rule-map.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(rule_map["platform"], platform)
+            self.assertEqual(rule_map.get("detection"), detection)
+            self.assertTrue((ROOT / "platforms" / platform / "facts.md").is_file())
+            for rule in rule_map["rules"]:
+                self.assertTrue(rule["official"]["url"].startswith("https://"))
+                domain = rule["official"]["url"].split("/")[2]
+                self.assertIn(domain, rule_map["allowed_domains"])
 
 
 if __name__ == "__main__":
