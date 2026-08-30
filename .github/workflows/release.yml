@@ -56,6 +56,17 @@ jobs:
           # outside the tree because export_public_package.py scans fail-closed.
           bash scripts/release_gate.sh . /tmp/unittest.log /tmp/gate-summary.json
 
+      - name: Upload gate summary (even on failure)
+        # The gate writes its summary even when it blocks the release (that is
+        # the evidence of WHICH gate stopped it). Without an always() upload the
+        # file dies with the runner on failure; this step keeps the trail.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-summary
+          path: /tmp/gate-summary.json
+          if-no-files-found: ignore
+
       - name: Export public package
         run: |
           version="$(cat VERSION)"

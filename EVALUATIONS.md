@@ -57,7 +57,7 @@ python3 scripts/summarize_evaluations.py \
 | 门禁 | 结论 | 关键指标 | 审计元数据 |
 | --- | --- | --- | --- |
 | tier1 | PASS（重跑） | checks 22; skills 10（根 Skill + 9 子 Skill）| engine=local |
-| release gate 四场景 | PASS | JSON失败写summary+报gate failure；崩溃报crashed无summary；单测失败先拦；真实绿跑 rc=0（134/113/0） | local |
+| release gate 四场景 | PASS | JSON失败写summary+报gate failure；崩溃报crashed无summary；单测失败先拦；真实绿跑 rc=0（135/113/0） | local |
 | tier2×2 / tier3×4 | PASS（复用 3.1.1） | accuracy 1.00；skill 1.00 无回归 | 子 Skill 文本与基架零变更 |
 | 结构校验 | PASS | 113 个公共文件 | local |
 | 敏感信息扫描 | PASS | findings 0 | local |
