@@ -60,16 +60,29 @@ def last_tag(root: Path) -> str | None:
 
 
 def classify_commit(paths: list[str]) -> str:
-    """Pick the most significant class among the commit's touched paths."""
+    """Pick the most significant class among the commit's touched paths (kept for callers that want one label)."""
     ranking = {"behavior": 4, "tooling": 3, "data": 2, "docs": 1, "assets": 1}
     best = "docs"
+    for label in classify_commit_classes(paths):
+        if ranking[label] > ranking[best]:
+            best = label
+    return best
+
+
+def classify_commit_classes(paths: list[str]) -> set[str]:
+    """Return EVERY class the commit touches, not just the highest.
+
+    A commit editing scripts/ AND platforms/alipay/facts.md is both tooling
+    and data; keeping only "tooling" silently dropped the data trigger for
+    manual verification (codex probe).
+    """
+    classes: set[str] = set()
     for path in paths:
         for prefixes, label in PATH_CLASSES:
             if path.startswith(prefixes):
-                if ranking[label] > ranking[best]:
-                    best = label
+                classes.add(label)
                 break
-    return best
+    return classes
 
 
 def collect_commits(root: Path, tag: str | None) -> list[dict[str, Any]]:
@@ -91,17 +104,63 @@ def collect_commits(root: Path, tag: str | None) -> list[dict[str, Any]]:
     return commits
 
 
-def manual_verification_status(root: Path, level: str, classes: dict[str, int]) -> dict[str, Any]:
+CHANGELOG_VERIFICATION_RE = re.compile(
+    r"(?:alipay|douyin)\s+facts\s+人工核验于\s*(?P<date>\d{4}-\d{2}-\d{2})(?:\s*\([^)]*tag[:：]\s*(?P<tag>[v0-9.]+)[^)]*\))?",
+    re.IGNORECASE,
+)
+
+
+def changelog_verification_evidence(root: Path, since_tag: str | None) -> dict[str, Any]:
+    """Read manual-verification evidence from CHANGELOG entries after the last tag.
+
+    Policy option (a): the CHANGELOG entry for the version being released
+    records 'alipay/douyin facts 人工核验于 YYYY-MM-DD'，optionally with the
+    tag it applies to (e.g. '... 人工核验于 2026-08-31 (tag: v3.1.6)'). A
+    verification recorded THIS release cycle satisfies the requirement even
+    for major releases — the date alone (which only proves 'sometime in the
+    past') never could.
+    """
+    changelog = root / "CHANGELOG.md"
+    if not changelog.is_file():
+        return {"found": False, "dates": [], "tags": []}
+    text = changelog.read_text(encoding="utf-8")
+    if since_tag:
+        # keep only the portion after the previous tag's version header
+        version = since_tag.lstrip("v")
+        marker = f"## {version} "
+        idx = text.find(marker)
+        if idx > 0:
+            text = text[:idx]
+    else:
+        # no previous tag: only the topmost (unreleased) version block counts
+        # — a verification recorded in an older entry is not this-cycle.
+        first = text.find("\n## ")
+        if first >= 0:
+            second = text.find("\n## ", first + 1)
+            text = text[first:second] if second > 0 else text[first:]
+    dates: list[str] = []
+    tags: list[str] = []
+    for m in CHANGELOG_VERIFICATION_RE.finditer(text):
+        dates.append(m.group("date"))
+        if m.group("tag"):
+            tags.append(m.group("tag"))
+    return {"found": bool(dates), "dates": dates, "tags": tags}
+
+
+def manual_verification_status(
+    root: Path, level: str, classes: dict[str, int], since_tag: str | None = None
+) -> dict[str, Any]:
     """Check manual-only platform fact verification against the release policy.
 
-    - major: every fact must be verified.
-    - minor: verified within VERIFICATION_MAX_AGE_DAYS, or re-verified because
-      this release touches platform facts / governance (classes contain data).
-    - patch: only if this release itself touches platform facts (data class).
-    Unknown/dated verification per policy; anything overdue or unverified when
-    required yields required=True with per-platform reasons.
+    - major: every fact must be verified, with THIS-cycle evidence.
+    - minor: verified within VERIFICATION_MAX_AGE_DAYS or with this-cycle
+      evidence (required when this release touches platform facts/governance).
+    - patch: only when this release touches platform facts.
+    Evidence of a verification done for THIS release (CHANGELOG line, option a)
+    satisfies the requirement; a bare past date alone does not.
     """
     now = datetime.now(timezone.utc)
+    evidence = changelog_verification_evidence(root, since_tag)
     details: dict[str, Any] = {}
     required = False
     for platform in MANUAL_ONLY_PLATFORMS:
@@ -121,22 +180,38 @@ def manual_verification_status(root: Path, level: str, classes: dict[str, int]) 
             except ValueError:
                 continue
         oldest = min(dated) if dated else None
+        this_cycle_verified = evidence["found"]
         needs = False
         why: list[str] = []
         if level == "major":
-            needs = True
-            why.append("major releases require re-verification of every manual-only fact")
+            needs = not this_cycle_verified
+            why.append(
+                "this-cycle CHANGELOG verification evidence present"
+                if this_cycle_verified
+                else "major releases require re-verification recorded in this release's CHANGELOG entry"
+            )
         elif level == "minor":
             if classes.get("data"):
-                needs = True
-                why.append("this release touches platform fact data")
+                needs = not this_cycle_verified
+                why.append(
+                    "this release touches platform fact data; CHANGELOG verification evidence present"
+                    if this_cycle_verified
+                    else "this release touches platform fact data and lacks this-cycle verification evidence"
+                )
             elif oldest is None or now - oldest > timedelta(days=VERIFICATION_MAX_AGE_DAYS):
-                needs = True
-                why.append(f"last verification older than {VERIFICATION_MAX_AGE_DAYS} days")
+                needs = not this_cycle_verified
+                why.append(
+                    f"{'CHANGELOG evidence present'}" if this_cycle_verified
+                    else f"last verification older than {VERIFICATION_MAX_AGE_DAYS} days and no this-cycle evidence"
+                )
         elif classes.get("data"):
-            needs = True
-            why.append("this release touches platform fact data")
-        if unknown and level in ("major",) or (unknown and needs):
+            needs = not this_cycle_verified
+            why.append(
+                "this release touches platform fact data; verification evidence present"
+                if this_cycle_verified
+                else "this release touches platform fact data and lacks verification evidence"
+            )
+        if unknown and (level == "major" or needs):
             needs = True
             why.append(f"{len(unknown)} fact(s) still verified=unknown")
         if needs:
@@ -159,8 +234,11 @@ def recommend(root: Path, min_data_changes: int) -> dict[str, Any]:
 
     classes: dict[str, int] = {}
     for commit in commits:
-        label = classify_commit(commit["paths"])
-        classes[label] = classes.get(label, 0) + 1
+        # Full class SET per commit: a scripts+facts commit counts as both
+        # tooling and data, so the data trigger for manual verification cannot
+        # be swallowed by the higher-ranked label (codex probe).
+        for label in classify_commit_classes(commit["paths"]):
+            classes[label] = classes.get(label, 0) + 1
 
     if classes.get("behavior"):
         level = "minor"
@@ -189,7 +267,7 @@ def recommend(root: Path, min_data_changes: int) -> dict[str, Any]:
             "tag": tag, "commit_count": len(commits), "classes": classes,
         }
 
-    verification = manual_verification_status(root, level, classes)
+    verification = manual_verification_status(root, level, classes, since_tag=tag)
     if verification["required"]:
         return {
             "recommendation": "MANUAL_VERIFICATION_REQUIRED",

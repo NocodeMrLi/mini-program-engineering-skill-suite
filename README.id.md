@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.1.5" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.1.6" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.1.5-0EA5E9.svg" alt="Version: 3.1.5">
+  <img src="https://img.shields.io/badge/version-3.1.6-0EA5E9.svg" alt="Version: 3.1.6">
 </p>
 
 <p align="center">
@@ -206,19 +206,19 @@ Untuk memeriksa package yang diterima:
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-Contoh v3.1.5 (setelah mengunduh dari Release):
+Contoh v3.1.6 (setelah mengunduh dari Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.1.5.tar.gz
-python3 mini-program-engineering-suite-v3.1.5/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.1.5
+tar -xzf mini-program-engineering-suite-v3.1.6.tar.gz
+python3 mini-program-engineering-suite-v3.1.6/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.1.6
 ```
 
 ---
 
 ## Versi
 
-Versi saat ini: **3.1.5**.
+Versi saat ini: **3.1.6**.
 
 ---
 

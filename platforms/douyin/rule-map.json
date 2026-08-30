@@ -28,13 +28,14 @@
       "step_class": "privacy/permission",
       "ttl_days": 30,
       "official": {
-        "url": "https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/operation/version-review/standard#五、隐私保护标准",
-        "title": "版本审核标准（五、隐私保护标准）_抖音开放平台",
-        "section": "经营 / 版本审核 / 隐私保护标准"
+        "url": "https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/open-capacity/basic-capacities/privacy-agreement",
+        "title": "配置隐私协议_小程序_抖音开放平台",
+        "section": "能力 / 通用能力 / 配置隐私协议"
       },
       "verify_points": [
-        "隐私接口与声明要求",
-        "用户授权与撤回路径"
+        "隐私协议配置入口与生效条件",
+        "官方/自定义/联合三种授权方式",
+        "未配置隐私保护说明的接口调用限制"
       ]
     }
   ]

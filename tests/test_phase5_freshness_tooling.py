@@ -52,6 +52,14 @@ RULE_MAP = {
 }
 
 
+FACTS_WITH_TEXT = (
+    "# facts\n\n"
+    "- 事实：运营规范当前覆盖提审与发布要求，以平台当前版本为准。\n"
+    "  <!-- fact: operations-spec-scope verified=2026-08-31 "
+    "source=https://example-official.test/product/ digest=%s -->\n" % ("a" * 64)
+)
+
+
 def write_platform(root: Path, facts_body: str) -> Path:
     platform_root = root / "platforms" / "wechat"
     platform_root.mkdir(parents=True)
@@ -127,7 +135,12 @@ class ProposalReviewTests(unittest.TestCase):
             "requested_verify_points": ["提审与发布流程要求"],
             "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
             "proposed_fact_updates": {
-                "operations-spec-scope": {"source_digest_new": "a" * 64, "extracted": "提审与发布流程要求: 提审前须完成安全检测。"}
+                "operations-spec-scope": {
+                    "fact_id": "operations-spec-scope",
+                    "current_text": "运营规范当前覆盖提审与发布要求，以平台当前版本为准。",
+                    "proposed_text": "提审与发布流程要求: 提审前须完成安全检测。",
+                    "source_digest": "a" * 64,
+                }
             },
         }
         change.update(overrides)
@@ -136,7 +149,7 @@ class ProposalReviewTests(unittest.TestCase):
     def prepare(self, proposal: dict) -> tuple[Path, Path]:
         temp = tempfile.TemporaryDirectory()
         root = Path(temp.name)
-        platform_root = write_platform(root, "# facts\n")
+        platform_root = write_platform(root, FACTS_WITH_TEXT)
         proposal_path = root / "proposal.json"
         proposal_path.write_text(json.dumps(proposal), encoding="utf-8")
         self.addCleanup(temp.cleanup)
@@ -174,6 +187,7 @@ class ProposalReviewTests(unittest.TestCase):
                             "rule_id": "release-review-operations",
                             "state": "updated",
                             "fingerprint": "a" * 64,
+                            "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
                         }
                     ],
                 }
@@ -468,6 +482,7 @@ class AuditFixRegressionTests(unittest.TestCase):
         host_port = f"127.0.0.1:{server.server_address[1]}"
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
+        self.addCleanup(server.server_close)
         self.addCleanup(server.shutdown)
         html_text, error = drift.fetch(f"http://{host_port}/x", [host_port])
         self.assertIsNone(html_text)
@@ -483,6 +498,85 @@ class AuditFixRegressionTests(unittest.TestCase):
         vs = load_script("validate_suite")
         self.assertIn("assets/readme-cover-2000x849-v2.webp", vs.REPO_ONLY_ASSETS)
         self.assertNotIn("assets/readme-cover-2000x849-v2.webp", vs.REQUIRED_FILES)
+
+
+class V316AuditFollowUpTests(unittest.TestCase):
+    """Regressions for the codex fifth-audit batch (3.1.6)."""
+
+    def test_tampered_proposal_rejected_by_gate2(self) -> None:
+        # codex probe: FAKE_POINT substitution + invented fact id must NOT pass.
+        case = ProposalReviewTests("test_rounds_below_one_is_rejected")
+        proposal = case.build_proposal()
+        proposal["changes"][0]["extracted_statements"] = {"FAKE_POINT": "任意"}
+        proposal["changes"][0]["requested_verify_points"] = ["FAKE_POINT"]
+        proposal["changes"][0]["proposed_fact_updates"]["unknown-fact"] = {
+            "fact_id": "unknown-fact", "current_text": "捏造", "proposed_text": "x", "source_digest": "a" * 64
+        }
+        proposal_path, platform_root = case.prepare(proposal)
+        drift_report = platform_root.parent / "drift.json"
+        drift_report.write_text(json.dumps({
+            "platform": "wechat",
+            "results": [{
+                "rule_id": "release-review-operations", "state": "updated", "fingerprint": "a" * 64,
+                "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
+            }],
+        }))
+        with patch.object(reviewer, "run_agent", return_value=('{"consistent":"consistent","reason":"ok"}', None)):
+            report = reviewer.review(proposal_path, platform_root, drift_report, rounds=1, shadow=True)
+        self.assertEqual(report["verdict"], "DO_NOT_APPLY")
+        self.assertTrue(any("verify-points-not-bound-to-rule-map" in p_ for p_ in report["problems"]))
+        self.assertTrue(any("fact-id-set-diverges-from-facts" in p_ for p_ in report["problems"]))
+        self.assertTrue(any("extracted-statements-diverge-from-report" in p_ for p_ in report["problems"]))
+
+    def test_legitimate_proposal_still_passes_gate2(self) -> None:
+        case = ProposalReviewTests("test_shadow_mode_exit_code_is_never_merge")
+        proposal_path, platform_root = case.prepare(case.build_proposal())
+        drift_report = platform_root.parent / "drift.json"
+        drift_report.write_text(json.dumps({
+            "platform": "wechat",
+            "results": [{
+                "rule_id": "release-review-operations", "state": "updated", "fingerprint": "a" * 64,
+                "extracted_statements": {"提审与发布流程要求": "提审前须完成安全检测。"},
+            }],
+        }))
+        with patch.object(reviewer, "run_agent", return_value=('{"consistent":"consistent","reason":"ok"}', None)):
+            report = reviewer.review(proposal_path, platform_root, drift_report, rounds=1, shadow=True)
+        self.assertEqual(report["verdict"], "PROPOSAL_CONSISTENT_WITH_EXTRACTION")
+        self.assertEqual(report["problems"], [])
+
+    def test_mixed_commit_keeps_data_class(self) -> None:
+        # codex probe: scripts+facts must classify as BOTH, not just tooling.
+        classes = recommendation.classify_commit_classes(["scripts/x.py", "platforms/alipay/facts.md"])
+        self.assertIn("data", classes)
+        self.assertIn("tooling", classes)
+
+    def test_this_cycle_changelog_evidence_satisfies_major(self) -> None:
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for plat in ("alipay", "douyin"):
+                facts = root / "platforms" / plat / "facts.md"
+                facts.parent.mkdir(parents=True)
+                facts.write_text("- 事实A\n  <!-- fact: a verified=2026-08-31 source=https://x/ digest=unknown -->\n")
+            (root / "CHANGELOG.md").write_text(
+                "# Changelog\n\n## 3.1.6 - 2026-08-31\n\n- alipay/douyin facts 人工核验于 2026-08-31 (tag: v3.1.6)\n\n## 3.1.5 - 2026-08-30\n"
+            )
+            status = recommendation.manual_verification_status(root, "major", {}, since_tag="v3.1.5")
+            self.assertFalse(status["required"])
+            # and without this-cycle evidence it must be required
+            (root / "CHANGELOG.md").write_text(
+                "# Changelog\n\n## 3.1.6 - 2026-08-31\n\n- 修复。\n\n## 3.1.5 - 2026-08-30\n- alipay/douyin facts 人工核验于 2026-08-30\n"
+            )
+            status2 = recommendation.manual_verification_status(root, "major", {}, since_tag="v3.1.5")
+            self.assertTrue(status2["required"])
+
+    def test_extractor_unbalanced_span_inside_noise_keeps_body(self) -> None:
+        # codex probe: unclosed <span> in noise must not swallow the page body.
+        a = '<html><body><div class="nav"><span>menu</div><p>BODY-A</p></body></html>'
+        b = '<html><body><div class="nav"><span>menu</div><p>BODY-B</p></body></html>'
+        fa, fb = drift.normalized_fingerprint(a), drift.normalized_fingerprint(b)
+        self.assertNotEqual(fa, fb)
+        self.assertNotEqual(fa, "")
 
 
 class V315AuditFollowUpTests(unittest.TestCase):

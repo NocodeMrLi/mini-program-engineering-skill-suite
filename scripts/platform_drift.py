@@ -34,7 +34,8 @@ from agent_cli import run_agent  # noqa: E402
 
 
 FACT_ANNOTATION = re.compile(
-    r"<!--\s*fact:\s*(?P<id>[^\s]+)\s+verified=(?P<verified>[^\s]+)\s+source=(?P<source>\S+)\s+digest=(?P<digest>\S+)\s*-->"
+    r"(-\s*事实：(?P<fact_text>.+?)\s*\n\s*<!--\s*fact:\s*(?P<id>[^\s]+)\s+verified=(?P<verified>[^\s]+)\s+source=(?P<source>\S+)\s+digest=(?P<digest>\S+)\s*-->)"
+    r"|<!--\s*fact:\s*(?P<id2>[^\s]+)\s+verified=(?P<verified2>[^\s]+)\s+source=(?P<source2>\S+)\s+digest=(?P<digest2>\S+)\s*-->"
 )
 MAX_PAGE_BYTES = 5_000_000
 USER_AGENT = "mini-program-engineering-suite-drift-check/1.0 (low-frequency; contact via repository)"
@@ -78,9 +79,19 @@ class TextExtractor(html.parser.HTMLParser):
     def handle_endtag(self, tag: str) -> None:
         if tag in self.VOID_TAGS:
             return
-        # Only a top-of-stack match pops; anything else is a stray closer.
-        if self._stack and self._stack[-1][0] == tag:
-            self._stack.pop()
+        # Stack-scan pop: find the innermost open entry with this tag name and
+        # pop THROUGH it, discarding any unclosed tags opened above it. This
+        # keeps two failure modes closed at once:
+        # - a stray closer inside a noise region cannot pop a real opener it
+        #   does not belong to (it pops nothing when absent from the stack);
+        # - an unclosed tag inside a noise region (e.g. <span> never closed)
+        #   cannot block the noise region's own closer forever, which used to
+        #   swallow the entire remaining page body (shell fingerprints).
+        for index in range(len(self._stack) - 1, -1, -1):
+            if self._stack[index][0] == tag:
+                del self._stack[index:]
+                return
+        # Not on the stack: stray closer, ignore entirely.
 
     def handle_data(self, data: str) -> None:
         if not self._in_noise() and data.strip():
@@ -118,16 +129,26 @@ def load_json(path: Path) -> dict[str, Any]:
 
 
 def load_fact_annotations(facts_path: Path) -> dict[str, dict[str, str]]:
-    """Map fact id -> {verified, source, digest}; facts without full annotations are unverified."""
+    """Map fact id -> {verified, source, digest, text}; facts without full annotations are unverified."""
     annotations: dict[str, dict[str, str]] = {}
     if not facts_path.is_file():
         return annotations
     for match in FACT_ANNOTATION.finditer(facts_path.read_text(encoding="utf-8")):
-        annotations[match.group("id")] = {
-            "verified": match.group("verified"),
-            "source": match.group("source"),
-            "digest": match.group("digest"),
-        }
+        if match.group("id"):
+            annotations[match.group("id")] = {
+                "verified": match.group("verified"),
+                "source": match.group("source"),
+                "digest": match.group("digest"),
+                "text": (match.group("fact_text") or "").strip(),
+            }
+        else:
+            # annotation without a preceding 事实: line (legacy layout) — text unknown
+            annotations[match.group("id2")] = {
+                "verified": match.group("verified2"),
+                "source": match.group("source2"),
+                "digest": match.group("digest2"),
+                "text": "",
+            }
     return annotations
 
 
@@ -379,24 +400,27 @@ def check_rule(
 def _draft_proposed_fact_updates(
     rule_result: dict[str, Any], annotations: dict[str, dict[str, str]], all_results: list[dict[str, Any]]
 ) -> dict[str, dict[str, str]]:
-    """Draft the fact-text updates this proposal would apply, per fact id.
+    """Draft per-fact updates with a strict structure for gate 2 binding.
 
-    The draft is mechanical: for each fact linked to the rule (same source
-    URL), the new text is composed from the extracted statements. It is the
-    concrete object gate 5 audits ("does the proposal write anything beyond
-    what was extracted?") and the starting point for the author's manual
-    review — never a final fact statement.
+    Each entry carries exactly fact_id / current_text / proposed_text /
+    source_digest so the reviewer can verify: the fact exists, its current
+    text matches facts.md, the proposed text stays within the extraction,
+    and the digest matches the drift report. A free-form dict here is what
+    let tampered proposals through gate 2 (audit finding).
     """
     url = rule_result["url"]
     linked = sorted(fid for fid, meta in annotations.items() if meta["source"] == url)
     extracted = rule_result.get("extracted_statements", {})
+    extraction_render = "; ".join(
+        f"{point}: {extracted[point]}" for point in sorted(extracted)
+    ) or "NOT_STATED-ALL-POINTS"
     draft: dict[str, dict[str, str]] = {}
     for fid in linked:
         draft[fid] = {
-            "source_digest_new": rule_result.get("fingerprint", ""),
-            "extracted": "; ".join(
-                f"{point}: {extracted[point]}" for point in sorted(extracted)
-            ) or "NOT_STATED-ALL-POINTS",
+            "fact_id": fid,
+            "current_text": annotations[fid].get("text", ""),
+            "proposed_text": extraction_render,
+            "source_digest": rule_result.get("fingerprint", ""),
         }
     return draft
 

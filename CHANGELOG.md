@@ -2,6 +2,27 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.6 - 2026-08-31
+
+### Fixed（codex 五次复核批：3 P1 + 4 P2 + 1 P3 全部修复）
+
+- **P1 gate2 契约绑定不完整（提案可篡改通过）**：原 gate2 只比 state+fingerprint。codex 探针（FAKE_POINT 替换核对点 + 捏造 unknown-fact）实测穿透。修复：完整契约六维绑定——requested_verify_points == rule-map 的 verify_points；extracted_statements 与漂移报告逐字一致；proposed_fact_updates 键集 == 该规则关联事实集（unknown-fact 拒绝）；更新结构严格为 fact_id/current_text/proposed_text/source_digest 四元组；current_text == facts.md 记录的事实原文（load_fact_annotations 现抽取「- 事实：」行文本）；source_digest == fingerprint == 报告指纹。篡改探针回归锁定（DO_NOT_APPLY + 三类问题码）。
+- **P1 核验门禁不能识别"本轮已核验"**：原实现读 facts.md 日期，major 即使当天核验仍报 required。修复（方案 a）：核验证据绑定 CHANGELOG——本发布周期条目内的「alipay/douyin facts 人工核验于 YYYY-MM-DD (tag: vX.Y.Z)」满足要求，仅有历史日期不满足；`changelog_verification_evidence` 按 since_tag 裁剪读取。另一缺陷同修：`classify_commit` 改为返回完整分类集合（`classify_commit_classes`），scripts+facts 混合提交不再丢 data 触发（codex 探针实测）。
+- **P1 运维文档反向指导**：16 号教程加废弃声明（自动合并路径已永久移除、`--no-shadow` 不存在，旧章节仅作历史背景）；15 号状态行更新至 v3.1.5 语义（人工裁决词表）。
+- **P2 抖音核验记录事实错配**：官方隐私保护标准实为 **28 条**（此前误记 12 条系抓取截断，浏览器重数修正）；privacy-protection 从误挂审核标准页改指专门的「配置隐私协议」页（控制台路径、三种授权方式、未配置限制接口调用），verify_points 同步更新，verified=2026-08-31。
+- **P2 release tag 多行绕过**：grep 逐行匹配被 `v1.2.3\nINJECTED=1` 穿透（实测）。改 bash `[[ =~ ]]` 整体变量匹配 + 显式拒 CR/LF；测试改为真实 subprocess bash 管道（十种注入形状含多行全部拒收）。
+- **P2 提取器错位嵌套吞正文**：codex 探针（噪声区未闭合 `<span>` 导致外层永不弹出、全文被吞）实测复现。改栈扫描弹出：闭合标签在栈内查找并弹到该位置（丢弃其上未闭合项），未闭合不再阻断外层闭合；全套既有探针（杂散闭合/同标签嵌套/深嵌套/void/变化敏感）回归通过。
+- **P2 文档状态矛盾**：platforms/README「verified=unknown 种子占位」过时表述更新为已核验；14 号当前版本行、18 号报告结论速览重写为 v3.1.5 终态。
+- **P3**：HTTP 测试补 `server_close()`。
+
+### 平台核验（二次）
+
+- **douyin facts 人工核验于 2026-08-31 (tag: v3.1.6)**：隐私配置改指专门文档页并核验（更新时间 2026-08-28）；发布审核要求确认位于版本审核标准页（隐私标准 28 条）。
+
+### 验证
+
+- 161 测试全绿（+5 回归：篡改提案三问题码/合法提案通过/混合提交保 data 类/本轮 CHANGELOG 证据满足 major·缺证据拒绝/未闭合 span 正文可感知）；validate 113 文件；扫描 0 命中；i18n 6/6；导出复验 113 文件；注入防护测试含真实 bash 多行探针。
+
 ## 3.1.5 - 2026-08-30
 
 ### Fixed（codex 三次复核批：4 项 P1 残留 + 6 项 P2 残留全部修复，含一项根因再深挖）

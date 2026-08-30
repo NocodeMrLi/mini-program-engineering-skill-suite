@@ -139,8 +139,19 @@ def check_scope_red_lines(proposal: dict[str, Any]) -> list[str]:
     return problems
 
 
-def check_reproducibility(proposal: dict[str, Any], drift_report: Path | None) -> list[str]:
-    """Gate 2: the drift report must independently contain the same changes."""
+def check_reproducibility(proposal: dict[str, Any], drift_report: Path | None, platform_root: Path | None = None) -> list[str]:
+    """Gate 2: bind the proposal to the drift report and facts.md across the full contract.
+
+    Previously only state+fingerprint were compared, so a tampered proposal
+    (substituted verify points, invented fact ids, rewritten statements)
+    sailed through (codex probe). Now every dimension is bound:
+    - requested verify points == rule-map's verify_points (order-insensitive)
+    - extracted_statements == drift report's extracted_statements verbatim
+    - proposed_fact_updates keys == facts linked to the rule (no unknown facts)
+    - each update has exactly fact_id/current_text/proposed_text/source_digest
+    - current_text == the recorded fact text from facts.md
+    - source_digest == fingerprint == drift report fingerprint
+    """
     if drift_report is None:
         return ["gate2:drift-report-not-supplied"]
     try:
@@ -149,17 +160,60 @@ def check_reproducibility(proposal: dict[str, Any], drift_report: Path | None) -
         return ["gate2:drift-report-unreadable"]
     if report.get("platform") != proposal.get("platform"):
         return ["gate2:platform-mismatch"]
-    results = {item["rule_id"]: item for item in report.get("results", [])}
+
+    rule_map: dict[str, Any] = {}
+    annotations: dict[str, dict[str, str]] = {}
+    if platform_root is not None:
+        try:
+            rule_map = json.loads((platform_root / "rule-map.json").read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            return ["gate2:rule-map-unreadable"]
+        sys.path.insert(0, str(platform_root))
+        from platform_drift import load_fact_annotations  # noqa: PLC0415
+
+        annotations = load_fact_annotations(platform_root / "facts.md")
+
+    rules_by_id = {rule.get("id"): rule for rule in rule_map.get("rules", [])}
+    results = {item.get("rule_id"): item for item in report.get("results", [])}
     problems: list[str] = []
     for change in proposal["changes"]:
-        result = results.get(change.get("rule_id"))
+        rid = change.get("rule_id")
+        result = results.get(rid)
         if not result:
-            problems.append(f"gate2:change-not-in-drift-report:{change.get('rule_id')}")
+            problems.append(f"gate2:change-not-in-drift-report:{rid}")
             continue
         if result.get("state") != change.get("state"):
-            problems.append(f"gate2:state-mismatch:{change.get('rule_id')}")
+            problems.append(f"gate2:state-mismatch:{rid}")
         if result.get("fingerprint") != change.get("fingerprint"):
-            problems.append(f"gate2:fingerprint-mismatch:{change.get('rule_id')}")
+            problems.append(f"gate2:fingerprint-mismatch:{rid}")
+        # 1. verify-point set must equal the rule-map's own list
+        if rules_by_id:
+            expected_points = set(rules_by_id.get(rid, {}).get("verify_points", []))
+            requested = set(change.get("requested_verify_points", []))
+            if requested != expected_points:
+                problems.append(f"gate2:verify-points-not-bound-to-rule-map:{rid}")
+        # 2. statements must equal the drift report's verbatim
+        if (result.get("extracted_statements") or {}) != (change.get("extracted_statements") or {}):
+            problems.append(f"gate2:extracted-statements-diverge-from-report:{rid}")
+        # 3-6. fact-update structure and bindings
+        updates = change.get("proposed_fact_updates") or {}
+        if not updates:
+            problems.append(f"gate2:no-fact-updates:{rid}")
+        url = change.get("official_url", "")
+        linked = {fid for fid, meta in annotations.items() if meta["source"] == url}
+        if set(updates) != linked:
+            problems.append(f"gate2:fact-id-set-diverges-from-facts:{rid}")
+        for fid, update in updates.items():
+            if not isinstance(update, dict) or set(update) != {"fact_id", "current_text", "proposed_text", "source_digest"}:
+                problems.append(f"gate2:update-structure-invalid:{rid}:{fid}")
+                continue
+            if update["fact_id"] != fid:
+                problems.append(f"gate2:update-fact-id-mismatch:{rid}:{fid}")
+            recorded_text = annotations.get(fid, {}).get("text")
+            if recorded_text is not None and update["current_text"] != recorded_text:
+                problems.append(f"gate2:current-text-mismatch:{rid}:{fid}")
+            if update["source_digest"] != change.get("fingerprint"):
+                problems.append(f"gate2:update-digest-mismatch:{rid}:{fid}")
     return problems
 
 
@@ -263,7 +317,7 @@ def review(
         }
 
     problems += check_evidence_authenticity(proposal, platform_root)
-    problems += check_reproducibility(proposal, drift_report)
+    problems += check_reproducibility(proposal, drift_report, platform_root)
     problems += check_change_safety(proposal)
     problems += check_scope_red_lines(proposal)
 

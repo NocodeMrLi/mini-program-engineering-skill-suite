@@ -44,27 +44,54 @@ class WorkflowInjectionTests(unittest.TestCase):
                 )
 
     def test_release_tag_is_strictly_validated(self) -> None:
-        """The release tag must pass a strict vMAJOR.MINOR.PATCH regex before use."""
+        """The release tag must use whole-variable bash matching, not line grep."""
         text = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
         self.assertIn("RAW_TAG_INPUT", text)
-        self.assertRegex(text, r"\^v\[0-9\]\+\\\.\[0-9\]\+\\\.\[0-9\]\+\$")
+        self.assertIn('[[ ! "$release_tag" =~ ^v[0-9]+', text)
+        # the line-grep form is what let multi-line tags through; keep it out
+        # of the VALIDATION step itself (mentions in comments are fine).
+        step_start = text.index("Resolve release tag")
+        step_block = text[step_start:text.index("Run release gates")]
+        self.assertNotIn("grep -Eq", step_block)
+        # explicit CR/LF refusal before the regex gate
+        self.assertIn("$'\\n'*", step_block)
+        self.assertIn("$'\\r'*", step_block)
 
     def test_strict_tag_regex_rejects_injection_shapes(self) -> None:
-        """The exact regex used in release.yml rejects every injection probe."""
-        pattern = re.compile(r"^v[0-9]+\.[0-9]+\.[0-9]+$")
+        """The exact validation used in release.yml rejects every injection probe."""
+        import subprocess
+
+        # Run the REAL shell validation (not a Python re-implementation):
+        # grep-based versions passed multi-line inputs that bash [[ =~ ]] rejects.
+        script = r'''
+set -euo pipefail
+release_tag="$1"
+if [[ "$release_tag" == *$'\n'* || "$release_tag" == *$'\r'* ]]; then exit 1; fi
+if [[ ! "$release_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then exit 1; fi
+exit 0
+'''
+        def shell_accepts(tag: str) -> bool:
+            result = subprocess.run(
+                ["bash", "-c", script, "--", tag],
+                capture_output=True, text=True,
+            )
+            return result.returncode == 0
+
         rejected = [
+            'v1.2.3\nINJECTED=1',  # the multi-line probe that beat grep
+            "v1.2.3\rINJECTED",
             'v"; printf "INJECTED"; #',
             "v$(echo INJECTED > /tmp/x)",
             "v1.2.3; rm -rf /",
             "v1.2.3 && curl evil",
-            "v1.2.3\nUSES-newline",
             "  v1.2.3",
             "v1.2.3-beta",
             "1.2.3",
+            "",
         ]
         for probe in rejected:
-            self.assertIsNone(pattern.match(probe), f"probe accepted: {probe!r}")
-        self.assertIsNotNone(pattern.match("v3.1.5"))
+            self.assertFalse(shell_accepts(probe), f"shell accepted probe: {probe!r}")
+        self.assertTrue(shell_accepts("v3.1.6"))
 
 
 if __name__ == "__main__":

@@ -44,13 +44,18 @@ jobs:
         run: |
           set -euo pipefail
           release_tag="$RAW_TAG_INPUT"
-          # Strict format gate: v + digits.digits.digits ONLY. Anything else
-          # (quotes, $(), semicolons, spaces, suffixes) exits before first use.
-          if ! printf '%s' "$release_tag" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+          # Strict whole-variable match. [[ =~ ]] anchors to the ENTIRE string,
+          # so multi-line inputs (v1.2.3 + newline + INJECTED=1) that slip past
+          # line-oriented matching are rejected; CR/LF refused explicitly.
+          if [[ "$release_tag" == *$'\n'* || "$release_tag" == *$'\r'* ]]; then
+            echo "Release tag must be a single line; input rejected" >&2
+            exit 1
+          fi
+          if [[ ! "$release_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Release tag must match v<major>.<minor>.<patch>; input rejected" >&2
             exit 1
           fi
-          echo "tag=$release_tag" >> "$GITHUB_OUTPUT"
+          printf 'tag=%s\n' "$release_tag" >> "$GITHUB_OUTPUT"
 
       - name: Run release gates
         run: |

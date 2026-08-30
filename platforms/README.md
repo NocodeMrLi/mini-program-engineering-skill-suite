@@ -31,13 +31,13 @@
 
 ## manual-only 平台的人工核验节奏
 
-支付宝与抖音的 facts 目前 `verified=unknown`（种子占位）。为避免「知道要人工查、但版本记录看不出查没查」，按发布级别分级约定：
+支付宝与抖音的 facts 已完成首次人工核验（alipay 2026-08-30、douyin 2026-08-30/31 二次修正，详见各 facts.md 与 CHANGELOG）。为避免「知道要人工查、但版本记录看不出查没查」，按发布级别分级约定：
 
 - **major 发布**：manual-only 平台（alipay/douyin）每条 rule 必须重新人工核验后才可发布。
 - **minor 发布**：距上次核验超过 90 天，或本版本涉及平台事实/发布治理变更时核验。
 - **patch 发布**：仅当修改了相关事实、出现用户上报漂移、或平台发生高风险变化时核验。
 - **到期未核验**：`release_recommendation.py` 输出 `MANUAL_VERIFICATION_REQUIRED`，发布建议不得静默通过。
-- **记录方式**：核验后把该条事实的 `verified` 更新为当日 UTC 日期（digest 保持 `unknown`，因 SPA 无法实算），并在 CHANGELOG 的该版本条目加一句「alipay/douyin facts 人工核验于 YYYY-MM-DD」。
+- **记录方式**：核验后把该条事实的 `verified` 更新为当日 UTC 日期（digest 保持 `unknown`，因 SPA 无法实算），并在 CHANGELOG 的该版本条目加一句「alipay/douyin facts 人工核验于 YYYY-MM-DD (tag: vX.Y.Z)」——`release_recommendation.py` 只认**本发布周期**内记录的核验证据（读取本版 CHANGELOG 块），仅有历史日期不满足 major/涉事实发布的要求。
 - **发现变化时**：走与微信相同的受控修订流程（提案→审计→合并），只是触发源是人工而非指纹比对。
 
 ## 漂移处理路径
