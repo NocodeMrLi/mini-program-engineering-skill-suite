@@ -10,4 +10,5 @@ tmp/
 dist/
 build/
 node_modules/
-assets/
+assets/readme-cover-*draft*.svg
+assets/*-v[0-9].svg
