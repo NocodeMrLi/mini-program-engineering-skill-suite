@@ -104,6 +104,45 @@ RULES: tuple[Rule, ...] = (
         re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
         "Private key material",
     ),
+    # --- Generic credential shapes (audit P2-04): the suite-specific rules
+    # above never covered GitHub/AWS/GCP/npm/PyPI/Slack tokens, so the scan
+    # layer was single-vendor. These run alongside GitHub's own secret
+    # scanning + push protection (repo settings) for a two-layer defense.
+    Rule(
+        "github-token",
+        re.compile(r"\b(?:gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,})\b"),
+        "Possible GitHub token",
+    ),
+    Rule(
+        "aws-access-key",
+        re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b"),
+        "Possible AWS access key ID",
+    ),
+    Rule(
+        "google-api-key",
+        re.compile(r"\bAIza[0-9A-Za-z_-]{33,38}\b"),
+        "Possible Google API key",
+    ),
+    Rule(
+        "npm-token",
+        re.compile(r"\bnpm_[A-Za-z0-9]{36}\b"),
+        "Possible npm access token",
+    ),
+    Rule(
+        "pypi-token",
+        re.compile(r"\bpypi-[A-Za-z0-9_-]{20,}\b"),
+        "Possible PyPI API token",
+    ),
+    Rule(
+        "slack-token",
+        re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b"),
+        "Possible Slack token",
+    ),
+    Rule(
+        "tencent-secret-id",
+        re.compile(r"\bAKID[A-Za-z0-9]{32,38}\b"),
+        "Possible Tencent Cloud secret ID",
+    ),
 )
 
 

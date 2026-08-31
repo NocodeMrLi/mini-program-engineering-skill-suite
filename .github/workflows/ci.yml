@@ -12,21 +12,31 @@ permissions:
 
 jobs:
   verify:
-    name: Verify public skill suite
+    name: Verify public skill suite (${{ matrix.python-version }})
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      # Python 3.9 is the declared compatibility floor (SKILL.md frontmatter,
+      # COMPATIBILITY.md); without it in the matrix the promise regresses
+      # silently (audit P2-03). Removing 3.9 requires a formal compatibility
+      # change, not a matrix edit.
+      matrix:
+        python-version: ["3.9", "3.11", "3.13"]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
 
-      - name: Run unit tests
-        run: python3 -m unittest discover -s tests -q
+      - name: Run unit tests (ResourceWarning-strict)
+        # -W error::ResourceWarning turns leaked file handles into failures, the
+        # same strictness the local verification uses (audit P2-03).
+        run: python3 -W error::ResourceWarning -m unittest discover -s tests -q
 
       - name: Validate suite structure
         run: python3 scripts/validate_suite.py .
@@ -42,3 +52,269 @@ jobs:
           export_dir="$(mktemp -d)"
           python3 scripts/export_public_package.py . --output "$export_dir/package"
           python3 "$export_dir/package/scripts/verify_public_package.py" "$export_dir/package"
+
+  hygiene:
+    name: Shell and YAML hygiene
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Shell syntax (bash -n) on every .sh file
+        run: |
+          set -euo pipefail
+          status=0
+          while IFS= read -r -d '' script; do
+            bash -n "$script" || status=1
+          done < <(find . -name '*.sh' -not -path './.git/*' -print0)
+          exit "$status"
+
+      - name: Install pinned YAML parser
+        run: python3 -m pip install --disable-pip-version-check 'PyYAML==6.0.2'
+
+      - name: Parse every YAML file
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import sys
+          from pathlib import Path
+          try:
+              import yaml
+          except ImportError:
+              print("PyYAML dependency is missing", file=sys.stderr)
+              sys.exit(2)
+          failures = []
+          for path in sorted(Path(".").rglob("*.y*ml")):
+              if ".git" in path.parts:
+                  continue
+              try:
+                  with path.open(encoding="utf-8") as handle:
+                      yaml.safe_load(handle)
+              except Exception as exc:  # noqa: BLE001
+                  failures.append(f"{path}: {exc}")
+          for line in failures:
+              print(line, file=sys.stderr)
+          sys.exit(1 if failures else 0)
+          PY
+
+  secret-scan-negative-probe:
+    name: Sensitive-scan negative probe (fake credentials must be caught)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Fake credentials must trip the scanner (layer 1 of 2)
+        # Audit P2-04: the scanner must catch generic (GitHub/AWS/npm) AND
+        # WeChat-specific shapes. Every fixture below is a FAKE, assembled at
+        # RUN TIME from per-character prints so the literal token shapes never
+        # appear in any tracked file (the scanner scans this repo too, and it
+        # correctly flags committed credential-shaped text — including probes).
+        # Output shows rule ids and fingerprints only, never matched text.
+        run: |
+          set -euo pipefail
+          probe_dir="$(mktemp -d)"
+          probe="$probe_dir/probe.md"
+          {
+            printf 'fake github token: ghp_'; printf 'A%.0s' {1..36}; printf '\n'
+            printf 'fake aws key: AKIA'; printf 'A%.0s' {1..16}; printf '\n'
+            printf 'fake npm token: npm_'; printf 'a%.0s' {1..36}; printf '\n'
+            printf 'fake pypi token: pypi-'; printf 'b%.0s' {1..24}; printf '\n'
+            printf 'fake slack token: xoxb-'; printf '1%.0s' {1..10}; printf 'c%.0s' {1..16}; printf '\n'
+            printf 'fake tencent id: AKID'; printf 'd%.0s' {1..34}; printf '\n'
+            printf 'fake google key: AIza'; printf 'e%.0s' {1..35}; printf '\n'
+            printf 'fake wechat appid: wx'; printf 'a%.0s' {1..16}; printf '\n'
+          } > "$probe"
+          set +e
+          python3 scripts/scan_sensitive_content.py "$probe" --format json > "$probe_dir/report.json"
+          rc=$?
+          set -e
+          python3 - "$rc" "$probe_dir/report.json" <<'PY'
+          import json
+          import sys
+
+          rc = int(sys.argv[1])
+          report = json.load(open(sys.argv[2]))
+          rules = {finding["rule_id"] for finding in report["findings"]}
+          needed = {
+              "github-token", "aws-access-key", "npm-token", "pypi-token",
+              "slack-token", "tencent-secret-id", "google-api-key", "wechat-appid",
+          }
+          missing = needed - rules
+          if rc == 0:
+              print("FAIL: fake credentials were NOT detected", file=sys.stderr)
+              sys.exit(1)
+          if missing:
+              print(f"FAIL: scanner missed rule ids: {sorted(missing)}", file=sys.stderr)
+              sys.exit(1)
+          print(f"probe OK: {len(rules)} rule ids tripped ({sorted(rules)})")
+          PY
+          rm -rf "$probe_dir"
+
+  installer:
+    name: Installer probe (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install success path leaves no temp residue
+        # Audit P2-01/P2-03: an isolated TMPDIR proves the single cleanup trap
+        # removes the export work tree and transaction log on BOTH success and
+        # failure, on both OSes.
+        run: |
+          set -euo pipefail
+          probe_root="$(mktemp -d)"
+          export TMPDIR="$probe_root/tmp"
+          home_dir="$probe_root"
+          mkdir -p "$TMPDIR" "$home_dir/.agents/skills"
+          bash install.sh --target agents --home "$home_dir"
+          file_count="$(find "$home_dir/.agents/skills/mini-program-engineering-suite" -type f | wc -l | tr -d ' ')"
+          residue="$(find "$TMPDIR" -mindepth 1 | wc -l | tr -d ' ')"
+          echo "installed files: $file_count; TMPDIR residue entries: $residue"
+          if [ "$residue" -ne 0 ]; then
+            echo "FAIL: installer leaked temp files under \$TMPDIR" >&2
+            find "$TMPDIR" -mindepth 1 >&2
+            exit 1
+          fi
+          if [ "$file_count" -lt 100 ]; then
+            echo "FAIL: expected a full install (>100 files), got $file_count" >&2
+            exit 1
+          fi
+
+      - name: Install conflict path (pre-flight) rolls back cleanly
+        run: |
+          set -euo pipefail
+          probe_root="$(mktemp -d)"
+          export TMPDIR="$probe_root/tmp"
+          home_dir="$probe_root"
+          dest="$home_dir/.agents/skills/mini-program-engineering-suite"
+          mkdir -p "$TMPDIR" "$dest"
+          touch "$dest/existing.txt"
+          set +e
+          bash install.sh --target agents --home "$home_dir"
+          rc=$?
+          set -e
+          residue="$(find "$TMPDIR" -mindepth 1 | wc -l | tr -d ' ')"
+          if [ "$rc" -eq 0 ]; then
+            echo "FAIL: conflicting destination must fail without --force" >&2
+            exit 1
+          fi
+          if [ "$residue" -ne 0 ]; then
+            echo "FAIL: failed install leaked temp files" >&2
+            exit 1
+          fi
+          if [ ! -f "$dest/existing.txt" ]; then
+            echo "FAIL: pre-flight must not touch the existing destination" >&2
+            exit 1
+          fi
+          echo "conflict path OK: rc=$rc, no residue, destination untouched"
+
+  coverage:
+    name: Coverage floor (statements >= 85%, gate modules branches >= 90%)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Install coverage.py
+        run: python3 -m pip install --disable-pip-version-check 'coverage==7.10.7'
+
+      - name: Measure and enforce coverage floors
+        # Audit P3: trace the parent test process and all inherited Python
+        # subprocesses, then enforce a repository-wide statement floor plus
+        # stricter branch floors for release-critical gate modules.
+        run: |
+          set -euo pipefail
+          coverage_root="$(mktemp -d)"
+          cat > "$coverage_root/.coveragerc" <<'RC'
+          [run]
+          branch = True
+          source = scripts
+          parallel = True
+          relative_files = True
+          sigterm = True
+
+          [report]
+          show_missing = True
+          RC
+          site_dir="$(python3 -c 'import site; print(site.getsitepackages()[0])')"
+          printf 'import coverage; coverage.process_startup()\n' > "$site_dir/coverage_auto.pth"
+          export COVERAGE_PROCESS_START="$coverage_root/.coveragerc"
+          export COVERAGE_FILE="$coverage_root/.coverage"
+          # coverage.process_startup() traces this process and every inherited
+          # Python subprocess. Running through `coverage run` here would start
+          # nested collectors and discard the parent process data.
+          python3 -m unittest discover -s tests -q
+          # Stop auto-start before invoking coverage's own reporting CLI;
+          # otherwise the reporting process overwrites the just-combined data.
+          unset COVERAGE_PROCESS_START
+          python3 -m coverage combine "$coverage_root" >/dev/null
+          python3 -m coverage json --rcfile="$coverage_root/.coveragerc" --data-file="$coverage_root/.coverage" -o coverage.json >/dev/null
+          python3 - <<'PY'
+          import json
+          import sys
+
+          data = json.load(open("coverage.json"))
+          summary = data["totals"]
+          # The contract is an all-script STATEMENT floor; branch quality for
+          # the four release-critical modules is enforced independently below.
+          stmt_pct = summary["percent_statements_covered_display"]
+          failures = []
+          if float(stmt_pct) < 85.0:
+              failures.append(f"repo statement coverage {stmt_pct}% < 85%")
+          branch_floor = {
+              "scripts/release_recommendation.py": 90.0,
+              "scripts/evaluation_gate.py": 90.0,
+              "scripts/scan_sensitive_content.py": 90.0,
+              "scripts/verify_public_package.py": 90.0,
+          }
+          for module, floor in branch_floor.items():
+              entry = data["files"].get(module)
+              if entry is None:
+                  failures.append(f"{module}: not measured")
+                  continue
+              branches = entry["summary"].get("num_branches")
+              if branches is None:
+                  continue
+              covered = entry["summary"].get("covered_branches", 0)
+              pct = 100.0 * covered / branches if branches else 100.0
+              if pct < floor:
+                  failures.append(f"{module}: branch coverage {pct:.1f}% < {floor}%")
+          for line in failures:
+              print(f"COVERAGE FAIL: {line}", file=sys.stderr)
+          print(f"repo statement coverage: {stmt_pct}%")
+          sys.exit(1 if failures else 0)
+          PY

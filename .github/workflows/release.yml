@@ -102,11 +102,37 @@ jobs:
           python3 "$export_dir/$package_name/scripts/verify_public_package.py" "$export_dir/$package_name"
           cp /tmp/gate-summary.json "$dist_dir/gate-summary.json"
           cp "$export_dir/$package_name/package-manifest.json" "$dist_dir/package-manifest.json"
-          tar -C "$export_dir" -czf "$dist_dir/$package_name.tar.gz" "$package_name"
+          # Reproducible archive (audit P1-03): fixed mtime/owner/permissions and
+          # gzip -n (no timestamp) so two clean builds of one commit hash equal.
+          # tar's --sort=name makes member order filesystem-independent.
+          tar -C "$export_dir" \
+            --sort=name \
+            --mtime="@0" \
+            --owner=0 --group=0 --numeric-owner \
+            --mode='u+rwX,go+rX,go-w' \
+            -cf - "$package_name" \
+            | gzip -n -9 > "$dist_dir/$package_name.tar.gz"
           cd "$dist_dir"
-          sha256sum "$package_name.tar.gz" package-manifest.json > SHA256SUMS
+          # The gate summary is formal governance evidence: it must be covered
+          # by SHA256SUMS like the archive and manifest (audit P1-03).
+          sha256sum "$package_name.tar.gz" package-manifest.json gate-summary.json > SHA256SUMS
 
-      - name: Create or update GitHub Release
+      - name: Verify release is not already published (immutable releases)
+        # Audit P1-03: a same-tag re-release used to replace assets. Releases
+        # must be immutable — a second publish of one tag fails BEFORE upload.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESOLVED_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          tag="$RESOLVED_TAG"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; releases are immutable and cannot be overwritten." >&2
+            echo "Bump VERSION and cut a new tag instead of republishing." >&2
+            exit 1
+          fi
+          echo "No existing release for $tag; proceeding."
+
+      - name: Create draft, attach all assets, then publish immutable release
         env:
           GH_TOKEN: ${{ github.token }}
           RESOLVED_TAG: ${{ steps.release.outputs.tag }}
@@ -117,6 +143,8 @@ jobs:
           # the gates step in this same run) — never typed from memory.
           gate_tests="$(python3 -c 'import json; print(json.load(open("dist/gate-summary.json"))["tests_passed"])')"
           gate_files="$(python3 -c 'import json; print(json.load(open("dist/gate-summary.json"))["validate_checked_files"])')"
+          gate_semver="$(python3 -c 'import json; d=json.load(open("dist/gate-summary.json")); print(f"{d.get(\"semver_bump\")}/{d.get(\"required_level\")}")')"
+          gate_eval="$(python3 -c 'import json; d=json.load(open("dist/gate-summary.json")).get("evaluation_gate") or {}; print(f"{d.get(\"verdict\")}:{d.get(\"mode\")}")')"
           {
             echo "Verified public package for $tag."
             echo
@@ -124,6 +152,8 @@ jobs:
             echo "- tests passed: $gate_tests"
             echo "- validated public files: $gate_files"
             echo "- sensitive-scan findings: 0"
+            echo "- semver bump / required level: $gate_semver"
+            echo "- evaluation gate: $gate_eval"
             echo
             echo "Assets:"
             echo "- mini-program-engineering-suite-$tag.tar.gz"
@@ -137,8 +167,24 @@ jobs:
             echo "python3 mini-program-engineering-suite-$tag/scripts/verify_public_package.py mini-program-engineering-suite-$tag"
             echo '```'
           } > "$notes_file"
-          if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" dist/* --clobber
-          else
-            gh release create "$tag" dist/* --title "$tag" --notes-file "$notes_file"
+          # Immutable release best practice: all assets are attached while the
+          # release is a draft; publication locks both tag and assets. There is
+          # no upload/update/clobber path for an already published release.
+          gh release create "$tag" dist/* --draft --title "$tag" --notes-file "$notes_file"
+          gh release edit "$tag" --draft=false
+
+      - name: Verify repository and published release are immutable
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESOLVED_TAG: ${{ steps.release.outputs.tag }}
+        run: |
+          set -euo pipefail
+          repository_state="$(gh api -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/$GITHUB_REPOSITORY/immutable-releases" --jq '.enabled')"
+          release_state="$(gh api -H 'X-GitHub-Api-Version: 2026-03-10' \
+            "repos/$GITHUB_REPOSITORY/releases/tags/$RESOLVED_TAG" --jq '.immutable')"
+          if [ "$repository_state" != "true" ] || [ "$release_state" != "true" ]; then
+            echo "Immutable release verification failed: repository=$repository_state release=$release_state" >&2
+            exit 1
           fi
+          echo "Immutable release verified: $RESOLVED_TAG"

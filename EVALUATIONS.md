@@ -41,6 +41,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 版本 | 日期 | 摘要 | 说明 |
 | --- | --- | --- | --- |
+| 3.1.10 | 2026-09-01 | 签名评测证据链候选 | 本版不改九个子 Skill 行为正文与 `tests/evals/` 基架；复用 3.1.2 最近一份可定位的完整八阶段 PASS 私有产物。公开证明清单只保留各产物 SHA-256、审计元数据、来源 tag/commit 与候选双指纹，并由仓库专用 RSA 信任根签名；正式结论只以 v3.1.10 Release 的 `gate-summary.json`、`SHA256SUMS` 和 GitHub release attestation 回读为准。 |
 | 3.1.9 | 2026-08-31 | 工程修复门禁；正式工件以本 tag Release 为准 | codex 八/九次复核收口：完整历史 checkout、候选与无候选浅仓库 fail-closed、失败 summary 全量留证、fact/rule 契约回归、字符串路径兼容；九个子 Skill 行为正文与评测基架零变更，patch 版本不重复 tier2/tier3；184 单测、结构/扫描/i18n/foundation/公共包复验在打 tag 前执行，正式治理结论只回读 v3.1.9 Release 的 `gate-summary.json`。 |
 | 3.1.8 | 2026-08-31 | 发布物 PASS；治理基线 LIMITED（发布后勘误） | 173 单测、113 文件、0 findings 与四工件均为正式 Release 实测；临时 tag 缺核验证据时 workflow 确实阻断。但 Actions 默认浅克隆导致正式工件 `baseline_tag=null`，变更分类并未真实比较 v3.1.7→v3.1.8；失败 summary 也未保留第四门字段。两项已在当前未发布工作区修复并加回归，须由下一次 Release 工件验证后才能签署治理 PASS；本勘误不重写当时评测产物。 |
 | 3.1.7 | 2026-08-31 | 全部门禁 PASS（发布物）；治理门禁 LIMITED（见更正） | codex 六次复核批（3 P1+2 P2+1 P3 按建议顺序全修：facts/rule-map 强绑定交叉校验+微信规则 1:1 对齐/gate2 rule_id 唯一入口/证据按平台+候选 tag+日期对齐并接入 release gate 第四道门/畸形输入 fail-closed+异常兜底/15 号正文重写+历史章节/夹具模块化零警告）；九个子 Skill 文本与评测基架零变更，六项复用 3.1.6；**Release 工件实测 167 测试**（原记 161 系笔误）；alipay/douyin 双平台核验证据记录于本版条目；**codex 七次复核更正：第四道门在正式 Release 路径被 checkout-tag 场景绕过（P0），3.1.8 修复**；独立终审与签署：发布物 PASS / 治理链路待 3.1.8 复验 |

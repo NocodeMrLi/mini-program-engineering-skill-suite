@@ -16,7 +16,7 @@ from validate_suite import REQUIRED_FILES, validate
 from verify_public_package import verify_package
 
 
-EXCLUDED_PARTS = {".git", ".planning", "tests", "__pycache__", ".pytest_cache"}
+EXCLUDED_PARTS = {".git", ".planning", "tests", "__pycache__", ".pytest_cache", "release-evidence"}
 IGNORED_NAMES = {".DS_Store", ".gitignore", "_codex_patch_probe.txt"}
 # The 2000x849 file is the tracked design source for the shipped cover; it is a
 # repo asset but never package content. Exact relative paths only — a prefix or

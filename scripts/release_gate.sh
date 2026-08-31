@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Release gate runner: unittest + validate + sensitive scan + manual-verification
-# gate -> gate-summary.json. Extracted from .github/workflows/release.yml so the
-# gating logic is testable (tests/test_release_gate.py drives it with fixtures).
-# The workflow calls this script; behavior must stay identical.
+# + evaluation + semver-consistency gates -> gate-summary.json. Extracted from
+# .github/workflows/release.yml so the gating logic is testable
+# (tests/test_release_gate.py drives it with fixtures). The workflow calls this
+# script; behavior must stay identical.
 #
-# Failure-path contract (four distinct shapes, never conflated):
+# Failure-path contract (six distinct shapes, never conflated):
 #   1. GATE FAILURE  - validate/scan emit valid JSON and report failure
 #                      (valid=false or finding_count>0). The summary IS written
 #                      (it is the evidence of which gate blocked the release).
@@ -14,6 +15,13 @@
 #   4. MANUAL VERIFICATION - release_recommendation returns
 #                      MANUAL_VERIFICATION_REQUIRED (or crashes / reports an
 #                      error): blocked. The recommender is a GATE, not advice.
+#   5. EVALUATION    - evaluation_gate.py (P1-01) fails closed: missing/stale
+#                      artifacts, FAIL verdicts, or hash-mismatched reuse all
+#                      block the release. Fresh evidence required for
+#                      minor/major; verifiable reuse allowed for patch only.
+#   6. SEMVER        - the recommender's required_level must equal the tag's
+#                      real increment over the baseline (P1-02); lower, equal,
+#                      or non-semver candidate tags block.
 #
 # Usage: release_gate.sh <repo-root> <log-file-path> <summary-output-path> [candidate-tag]
 # Exit codes: 0 = all gates pass; 1 = gate failure/blocked; 2 = usage error.
@@ -23,6 +31,11 @@ root="${1:-.}"
 log_path="${2:-/tmp/unittest.log}"
 summary_path="${3:-/tmp/gate-summary.json}"
 candidate_tag="${4:-}"
+
+if [ -n "$candidate_tag" ] && [[ ! "$candidate_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "candidate tag must match v<major>.<minor>.<patch>; release blocked" >&2
+  exit 2
+fi
 
 cd "$root" || exit 2
 
@@ -174,3 +187,96 @@ case "$recommend_verdict" in
   RECOMMEND_RELEASE|HOLD) ;;
   *) echo "unknown recommendation verdict '$recommend_verdict'; release blocked" >&2; exit 1 ;;
 esac
+
+# --- Gate 5+6: semver consistency and evaluation admission (P1-02/P1-01).
+# Both run ONLY on a real release path (candidate tag present). The semver
+# fields live in the recommender payload; the evaluation verdict comes from
+# scripts/evaluation_gate.py. Both write into the same summary BEFORE any
+# verdict exit so a blocked run keeps the complete evidence trail.
+if [ -n "$candidate_tag" ]; then
+  python3 - "$summary_path" "$recommend_json" "$candidate_tag" <<'SEMVERPY'
+import json
+import sys
+from datetime import datetime, timezone
+
+summary_path, recommend_json, candidate_tag = sys.argv[1:4]
+recommend = json.loads(recommend_json)
+with open(summary_path, encoding="utf-8") as handle:
+    summary = json.load(handle)
+
+required = recommend.get("required_level")
+bump = recommend.get("semver_bump")
+summary["semver_bump"] = bump
+summary["required_level"] = required
+problems = []
+if bump is None:
+    problems.append(
+        f"candidate tag {candidate_tag} is not a strict semver bump of baseline "
+        f"{recommend.get('baseline_tag')} (equal, lower, or non-semver)"
+    )
+elif required != bump:
+    problems.append(f"semver_bump {bump} != required_level {required}")
+summary["semver_problems"] = problems
+summary["gate5_generated_at_utc"] = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+with open(summary_path, "w", encoding="utf-8") as handle:
+    json.dump(summary, handle, ensure_ascii=False, indent=2, sort_keys=True)
+    handle.write("\n")
+if problems:
+    for problem in problems:
+        print(f"semver gate: {problem}; release blocked", file=sys.stderr)
+    sys.exit(1)
+SEMVERPY
+  semver_rc=$?
+  if [ "$semver_rc" -ne 0 ]; then
+    exit 1
+  fi
+
+  # Evaluation admission: evaluation-gate.json is a required release input
+  # (P1-01). Missing, stale, FAILing, or hash-mismatched reuse blocks. The
+  # The signed, redacted declaration is tracked under .github so a clean
+  # Actions checkout receives the same evidence as local verification. Raw
+  # per-case evaluation material remains outside the public package.
+  evaluation_gate_path=".github/release-evidence/${candidate_tag}.json"
+  set +e
+  evaluation_report="$(python3 scripts/evaluation_gate.py . \
+    --candidate-tag "$candidate_tag" \
+    --baseline-tag "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("baseline_tag") or "")' "$summary_path")" \
+    --required-level "$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("required_level") or "patch")' "$summary_path")" \
+    --evaluation-gate "$evaluation_gate_path" \
+    --trusted-public-key .github/release-evidence/trusted-signers.pem \
+    --output /tmp/evaluation-gate-verification.json)"
+  evaluation_rc=$?
+  set -e
+  # Persist whatever the verifier produced (even its failure IS evidence).
+  if [ -s /tmp/evaluation-gate-verification.json ]; then
+    python3 - "$summary_path" /tmp/evaluation-gate-verification.json <<'EVALPY'
+import json
+import sys
+from datetime import datetime, timezone
+
+summary_path, report_path = sys.argv[1:3]
+with open(report_path, encoding="utf-8") as handle:
+    evaluation = json.load(handle)
+with open(summary_path, encoding="utf-8") as handle:
+    summary = json.load(handle)
+summary["evaluation_gate"] = {
+    key: evaluation.get(key)
+    for key in (
+        "verdict", "mode", "candidate_tag", "baseline_tag", "required_level",
+        "executed_stages", "reused_stages", "reused_from", "reused_from_commit",
+        "candidate_commit", "skill_behavior_sha256", "evaluation_harness_sha256",
+        "engine", "model", "signer_key_id", "problems",
+    )
+}
+summary["gate6_generated_at_utc"] = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+with open(summary_path, "w", encoding="utf-8") as handle:
+    json.dump(summary, handle, ensure_ascii=False, indent=2, sort_keys=True)
+    handle.write("\n")
+EVALPY
+  fi
+  if [ "$evaluation_rc" -ne 0 ]; then
+    echo "evaluation gate failed; release blocked" >&2
+    printf '%s\n' "$evaluation_report" >&2
+    exit 1
+  fi
+fi

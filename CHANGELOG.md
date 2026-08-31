@@ -2,6 +2,22 @@
 
 本文件记录公共套件能力变化。版本标题表示套件已通过对应冻结门禁，不代表已经安装到任何全局目录或发布到外部平台。
 
+## 3.1.10 - 2026-09-01
+
+### Fixed（质检整改与正式放行链）
+
+- 评测门禁升级为 RSA/SHA-256 签名证明：声明严格绑定候选 tag、历史来源 tag/commit、八阶段 PASS 证明、行为指纹与评测基架指纹；缺字段、错 stage、错版本、错 commit、错指纹、签名篡改和无历史证明全部 fail-closed。
+- 修复根 `SKILL.md` 元数据豁免绕过：只有 frontmatter 的 `version` / `last_reviewed` 变化且正文逐字节不变时才允许复用。
+- Release 从干净 checkout 读取 `.github/release-evidence/v<version>.json`，不再依赖被 `.gitignore` 排除的本机 `.planning` 文件；私有逐案例产物继续不进入公共包。
+- SemVer 人工降级必须通过可信公钥验签，且签署人与候选提交作者不得相同；任意填写 `signed_by` 不再有效。
+- CI 安装固定版本 PyYAML；敏感扫描探针覆盖 GitHub/AWS/npm/PyPI/Slack/腾讯/Google/微信全部规则；覆盖率使用父进程与 Python 子进程合并采集，真实执行全仓语句 ≥85%、核心门禁模块分支 ≥90% 门槛。
+- Release 改为先创建草稿并附齐全部资产，再发布为不可变 Release；发布后 API 复核仓库和该 Release 的 immutable 状态。
+- 安装器临时目录、跨平台漂移报告、Python 3.9/3.11/3.13 矩阵与通用凭证扫描修复一并纳入本版正式验证。
+
+### Release boundary
+
+- 本版本不改变九个子 Skill 行为正文与评测基架，评测语义复用最近一份完整八阶段 PASS 证据；复用来源、私有产物摘要哈希和候选双指纹由签名证明清单绑定。
+
 ## 3.1.9 - 2026-08-31
 
 ### Fixed（codex 九次复核：浅仓库语义全路径收口）

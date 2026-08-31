@@ -177,11 +177,29 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 2
 fi
 
-WORK_DIR="$(mktemp -d)"
+# Single cleanup for the whole install (audit P2-01): the transaction log used
+# to register a SECOND EXIT trap that silently replaced this one, leaking the
+# 227-file working tree on success. One function cleans both, tolerates
+# unset variables, and runs on success, pre-flight failure, copy failure,
+# and INT/TERM. Destination backups are NEVER touched here: after a successful
+# install they are the user's rollback path, and after rollback_all() they
+# have already been restored.
+WORK_DIR=""
+TRANSACTION_LOG=""
 cleanup() {
-  rm -rf "$WORK_DIR"
+  local rc=$?
+  if [ -n "${TRANSACTION_LOG:-}" ]; then
+    rm -f "$TRANSACTION_LOG"
+  fi
+  if [ -n "${WORK_DIR:-}" ]; then
+    rm -rf "$WORK_DIR"
+  fi
+  exit "$rc"
 }
 trap cleanup EXIT
+trap 'cleanup' INT TERM
+
+WORK_DIR="$(mktemp -d)"
 
 PACKAGE_DIR="$WORK_DIR/package"
 INSTALL_TREE="$WORK_DIR/install-tree"
@@ -214,9 +232,9 @@ PY
 # Transaction log for THIS run only: "destination<TAB>backup-or-empty" per
 # completed target. Rollback uses exactly these recorded paths — never a
 # filesystem search for the "newest backup", which could pick a stale backup
-# from a previous run (audit finding).
+# from a previous run (audit finding). Cleanup is owned by the single EXIT
+# trap above (P2-01); a second trap here used to shadow it and leak WORK_DIR.
 TRANSACTION_LOG="$(mktemp)"
-trap 'rm -f "$TRANSACTION_LOG"' EXIT
 
 # Full transactional rollback: restore every target this run already touched,
 # in reverse order. For each target: remove whatever we wrote, and restore the

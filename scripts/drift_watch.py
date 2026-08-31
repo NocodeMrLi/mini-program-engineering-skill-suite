@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 import urllib.error
@@ -101,6 +102,48 @@ def platform_dirs(root: Path, only: str | None) -> list[Path]:
     return dirs
 
 
+def manual_only_platforms(root: Path) -> list[Path]:
+    """Every platform whose rule-map declares detection=manual-only."""
+    platforms = root / "platforms"
+    if not platforms.is_dir():
+        return []
+    result = []
+    for candidate in sorted(p for p in platforms.iterdir() if p.is_dir() and (p / "rule-map.json").is_file()):
+        rule_map = json.loads((candidate / "rule-map.json").read_text(encoding="utf-8"))
+        if rule_map.get("detection") == "manual-only":
+            result.append(candidate)
+    return result
+
+
+FACT_VERIFIED = re.compile(r"verified=(\d{4}-\d{2}-\d{2})")
+
+
+def manual_only_entry(platform_dir: Path) -> dict[str, Any]:
+    """One report entry for a platform deterministic detection cannot observe.
+
+    These platforms must STAY VISIBLE in the report with state
+    not-automatically-observable (audit P2-02): dropping them silently made
+    actionable_count=0 read as "all three platforms have no drift" while two
+    of them were never checked.
+    """
+    facts_path = platform_dir / "facts.md"
+    verified_dates: list[str] = []
+    if facts_path.is_file():
+        verified_dates = FACT_VERIFIED.findall(facts_path.read_text(encoding="utf-8"))
+    rule_map = json.loads((platform_dir / "rule-map.json").read_text(encoding="utf-8"))
+    urls = sorted({rule.get("official", {}).get("url", "") for rule in rule_map.get("rules", []) if rule.get("official", {}).get("url")})
+    return {
+        "platform": rule_map.get("platform", platform_dir.name),
+        "state": "not-automatically-observable",
+        "reason": "manual-only platform: client-rendered docs defeat deterministic fingerprinting",
+        "rule_count": len(rule_map.get("rules", [])),
+        "last_manual_verification": max(verified_dates) if verified_dates else None,
+        "manual_verification_entry_points": urls,
+        "next_step": "maintainer opens each official URL and re-verifies verify_points manually",
+        "checked_at_utc": utc_now(),
+    }
+
+
 DETECTION_ACTIONABLE = {"fingerprint-changed", "unverifiable"}
 AUDIT_ACTIONABLE = {"fingerprint-changed", "unverifiable", "updated", "conflicting"}
 
@@ -175,7 +218,11 @@ def emit_issues(report: dict[str, Any], repo: str | None) -> int:
 
 def run(root: Path, only: str | None, no_llm: bool) -> dict[str, Any] | None:
     dirs = platform_dirs(root, only)
-    if not dirs:
+    manual = manual_only_platforms(root)
+    if only:
+        # Explicit scope: manual-only entries narrow to the named platform.
+        manual = [d for d in manual if d.name == only]
+    if not dirs and not manual:
         return None
     # Detection in this tool is deterministic by construction; the flag is kept
     # for CLI compatibility and the mode field always states the truth.
@@ -183,10 +230,61 @@ def run(root: Path, only: str | None, no_llm: bool) -> dict[str, Any] | None:
         "generated_at_utc": utc_now(),
         "mode": "deterministic",
         "llm_stage": "drift_audit.py (detection never calls engines)",
+        # Coverage accounting (audit P2-02): actionable_count=0 must never be
+        # readable as "no platform drifted" when manual-only platforms were
+        # never deterministically checked. They stay in the report.
+        "platform_total": len(dirs) + len(manual),
+        "automatically_checked": len(dirs),
+        "manual_only": len(manual),
         "platforms": [deterministic_check(d) for d in dirs],
+        "manual_only_platforms": [manual_only_entry(d) for d in manual],
     }
+    if only:
+        # An explicit --platform-dir narrows THIS run's scope; the counters then
+        # describe the narrowed scope, and skipped_platforms records what was
+        # left out so the narrowing can never hide a platform silently.
+        included = {d.name for d in dirs} | {d.name for d in manual}
+        all_platforms = {
+            p.name for p in (root / "platforms").iterdir()
+            if p.is_dir() and (p / "rule-map.json").is_file()
+        }
+        report["skipped_platforms"] = sorted(all_platforms - included)
     report["actionable_count"] = sum(len(actionable(p["results"])) for p in report["platforms"])
     return report
+
+
+def explicit_manual_only_message(root: Path, only: str | None) -> str | None:
+    """Clear guidance when --platform-dir names a manual-only platform.
+
+    The flag used to fall through to no-platform-dirs (exit 2), which reads
+    like a tooling error instead of the truth: this platform is deliberately
+    not deterministically observable (audit P2-02).
+    """
+    if not only:
+        return None
+    platform_root = root / "platforms" / only
+    rule_map_path = platform_root / "rule-map.json"
+    if not rule_map_path.is_file():
+        return None
+    try:
+        rule_map = json.loads(rule_map_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if rule_map.get("detection") != "manual-only":
+        return None
+    entry = manual_only_entry(platform_root)
+    return json.dumps(
+        {
+            "platform": only,
+            "status": "not-automatically-observable",
+            "reason": entry["reason"],
+            "rule_count": entry["rule_count"],
+            "last_manual_verification": entry["last_manual_verification"],
+            "manual_verification_entry_points": entry["manual_verification_entry_points"],
+            "next_step": entry["next_step"],
+        },
+        ensure_ascii=False, indent=2, sort_keys=True,
+    )
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -226,6 +324,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         only = Path(args.platform_dir).name
     report = run(Path.cwd(), only, args.no_llm)
     if report is None:
+        # A manual-only platform named explicitly gets structured guidance, not
+        # a generic no-platform-dirs error (audit P2-02).
+        manual_message = explicit_manual_only_message(Path.cwd(), only)
+        if manual_message:
+            print(manual_message)
+            return 3
         print(json.dumps({"error": "no-platform-dirs"}, ensure_ascii=False))
         return 2
     if args.output:

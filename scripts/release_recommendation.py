@@ -25,21 +25,170 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Sequence
 
+from evidence_signature import SignatureError, verify_signed_document
+
 
 LEVELS = ("patch", "minor", "major")
+LEVEL_RANK = {"patch": 0, "minor": 1, "major": 2}
 MANUAL_ONLY_PLATFORMS = ("alipay", "douyin")
 VERIFICATION_MAX_AGE_DAYS = 90
 FACT_ANNOTATION = re.compile(
     r"<!--\s*fact:\s*\S+\s+verified=(?P<verified>[^\s]+)\s+source=\S+\s+digest=\S+\s*-->"
 )
+# Conventional-commit breaking markers: a subject like "feat!:" or any
+# "BREAKING CHANGE" mention classifies the whole release as major.
+BREAKING_SUBJECT = re.compile(r"BREAKING[ -]CHANGE|^\w+!:", re.IGNORECASE)
+# New tooling CAPABILITY (feat:) is a compatible addition -> minor; tooling
+# fixes (fix:/chore:/test:/refactor:) stay patch (audit P1-02 five classes:
+# metadata / behavior-body / tooling-fix / compatible-addition / breaking).
+FEATURE_SUBJECT = re.compile(r"^(feat|add|新增)\b", re.IGNORECASE)
+# Root SKILL.md frontmatter lines that are release METADATA, not behavior:
+# bumping version/last_reviewed must not force a minor release (audit P1-02).
+ROOT_SKILL_METADATA_LINE = re.compile(r"^[+-]\s*(?:version|last_reviewed):")
 # Path prefixes that classify the character of a change. Checked in order of severity.
+# VERSION is release metadata (its own class); root SKILL.md starts in
+# "behavior" but is reclassified to "metadata" when its diff only touches
+# version/last_reviewed lines (see root_skill_change_is_metadata_only).
 PATH_CLASSES: tuple[tuple[tuple[str, ...], str], ...] = (
     (("SKILL.md", "skills/", "shared/"), "behavior"),
     (("scripts/", "install.sh", ".github/", "tests/", "agents/", "references/"), "tooling"),
     (("platforms/",), "data"),
-    (("README", "CHANGELOG", "VERSION", "LICENSE", "COMPATIBILITY", "EVALUATIONS"), "docs"),
+    (("VERSION",), "metadata"),
+    (("README", "CHANGELOG", "LICENSE", "COMPATIBILITY", "EVALUATIONS"), "docs"),
     (("assets/",), "assets"),
 )
+
+
+def parse_semver(tag: str) -> tuple[int, int, int] | None:
+    """Parse v<major>.<minor>.<patch>; None for anything else."""
+    body = tag[1:] if tag.startswith("v") else tag
+    parts = body.split(".")
+    if len(parts) != 3:
+        return None
+    try:
+        values = tuple(int(part) for part in parts)
+    except ValueError:
+        return None
+    return values  # type: ignore[return-value]
+
+
+def semver_bump(baseline: str, candidate: str) -> str | None:
+    """Return patch/minor/major for baseline->candidate; None when not a strict bump."""
+    base = parse_semver(baseline)
+    cand = parse_semver(candidate)
+    if base is None or cand is None or cand <= base:
+        return None
+    if cand[0] != base[0]:
+        return "major"
+    if cand[1] != base[1]:
+        return "minor"
+    return "patch"
+
+
+def release_tags_sorted(root: Path) -> list[str]:
+    """All v<x.y.z> tags sorted by semver (ascending)."""
+    result = subprocess.run(
+        ["git", "-C", str(root), "tag", "--list", "v*"],
+        capture_output=True, check=False, text=True,
+    )
+    parsed: list[tuple[tuple[int, int, int], str]] = []
+    for line in result.stdout.splitlines():
+        tag = line.strip()
+        value = parse_semver(tag) if tag else None
+        if value is not None:
+            parsed.append((value, tag))
+    return [tag for _, tag in sorted(parsed)]
+
+
+def root_skill_change_is_metadata_only(root: Path, commit_hash: str) -> bool:
+    """True when this commit's root SKILL.md diff only moves version metadata.
+
+    The behavior class otherwise fires on ANY root SKILL.md edit, so a pure
+    version bump was misclassified as a behavior change and forced minor
+    releases (audit P1-02: v3.1.9 was released as patch while the gate
+    summary said minor).
+    """
+    diff = git(root, "show", "--format=", "--unified=0", commit_hash, "--", "SKILL.md")
+    changed = [
+        line
+        for line in diff.splitlines()
+        if line[:1] in "+-" and not line.startswith(("+++", "---"))
+    ]
+    if not changed:
+        return True
+    return all(ROOT_SKILL_METADATA_LINE.match(line) for line in changed)
+
+
+def commit_paths_are_metadata_only(root: Path, commit_hash: str, paths: list[str]) -> bool:
+    """True when this commit's root SKILL.md edit only moves release metadata.
+
+    The release-prep commit bumps VERSION + root SKILL.md frontmatter and often
+    carries tooling/docs edits in the same commit. The QUESTION this answers is
+    narrow: did the BEHAVIOR-classified content (root SKILL.md) actually change
+    behaviorally? If SKILL.md only moved version/last_reviewed lines, its
+    behavior class is reclassified to metadata even when the same commit also
+    touches scripts or docs — those keep their own classes (audit P1-02).
+    """
+    if not any(path == "SKILL.md" for path in paths):
+        return False
+    return root_skill_change_is_metadata_only(root, commit_hash)
+
+
+def load_downgrade_override(root: Path, candidate_tag: str, required_level: str) -> dict[str, Any] | None:
+    """Load and validate a structured manual downgrade (release-override.json).
+
+    A downgrade may lower the required level by exactly one step (major->minor
+    or minor->patch), must name THIS candidate tag, and must carry a reason and
+    an independent signer. Anything else is rejected (returns None and the
+    original level stands) — never a silent pass.
+    """
+    path = root / "release-override.json"
+    if not path.is_file():
+        return None
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"accepted": False, "problems": ["override-unreadable"]}
+    if not isinstance(data, dict):
+        return {"accepted": False, "problems": ["override-not-object"]}
+    problems: list[str] = []
+    try:
+        signer_key_id = verify_signed_document(
+            data,
+            root / ".github" / "release-evidence" / "trusted-signers.pem",
+            expected_key_id="release-evaluation-2026-08-31",
+        )
+    except SignatureError as exc:
+        signer_key_id = None
+        problems.append(f"override-{exc}")
+    target = data.get("to")
+    allowed = {"major": "minor", "minor": "patch"}
+    if not isinstance(data.get("reason"), str) or not data["reason"].strip():
+        problems.append("override-reason-missing")
+    if not isinstance(data.get("signed_by"), str) or not data["signed_by"].strip():
+        problems.append("override-signer-missing")
+    else:
+        try:
+            candidate_author = git(root, "show", "-s", "--format=%ae", candidate_tag).strip()
+        except ValueError:
+            candidate_author = ""
+        if candidate_author and data["signed_by"].strip().casefold() == candidate_author.casefold():
+            problems.append("override-signer-not-independent")
+    if data.get("candidate_tag") != candidate_tag:
+        problems.append("override-candidate-tag-mismatch")
+    if data.get("from") != required_level or target != allowed.get(required_level):
+        problems.append("override-not-one-step-downgrade")
+    if problems:
+        return {"accepted": False, "problems": problems}
+    return {
+        "accepted": True,
+        "from": required_level,
+        "to": target,
+        "reason": data["reason"].strip(),
+        "signed_by": data["signed_by"].strip(),
+        "signer_key_id": signer_key_id,
+        "candidate_tag": candidate_tag,
+    }
 
 
 def git(root: Path, *args: str) -> str:
@@ -97,7 +246,7 @@ def is_shallow_repository(root: Path) -> bool:
 
 def classify_commit(paths: list[str]) -> str:
     """Pick the most significant class among the commit's touched paths (kept for callers that want one label)."""
-    ranking = {"behavior": 4, "tooling": 3, "data": 2, "docs": 1, "assets": 1}
+    ranking = {"behavior": 5, "tooling": 3, "data": 2, "metadata": 1, "docs": 1, "assets": 1}
     best = "docs"
     for label in classify_commit_classes(paths):
         if ranking[label] > ranking[best]:
@@ -369,15 +518,36 @@ def recommend(root: Path | str, min_data_changes: int, candidate_tag: str | None
         # Full class SET per commit: a scripts+facts commit counts as both
         # tooling and data, so the data trigger for manual verification cannot
         # be swallowed by the higher-ranked label (codex probe).
-        for label in classify_commit_classes(commit["paths"]):
+        commit_classes = classify_commit_classes(commit["paths"])
+        # Release-metadata-only commits (VERSION + root SKILL.md frontmatter
+        # version bump) are reclassified to metadata, not behavior (P1-02).
+        if "behavior" in commit_classes:
+            if commit_paths_are_metadata_only(root, commit["hash"], commit["paths"]):
+                commit_classes.discard("behavior")
+                commit_classes.add("metadata")
+        # Conventional breaking markers upgrade the whole release to major.
+        if BREAKING_SUBJECT.search(commit.get("subject") or ""):
+            commit_classes.add("breaking")
+        # A tooling commit that ADDS capability (feat:) is a compatible
+        # addition (minor); tooling fixes stay fix-class (patch).
+        if "tooling" in commit_classes and FEATURE_SUBJECT.match(commit.get("subject") or ""):
+            commit_classes.add("feature")
+        for label in commit_classes:
             classes[label] = classes.get(label, 0) + 1
 
-    if classes.get("behavior"):
+    # Explicit breaking changes always mean major.
+    if classes.get("breaking"):
+        level = "major"
+        reasons = [f"{classes['breaking']} commit(s) carry breaking-change markers"]
+    elif classes.get("behavior"):
         level = "minor"
         reasons = [f"{classes['behavior']} commit(s) touch skill text, guardrails, or the root skill (behavior changes)"]
-    elif classes.get("tooling"):
+    elif classes.get("feature"):
         level = "minor"
-        reasons = [f"{classes['tooling']} commit(s) touch scripts, installer, CI, or tests (tooling changes)"]
+        reasons = [f"{classes['feature']} commit(s) add compatible tooling capability (feat)"]
+    elif classes.get("tooling"):
+        level = "patch"
+        reasons = [f"{classes['tooling']} commit(s) fix scripts, installer, CI, or tests (tooling fixes)"]
     elif classes.get("data"):
         if classes["data"] < min_data_changes:
             return {
@@ -393,13 +563,73 @@ def recommend(root: Path | str, min_data_changes: int, candidate_tag: str | None
         level = "patch"
         reasons = [f"{classes['data']} commit(s) of platform fact data only; no behavior or methodology changes"]
     else:
-        return {
-            "recommendation": "HOLD",
-            "level": None,
-            "reasons": ["only documentation/asset changes; release on demand, not required"],
-            "tag": tag, "baseline_tag": tag, "commit_count": len(commits), "classes": classes,
-            "history_complete": True,
-        }
+        # Version-metadata-only commits (VERSION bump + root SKILL.md
+        # version/last_reviewed) release as patch (audit P1-02).
+        if classes.get("metadata"):
+            level = "patch"
+            reasons = [f"{classes['metadata']} commit(s) touch release metadata only (VERSION / frontmatter version fields)"]
+        else:
+            return {
+                "recommendation": "HOLD",
+                "level": None,
+                "reasons": ["only documentation/asset changes; release on demand, not required"],
+                "tag": tag, "baseline_tag": tag, "commit_count": len(commits), "classes": classes,
+                "history_complete": True,
+            }
+
+    # --- SemVer consistency (audit P1-02): the RECOMMENDED level must match
+    # the candidate tag's real increment over the baseline. A release whose
+    # actual increment is SMALLER than required blocks; a larger increment is
+    # allowed (a patch-worthy change shipped as minor is safe, not silent).
+    semver: str | None = None
+    required_level: str = level
+    downgrade: dict[str, Any] | None = None
+    if candidate_tag:
+        semver = semver_bump(tag, candidate_tag) if tag else None
+        if semver is None:
+            return {
+                "recommendation": "MANUAL_VERIFICATION_REQUIRED",
+                "level": level,
+                "reasons": [
+                    f"candidate tag {candidate_tag} is not a strict semver bump of baseline {tag or 'none'} "
+                    "(equal, lower, or non-semver); release blocked"
+                ],
+                "tag": tag, "baseline_tag": tag, "commit_count": len(commits), "classes": classes,
+                "history_complete": True,
+                "semver_bump": None,
+                "required_level": level,
+                "manual_verification": {"required": True, "platforms": {}, "evidence": {}},
+            }
+        if LEVEL_RANK[semver] < LEVEL_RANK[level]:
+            downgrade = load_downgrade_override(root, candidate_tag, level)
+            if downgrade is None or not downgrade.get("accepted"):
+                return {
+                    "recommendation": "MANUAL_VERIFICATION_REQUIRED",
+                    "level": level,
+                    "reasons": [
+                        f"semver bump {semver} is lower than required level {level}; "
+                        "provide a structured one-step downgrade (release-override.json with reason and "
+                        "independent signer) or retag at the required level"
+                    ] + (downgrade or {}).get("problems", []),
+                    "tag": tag, "baseline_tag": tag, "commit_count": len(commits), "classes": classes,
+                    "history_complete": True,
+                    "semver_bump": semver,
+                    "required_level": level,
+                    "override": downgrade,
+                    "manual_verification": {"required": True, "platforms": {}, "evidence": {}},
+                }
+            required_level = downgrade["to"]
+    base_result = {
+        "tag": tag,
+        "baseline_tag": tag,
+        "commit_count": len(commits),
+        "classes": classes,
+        "history_complete": True,
+        "semver_bump": semver,
+        "required_level": required_level,
+    }
+    if downgrade and downgrade.get("accepted"):
+        base_result["override"] = downgrade
 
     verification = manual_verification_status(root, level, classes, since_tag=tag, candidate_tag=candidate_tag)
     if verification["required"]:
@@ -411,11 +641,7 @@ def recommend(root: Path | str, min_data_changes: int, candidate_tag: str | None
                 for platform, detail in verification["platforms"].items()
                 if detail.get("needs_verification")
             ],
-            "tag": tag,
-            "baseline_tag": tag,
-            "commit_count": len(commits),
-            "classes": classes,
-            "history_complete": True,
+            **base_result,
             "manual_verification": verification,
         }
 
@@ -423,11 +649,7 @@ def recommend(root: Path | str, min_data_changes: int, candidate_tag: str | None
         "recommendation": "RECOMMEND_RELEASE",
         "level": level,
         "reasons": reasons,
-        "tag": tag,
-        "baseline_tag": tag,
-        "commit_count": len(commits),
-        "classes": classes,
-        "history_complete": True,
+        **base_result,
         "manual_verification": verification,
     }
 
