@@ -1,0 +1,104 @@
+{
+  "candidate_evaluation_harness_sha256": "781b645d759c109d65d2f580708b7e5776f54ab21dd05fa260ad88ac49a60f8f",
+  "candidate_skill_behavior_sha256": "edd3bccbee25be2d4877d92d955a5a5f7c685a69552e6c405037fb7e866bdcdf",
+  "candidate_tag": "v3.1.11",
+  "engine": "local-release-attestor",
+  "generated_at_utc": "2026-09-01T01:38:20Z",
+  "mode": "reuse",
+  "model": "rsa-sha256",
+  "reuse": {
+    "reason": "Patch-only CI and Release workflow compatibility fix; all nine child Skill bodies and the evaluation harness are byte-identical to the independently judged v3.1.2 evidence source, while root SKILL changes are limited to allowed release metadata.",
+    "source_commit": "621bd1ac64f3ee65957786501fdc188fe69601b3",
+    "source_evaluation_harness_sha256": "781b645d759c109d65d2f580708b7e5776f54ab21dd05fa260ad88ac49a60f8f",
+    "source_skill_behavior_sha256": "1d1b346088185b72a7cf8b0668a80fb3b5e32a8c2b9198f7b4fce59835aa1bc3",
+    "source_tag": "v3.1.2",
+    "stages": {
+      "behavior-development": {
+        "artifact_sha256": "e4853eaaa35e5e5566edcddfbb7b3d1e7e965ee3c736784df3be243d0e280c2f",
+        "audit_sha256": "50f94d19a2081455b5fa3f1898bdec152fa840a6055d34547f84a16655a02dc3",
+        "engine": "agent",
+        "generated_at_utc": "2026-08-29T19:05:06Z",
+        "model": "claude:default",
+        "source_version": "3.1.2",
+        "stage": "behavior-development",
+        "verdict": "PASS"
+      },
+      "behavior-held-out": {
+        "artifact_sha256": "cb6629d39344d7af2758475c6e69371769d2a92b242c97ff420ffc47ff82f14d",
+        "audit_sha256": "88fec79f2b0f64a024a32c07a9163af8be29f915235d3b43b14f3900c299649f",
+        "engine": "agent",
+        "generated_at_utc": "2026-08-29T20:18:35Z",
+        "model": "claude:default",
+        "source_version": "3.1.2",
+        "stage": "behavior-held-out",
+        "verdict": "PASS"
+      },
+      "final-signature": {
+        "artifact_sha256": "9c0fe1b242f257dfb4554a3192eee145ac1906a65eedc25b198d7f8cc1182482",
+        "audit_sha256": "fe5597f227f0945474c5bb8507a58ba6abbb511d57c5cd6ee3d4e6904787d0c6",
+        "engine": "local",
+        "generated_at_utc": "2026-08-30T11:33:28Z",
+        "model": "deterministic-final-release-signer",
+        "source_version": "3.1.2",
+        "stage": "final-signature",
+        "verdict": "PASS"
+      },
+      "independent-judgment": {
+        "artifact_sha256": "99947edf5b5c01373a41d1afe18b40205f116bc24114ee3053d3ccc1e71c5ead",
+        "audit_sha256": "f823bbe228db2910a467a5b4d1244a81497e7faebc06ff4c2152861bdca8fad4",
+        "engine": "agent",
+        "generated_at_utc": "2026-08-30T11:33:21Z",
+        "model": "claude:default",
+        "source_version": "3.1.2",
+        "stage": "independent-judgment",
+        "verdict": "PASS"
+      },
+      "methodology-development": {
+        "artifact_sha256": "15f140b07dc9f3817b9ac30e931b6e7f39a13efa55da0a697a2029048b42261d",
+        "audit_sha256": "dce134f04b986d538ab540bb60997aa62648b1cea64980c892a9419aedaad434",
+        "engine": "agent",
+        "generated_at_utc": "2026-08-30T03:59:53Z",
+        "model": "claude:default",
+        "source_version": "3.1.2",
+        "stage": "methodology-development",
+        "verdict": "PASS"
+      },
+      "methodology-held-out": {
+        "artifact_sha256": "481f43793ac24ed7dc2b64170ae6fbfeea2533c08f911f41989257f2c8a1fdb7",
+        "audit_sha256": "00e0f781b9279196d616ed86630629f6697293daa2b558494f8e39bf5a9d1535",
+        "engine": "agent",
+        "generated_at_utc": "2026-08-30T05:52:54Z",
+        "model": "claude:default",
+        "source_version": "3.1.2",
+        "stage": "methodology-held-out",
+        "verdict": "PASS"
+      },
+      "routing-development": {
+        "artifact_sha256": "cb011b7c366a81bb0ffa85e6c05fc14d43aac39219472d288ee2f2aece6f5a3d",
+        "audit_sha256": "337c31ee76fca7d7215ac63407483ea226bc1508d848f9155e34771f7f919348",
+        "engine": "agent",
+        "generated_at_utc": "2026-08-29T18:55:38Z",
+        "model": "claude:default",
+        "source_version": "3.1.2",
+        "stage": "routing-development",
+        "verdict": "PASS"
+      },
+      "routing-held-out": {
+        "artifact_sha256": "a41cc7ac2d06a6e267f1eae3473464e9ebf0cf5b6fab18df629a3ab8ec7d01d5",
+        "audit_sha256": "841a619fda83eee2cb5542a5370b39b47311e17e3b5e703bb6f61a85f93225dd",
+        "engine": "agent",
+        "generated_at_utc": "2026-08-29T18:55:58Z",
+        "model": "claude:default",
+        "source_version": "3.1.2",
+        "stage": "routing-held-out",
+        "verdict": "PASS"
+      }
+    }
+  },
+  "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "jjDtVASIe6ZYuTnWrd2C0BFbhGD4rVvJNk+45qgOXnXwmM0gVSP+wO0RDXKbgPCNjYNvDsso6/R+lt5IY+8fID2gtgapHAhsu5snff06uOxknyN78ddEna9KoexABeQDBl5fR1k1qyy3tLL65t6wHUvT5uzF8gMlQHilOgNlnDKowCQbL7LfuIbJ/FRnwWAYkp9egPLsOb7KiGNyttqpT847jUi2zFJGRcI8vPXQKJnQLOqTIdilRyJjeTMBpgA1Ua/q6K+DxePB3J+pvkF3fvdClMcR/nVdk0wgrYSL9qNoro4Mz4MG6/c2z5WRfceyHfi3H+5+yRQP1UaRO0Ka7pC+hB1LUulUAxIuSk+4K0ME2L/C57N19RqDmQCNjNaZRo+lLR77mSXuNhmfSVIZqbUnrdKArOv7dRYePEnEEjkiKjdZj1+mmZcUW9XgP6BI1GEDxflYKiZ4azzHwpZYgBB/moJDx7oajcNor1xlUonxN+Uo9rbdTLRsZfzakJC4"
+  }
+}
