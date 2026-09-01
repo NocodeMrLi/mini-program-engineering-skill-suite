@@ -173,18 +173,20 @@ jobs:
           gh release create "$tag" dist/* --draft --title "$tag" --notes-file "$notes_file"
           gh release edit "$tag" --draft=false
 
-      - name: Verify repository and published release are immutable
+      - name: Verify published release is immutable
         env:
           GH_TOKEN: ${{ github.token }}
           RESOLVED_TAG: ${{ steps.release.outputs.tag }}
         run: |
           set -euo pipefail
-          repository_state="$(gh api -H 'X-GitHub-Api-Version: 2026-03-10' \
-            "repos/$GITHUB_REPOSITORY/immutable-releases" --jq '.enabled')"
+          # GITHUB_TOKEN can read the published Release but GitHub rejects the
+          # owner-only repository immutable-settings endpoint with HTTP 403.
+          # A published Release reports immutable=true only when repository
+          # immutable releases are enabled and publication has locked it.
           release_state="$(gh api -H 'X-GitHub-Api-Version: 2026-03-10' \
             "repos/$GITHUB_REPOSITORY/releases/tags/$RESOLVED_TAG" --jq '.immutable')"
-          if [ "$repository_state" != "true" ] || [ "$release_state" != "true" ]; then
-            echo "Immutable release verification failed: repository=$repository_state release=$release_state" >&2
+          if [ "$release_state" != "true" ]; then
+            echo "Immutable release verification failed: release=$release_state" >&2
             exit 1
           fi
           echo "Immutable release verified: $RESOLVED_TAG"

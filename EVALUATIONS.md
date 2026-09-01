@@ -41,7 +41,8 @@ python3 scripts/summarize_evaluations.py \
 
 | 版本 | 日期 | 摘要 | 说明 |
 | --- | --- | --- | --- |
-| 3.1.11 | 2026-09-01 | 签名评测证据链候选 | 仅修复 CI 覆盖率 JSON 兼容和 Release 发布说明命令语法，不改九个子 Skill 行为正文与 `tests/evals/` 基架；复用 3.1.2 完整八阶段 PASS 私有产物并生成 v3.1.11 独立签名证明。正式结论只以 v3.1.11 Release 的 `gate-summary.json`、`SHA256SUMS`、immutable API 回读和接收端复验为准。 |
+| 3.1.12 | 2026-09-01 | 签名评测证据链候选 | 仅修复不可变 Release 发布后的 token 权限边界，不改九个子 Skill 行为正文与 `tests/evals/` 基架；复用 3.1.2 完整八阶段 PASS 私有产物并生成 v3.1.12 独立签名证明。正式结论只以 v3.1.12 CI/Release 全绿、`gate-summary.json`、`SHA256SUMS`、Release `immutable=true` 与接收端复验为准。 |
+| 3.1.11 | 2026-09-01 | 发布物有效；正式工作流末步失败 | CI 全绿；Release gates、四工件创建与发布均成功，Release API 回读 `immutable=true`，SHA256 与 116 文件接收端复验通过。但工作流末步使用 `GITHUB_TOKEN` 调用 owner-only 仓库设置接口得到 HTTP 403，导致 Release Actions 红灯；因此不作为最终全绿版本，验收器修复顺延 v3.1.12。 |
 | 3.1.10 | 2026-09-01 | 候选门禁通过；正式发布失败 | 本地 release gate 与正式运行中的 Python 3.9/3.11/3.13、Shell/YAML、安装器、敏感扫描和 Release gates 均通过；但 CI 覆盖率作业读取 coverage.py 7.10.7 不存在的展示字段，Release 创建步骤中的 f-string 转义触发 SyntaxError。公开 tag 保留但未创建 GitHub Release，不能标记为正式 PASS；修复顺延 v3.1.11。 |
 | 3.1.9 | 2026-08-31 | 工程修复门禁；正式工件以本 tag Release 为准 | codex 八/九次复核收口：完整历史 checkout、候选与无候选浅仓库 fail-closed、失败 summary 全量留证、fact/rule 契约回归、字符串路径兼容；九个子 Skill 行为正文与评测基架零变更，patch 版本不重复 tier2/tier3；184 单测、结构/扫描/i18n/foundation/公共包复验在打 tag 前执行，正式治理结论只回读 v3.1.9 Release 的 `gate-summary.json`。 |
 | 3.1.8 | 2026-08-31 | 发布物 PASS；治理基线 LIMITED（发布后勘误） | 173 单测、113 文件、0 findings 与四工件均为正式 Release 实测；临时 tag 缺核验证据时 workflow 确实阻断。但 Actions 默认浅克隆导致正式工件 `baseline_tag=null`，变更分类并未真实比较 v3.1.7→v3.1.8；失败 summary 也未保留第四门字段。两项已在当前未发布工作区修复并加回归，须由下一次 Release 工件验证后才能签署治理 PASS；本勘误不重写当时评测产物。 |

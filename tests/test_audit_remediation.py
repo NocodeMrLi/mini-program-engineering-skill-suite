@@ -1094,6 +1094,12 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
         self.assertIn('"{}/{}".format', workflow)
         self.assertIn('"{}:{}".format', workflow)
 
+    def test_release_immutable_check_uses_token_accessible_release_endpoint(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+        self.assertNotIn('"repos/$GITHUB_REPOSITORY/immutable-releases"', workflow)
+        self.assertIn('"repos/$GITHUB_REPOSITORY/releases/tags/$RESOLVED_TAG"', workflow)
+        self.assertIn("--jq '.immutable'", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
