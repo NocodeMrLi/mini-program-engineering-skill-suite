@@ -198,7 +198,7 @@ python3 scripts/scan_sensitive_content.py . --format json
 
 ## Integritas Paket
 
-Utamakan package berversi dari [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases). Setiap Release menyertakan archive, `package-manifest.json`, dan `SHA256SUMS`. Di Linux / GitHub Actions gunakan `sha256sum -c SHA256SUMS`; di macOS gunakan `shasum -a 256 -c SHA256SUMS`. Setelah diekstrak, verifikasi ulang manifest dengan `verify_public_package.py` di dalam package.
+Utamakan package berversi dari [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases). Setiap Release menyertakan archive, `package-manifest.json`, `gate-summary.json`, dan `SHA256SUMS` yang mencakup ketiganya. Immutable Releases telah diaktifkan: seluruh asset dilampirkan saat draft dan tag maupun asset tidak dapat diganti setelah publikasi. Hasil gate SemVer dan evaluasi bertanda tangan dapat dibaca dari `gate-summary.json`. Di Linux / GitHub Actions gunakan `sha256sum -c SHA256SUMS`; di macOS gunakan `shasum -a 256 -c SHA256SUMS`. Setelah diekstrak, verifikasi ulang manifest dengan `verify_public_package.py` di dalam package.
 
 Untuk memeriksa package yang diterima:
 

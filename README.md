@@ -261,6 +261,8 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 当前套件版本在发布前会经过：结构校验、敏感信息扫描、对公包导出的确定性检查、清单核对、路由评估、行为评估和独立终审。
 
+CI 还强制全仓脚本语句覆盖率不低于 85%，评估门禁、SemVer 建议器、敏感扫描和接收端复验四个关键模块的分支覆盖率不低于 90%。patch 版本复用历史评测时，必须提交由仓库信任公钥验证的签名声明，绑定候选 tag、来源 tag/commit、八阶段 PASS 摘要及候选行为/评测基架指纹；任一绑定不一致即阻断发布。
+
 评测分层、证据边界与各版本公开摘要见 [EVALUATIONS.md](EVALUATIONS.md)。评测引擎与模型可插拔（codex / claude / gemini / OpenAI 兼容 API 任一可用者均可充当被测与判定引擎），审计元数据如实记录当次使用的引擎与模型；跨引擎通过是更强证据，分数不跨引擎直接比较。
 
 接收一个包时，通过它的 `package-manifest.json` 校验完整性；源码工作副本在分发前会先经过校验和敏感扫描。
@@ -288,7 +290,7 @@ python3 "$export_dir/package/scripts/verify_public_package.py" "$export_dir/pack
 
 ## 包完整性
 
-请优先使用 [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) 这样的 **可信来源** 中的版本化发布包，不要混用不同版本的文件；仓库中的 `VERSION` 是版本号的唯一权威。每个 Release 会附带公开包压缩文件、`package-manifest.json` 和 `SHA256SUMS`，用于确认下载产物没有被传输损坏或混入其他版本文件。
+请优先使用 [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) 这样的 **可信来源** 中的版本化发布包，不要混用不同版本的文件；仓库中的 `VERSION` 是版本号的唯一权威。每个 Release 会附带公开包压缩文件、`package-manifest.json`、`gate-summary.json` 和覆盖三者的 `SHA256SUMS`，用于确认下载产物没有被传输损坏或混入其他版本文件。仓库已启用不可变 Release：全部附件在草稿阶段附齐，发布后 tag 与附件不可替换；`gate-summary.json` 可用于回读本次 SemVer 与签名评测门禁结论。
 
 校验 Release 附件。Linux / GitHub Actions 可用：
 

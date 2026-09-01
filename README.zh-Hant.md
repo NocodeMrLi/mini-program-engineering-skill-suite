@@ -194,7 +194,7 @@ python3 scripts/scan_sensitive_content.py . --format json
 
 ## 包完整性
 
-建議優先使用 [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) 中的版本化公開包。每個 Release 會附帶壓縮包、`package-manifest.json` 和 `SHA256SUMS`。Linux / GitHub Actions 可用 `sha256sum -c SHA256SUMS`；macOS 可用 `shasum -a 256 -c SHA256SUMS`。解壓後再用包內 `verify_public_package.py` 復驗清單。
+建議優先使用 [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) 中的版本化公開包。每個 Release 會附帶壓縮包、`package-manifest.json`、`gate-summary.json` 與涵蓋三者的 `SHA256SUMS`。倉庫已啟用不可變 Release：所有附件先在草稿階段附齊，發布後 tag 與附件不可替換；`gate-summary.json` 可回讀 SemVer 與簽名評測門禁結果。Linux / GitHub Actions 可用 `sha256sum -c SHA256SUMS`；macOS 可用 `shasum -a 256 -c SHA256SUMS`。解壓後再用包內 `verify_public_package.py` 復驗清單。
 
 接收公開包時校驗完整性：
 

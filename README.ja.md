@@ -198,7 +198,7 @@ python3 scripts/scan_sensitive_content.py . --format json
 
 ## パッケージ完全性
 
-[GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) のバージョン付き公開パッケージを優先してください。各 Release にはアーカイブ、`package-manifest.json`、`SHA256SUMS` が含まれます。Linux / GitHub Actions では `sha256sum -c SHA256SUMS`、macOS では `shasum -a 256 -c SHA256SUMS` を使えます。展開後、同梱の `verify_public_package.py` でマニフェストを再検証してください。
+[GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) のバージョン付き公開パッケージを優先してください。各 Release にはアーカイブ、`package-manifest.json`、`gate-summary.json`、および三つを対象にした `SHA256SUMS` が含まれます。Immutable Releases が有効で、全アセットをドラフト中に添付し、公開後は tag とアセットを差し替えられません。`gate-summary.json` で SemVer と署名付き評価ゲートの結果を確認できます。Linux / GitHub Actions では `sha256sum -c SHA256SUMS`、macOS では `shasum -a 256 -c SHA256SUMS` を使えます。展開後、同梱の `verify_public_package.py` でマニフェストを再検証してください。
 
 公開パッケージを受け取った場合の完全性確認：
 

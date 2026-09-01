@@ -248,6 +248,8 @@ This suite does not automatically install project dependencies, create cloud res
 
 The current suite version uses structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, and independent final judgment before release.
 
+CI additionally enforces at least 85% statement coverage across all scripts and at least 90% branch coverage in the evaluation gate, SemVer recommender, sensitive scanner, and recipient verifier. A patch release that reuses earlier evaluations must provide a trusted-key-signed declaration binding the candidate tag, source tag/commit, eight PASS-stage attestations, and candidate behavior/harness fingerprints; any mismatch blocks release.
+
 Evaluation layers, evidence boundaries, and per-release public summaries are documented in [EVALUATIONS.md](EVALUATIONS.md). The evaluation engine and model are pluggable (any available one of codex / claude / gemini / OpenAI-compatible APIs can serve as the tested or judging engine); audit metadata records the engine and model actually used. Passing across engines is stronger evidence; scores are not compared across engine classes.
 
 For a received package, integrity is checked through its `package-manifest.json`. For a source working copy, validation and sensitive scanning are run before distribution.
@@ -275,7 +277,7 @@ These commands are also the core GitHub Actions CI gates.
 
 ## Package Integrity
 
-Prefer versioned packages from [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases). Each release includes the public package archive, `package-manifest.json`, and `SHA256SUMS` so you can confirm that downloaded assets were not corrupted or mixed with another version.
+Prefer versioned packages from [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases). Each release includes the public package archive, `package-manifest.json`, `gate-summary.json`, and a `SHA256SUMS` covering all three. Immutable Releases are enabled: all assets are attached while the release is a draft, and the published tag and assets cannot be replaced. Use `gate-summary.json` to inspect the SemVer and signed-evaluation gate outcomes for that release.
 
 Verify release assets. On Linux / GitHub Actions:
 

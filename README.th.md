@@ -198,7 +198,7 @@ python3 scripts/scan_sensitive_content.py . --format json
 
 ## ความสมบูรณ์ของ package
 
-แนะนำให้ใช้ package ตาม version จาก [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) แต่ละ Release จะมี archive, `package-manifest.json` และ `SHA256SUMS` บน Linux / GitHub Actions ใช้ `sha256sum -c SHA256SUMS`; บน macOS ใช้ `shasum -a 256 -c SHA256SUMS` จากนั้นแตกไฟล์และตรวจซ้ำด้วย `verify_public_package.py` ใน package
+แนะนำให้ใช้ package ตาม version จาก [GitHub Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) แต่ละ Release จะมี archive, `package-manifest.json`, `gate-summary.json` และ `SHA256SUMS` ที่ครอบคลุมทั้งสามไฟล์ เปิดใช้ Immutable Releases แล้ว: แนบ asset ทั้งหมดในช่วง draft และหลังเผยแพร่จะเปลี่ยน tag หรือ asset ไม่ได้ โดยตรวจผล SemVer และ signed evaluation gate ได้จาก `gate-summary.json` บน Linux / GitHub Actions ใช้ `sha256sum -c SHA256SUMS`; บน macOS ใช้ `shasum -a 256 -c SHA256SUMS` จากนั้นแตกไฟล์และตรวจซ้ำด้วย `verify_public_package.py` ใน package
 
 ตรวจ package ที่ได้รับ:
 
