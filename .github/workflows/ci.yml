@@ -291,10 +291,13 @@ jobs:
           summary = data["totals"]
           # The contract is an all-script STATEMENT floor; branch quality for
           # the four release-critical modules is enforced independently below.
-          stmt_pct = summary["percent_statements_covered_display"]
+          # coverage.py's JSON schema does not expose its CLI display field
+          # consistently across releases. Derive the exact percentage from
+          # stable count fields.
+          stmt_pct = 100.0 * summary["covered_lines"] / summary["num_statements"]
           failures = []
-          if float(stmt_pct) < 85.0:
-              failures.append(f"repo statement coverage {stmt_pct}% < 85%")
+          if stmt_pct < 85.0:
+              failures.append(f"repo statement coverage {stmt_pct:.2f}% < 85%")
           branch_floor = {
               "scripts/release_recommendation.py": 90.0,
               "scripts/evaluation_gate.py": 90.0,
@@ -315,6 +318,6 @@ jobs:
                   failures.append(f"{module}: branch coverage {pct:.1f}% < {floor}%")
           for line in failures:
               print(f"COVERAGE FAIL: {line}", file=sys.stderr)
-          print(f"repo statement coverage: {stmt_pct}%")
+          print(f"repo statement coverage: {stmt_pct:.2f}%")
           sys.exit(1 if failures else 0)
           PY

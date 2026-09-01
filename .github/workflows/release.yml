@@ -143,8 +143,8 @@ jobs:
           # the gates step in this same run) — never typed from memory.
           gate_tests="$(python3 -c 'import json; print(json.load(open("dist/gate-summary.json"))["tests_passed"])')"
           gate_files="$(python3 -c 'import json; print(json.load(open("dist/gate-summary.json"))["validate_checked_files"])')"
-          gate_semver="$(python3 -c 'import json; d=json.load(open("dist/gate-summary.json")); print(f"{d.get(\"semver_bump\")}/{d.get(\"required_level\")}")')"
-          gate_eval="$(python3 -c 'import json; d=json.load(open("dist/gate-summary.json")).get("evaluation_gate") or {}; print(f"{d.get(\"verdict\")}:{d.get(\"mode\")}")')"
+          gate_semver="$(python3 -c 'import json; d=json.load(open("dist/gate-summary.json")); print("{}/{}".format(d.get("semver_bump"), d.get("required_level")))')"
+          gate_eval="$(python3 -c 'import json; d=json.load(open("dist/gate-summary.json")).get("evaluation_gate") or {}; print("{}:{}".format(d.get("verdict"), d.get("mode")))')"
           {
             echo "Verified public package for $tag."
             echo

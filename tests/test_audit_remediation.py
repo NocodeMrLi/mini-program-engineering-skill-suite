@@ -1081,6 +1081,19 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
         self.assertIn("-W error::ResourceWarning", workflow)
         self.assertIn("coverage", workflow.lower())
 
+    def test_ci_coverage_uses_stable_json_count_fields(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        self.assertNotIn("percent_statements_covered_display", workflow)
+        self.assertIn('summary["covered_lines"]', workflow)
+        self.assertIn('summary["num_statements"]', workflow)
+
+    def test_release_summary_python_avoids_escaped_f_string_expressions(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")
+        self.assertNotIn('d.get(\\"semver_bump\\")', workflow)
+        self.assertNotIn('d.get(\\"verdict\\")', workflow)
+        self.assertIn('"{}/{}".format', workflow)
+        self.assertIn('"{}:{}".format', workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
