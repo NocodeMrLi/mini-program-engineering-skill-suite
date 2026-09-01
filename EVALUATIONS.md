@@ -41,7 +41,8 @@ python3 scripts/summarize_evaluations.py \
 
 | 版本 | 日期 | 摘要 | 说明 |
 | --- | --- | --- | --- |
-| 3.1.12 | 2026-09-01 | 签名评测证据链候选 | 仅修复不可变 Release 发布后的 token 权限边界，不改九个子 Skill 行为正文与 `tests/evals/` 基架；复用 3.1.2 完整八阶段 PASS 私有产物并生成 v3.1.12 独立签名证明。正式结论只以 v3.1.12 CI/Release 全绿、`gate-summary.json`、`SHA256SUMS`、Release `immutable=true` 与接收端复验为准。 |
+| 3.1.13 | 2026-09-01 | 签名评测证据链候选 | 仅将 `actions/upload-artifact` 固定依赖升级到官方 v7.0.1/Node 24 并加契约回归，不改九个子 Skill 行为正文与 `tests/evals/` 基架；复用 3.1.2 完整八阶段 PASS 私有产物并生成 v3.1.13 独立签名证明。正式结论以本 tag CI/Release、不可变工件和接收端复验为准。 |
+| 3.1.12 | 2026-09-01 | 正式 PASS | CI/Release 全绿；252 tests / 116 files / 122 candidates / 0 findings；patch/patch、`RECOMMEND_RELEASE`、签名评测 `PASS:reuse`；四工件 SHA256 与 116 文件接收端复验通过，仓库 `enabled=true`、Release `immutable=true`。发布日志仅有旧 upload-artifact Node 20 弃用提示，功能由运行器强制 Node 24 后成功；依赖升级顺延 v3.1.13。 |
 | 3.1.11 | 2026-09-01 | 发布物有效；正式工作流末步失败 | CI 全绿；Release gates、四工件创建与发布均成功，Release API 回读 `immutable=true`，SHA256 与 116 文件接收端复验通过。但工作流末步使用 `GITHUB_TOKEN` 调用 owner-only 仓库设置接口得到 HTTP 403，导致 Release Actions 红灯；因此不作为最终全绿版本，验收器修复顺延 v3.1.12。 |
 | 3.1.10 | 2026-09-01 | 候选门禁通过；正式发布失败 | 本地 release gate 与正式运行中的 Python 3.9/3.11/3.13、Shell/YAML、安装器、敏感扫描和 Release gates 均通过；但 CI 覆盖率作业读取 coverage.py 7.10.7 不存在的展示字段，Release 创建步骤中的 f-string 转义触发 SyntaxError。公开 tag 保留但未创建 GitHub Release，不能标记为正式 PASS；修复顺延 v3.1.11。 |
 | 3.1.9 | 2026-08-31 | 工程修复门禁；正式工件以本 tag Release 为准 | codex 八/九次复核收口：完整历史 checkout、候选与无候选浅仓库 fail-closed、失败 summary 全量留证、fact/rule 契约回归、字符串路径兼容；九个子 Skill 行为正文与评测基架零变更，patch 版本不重复 tier2/tier3；184 单测、结构/扫描/i18n/foundation/公共包复验在打 tag 前执行，正式治理结论只回读 v3.1.9 Release 的 `gate-summary.json`。 |

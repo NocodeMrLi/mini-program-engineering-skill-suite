@@ -1100,6 +1100,14 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
         self.assertIn('"repos/$GITHUB_REPOSITORY/releases/tags/$RESOLVED_TAG"', workflow)
         self.assertIn("--jq '.immutable'", workflow)
 
+    def test_upload_artifact_is_pinned_to_node24_release(self) -> None:
+        workflows = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in (ROOT / ".github" / "workflows").glob("*.yml")
+        )
+        self.assertNotIn("65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08", workflows)
+        self.assertIn("043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1", workflows)
+
 
 if __name__ == "__main__":
     unittest.main()
