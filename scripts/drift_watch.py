@@ -159,10 +159,23 @@ def gh_available() -> bool:
 
 
 def existing_open_issues(title_prefix: str) -> set[str]:
+    """Return titles of existing drift issues, open OR closed.
+
+    Dedup must look at closed issues too: an author closing a resolved
+    "no actionable drift" issue used to erase the dedup key, so the next
+    weekly run re-opened a same-titled duplicate (#19 after #9).
+    """
     result = subprocess.run(
-        ["gh", "issue", "list", "--state", "open", "--json", "title", "--limit", "200"],
+        ["gh", "issue", "list", "--state", "all", "--json", "title", "--limit", "500", "--search", f"in:title {title_prefix}"],
         capture_output=True, check=False, text=True,
     )
+    if result.returncode:
+        # Older gh versions / appliances without --search: fall back to the
+        # plain all-state listing so dedup still sees closed duplicates.
+        result = subprocess.run(
+            ["gh", "issue", "list", "--state", "all", "--json", "title", "--limit", "500"],
+            capture_output=True, check=False, text=True,
+        )
     if result.returncode:
         return set()
     try:
