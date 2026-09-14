@@ -17,10 +17,10 @@
 
 - 事实：小程序使用用户隐私接口时，须在平台配置《用户隐私保护指引》，相关接口可用性以平台申报与审核状态为准。
   <!-- fact: privacy-guideline-required verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/ digest=549f0eb28b7409603b427e8f1da8af3bf4f4aa163cdfeee7d3cabe5fc0da0cf4 -->
-- 事实：平台运营规范覆盖注册、行为规范、内容标准与审核要求；提审前须按当前版本核对。
-  <!-- fact: operations-spec-scope verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/product/ digest=e1da4495c2aec52e65278f4ec23cf7d287092f8b49b60ad4959c7e0163b19df9 -->
-- 事实：审核被驳回后可修正并重新提审；驳回原因以平台运维中心当前返回为准，不以历史截图替代。
-  <!-- fact: review-rejection-flow verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/product/ digest=e1da4495c2aec52e65278f4ec23cf7d287092f8b49b60ad4959c7e0163b19df9 -->
+- 事实：涉及提审与发布要求的分节标题与入口: 常见拒绝情形；1. 注册提交规范；5.19 绕开、规避或对抗平台审核监管的行为；小程序提交审核的版本应与小程序实际发布、上线运营的版本一致。开发者不得通过技术或其他方式，绕开、规避或对抗微信小程序平台的审核及监管规则，包括但不限于：对不同用户群体展示不同服务类目下的内容，或伪造资质，或采用虚假、仿冒投诉入口或闪退闪屏等方式拦截用户投诉等恶意绕开、规避或对抗平台审核及监管的行为。4.2 你应当按照我们的要求提供相应的审批、备案等资质文件材料，否则，我们有理由相信你提交的微信小程序存在违反法律、法规或监管要求的情况。你所提交的资质文件材料，均应为真实、合法、有效的。腾讯将在合法权限和能力范围内对你的小程序进行发布审核，如我们发现你提交的文件材料存在任何伪造、造假情况，我们有权对拒绝你的微信小程序或对其采取强制措施，并保留追究你相应的法律责任的权利。; 运营规范当前包含的分节结构（如注册规范、行为规范、内容标准、审核要求）: 一、原则及相关说明；二、具体运营规范；三、小游戏特别规范；四、投诉与处罚规范；五、遵守当地法律监管；六、小程序平台运营规范免责声明；七、动态文档；八、小商店特别规范；九、交易类小程序运营规范；十、平台短剧推广计划合作协议。二、具体运营规范下为：1. 注册提交规范；2. 基本信息规范；3. 功能设置规范；4. 主体规范；5. 行为规范；6. 信息内容规范；7. 附近的小程序规范；8. 微信小程序内嵌网页规范；9. 商标与商业外观；10. 用户产生内容规范；11. 可用性和完整性规范；12. 技术实现规范；13. 小程序UI规范；14. 小程序支付及退款规范；15. 用户隐私和数据规范；16. 微信小程序插件规范；17. 微信云开发服务规范；18. 微信小程序直播规范；19. 微信云托管服务规范。
+  <!-- fact: operations-spec-scope verified=2026-09-14 source=https://developers.weixin.qq.com/miniprogram/product/ digest=73cb8f6151acf5e19625001c4dbf72412b654cdbebddaaac916f78fbe390c749 -->
+- 事实：审核被驳回后的修正与重新提审流程: NOT_STATED; 驳回原因的官方查询入口: NOT_STATED
+  <!-- fact: review-rejection-flow verified=2026-09-14 source=https://developers.weixin.qq.com/miniprogram/product/ digest=73cb8f6151acf5e19625001c4dbf72412b654cdbebddaaac916f78fbe390c749 -->
 - 事实：开发者工具的当前稳定版本与环境要求以官方下载页为准；项目配置与构建行为兼容性变化需按当前版本核对。
   <!-- fact: toolchain-devtools verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html digest=694dd716b1ff1a8c4fe7ce70ec8d457edb6a09a15de27576e0bad13286c129e5 -->
 
