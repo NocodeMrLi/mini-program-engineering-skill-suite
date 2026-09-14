@@ -408,8 +408,8 @@ def _draft_proposed_fact_updates(
     and the digest matches the drift report. A free-form dict here is what
     let tampered proposals through gate 2 (audit finding).
     """
-    url = rule_result["url"]
-    linked = sorted(fid for fid, meta in annotations.items() if meta["source"] == url)
+    rule_id = rule_result["rule_id"]
+    linked = [rule_id] if annotations.get(rule_id, {}).get("source") == rule_result["url"] else []
     extracted = rule_result.get("extracted_statements", {})
     extraction_render = "; ".join(
         f"{point}: {extracted[point]}" for point in sorted(extracted)

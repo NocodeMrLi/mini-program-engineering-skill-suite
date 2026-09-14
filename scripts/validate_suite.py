@@ -120,6 +120,7 @@ REQUIRED_FILES = (
     "scripts/platform_drift.py",
     "scripts/drift_watch.py",
     "scripts/drift_audit.py",
+    "scripts/apply_drift_proposal.py",
     "scripts/review_drift_proposal.py",
     "scripts/release_recommendation.py",
     "scripts/evaluation_gate.py",

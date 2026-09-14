@@ -8,10 +8,9 @@ ambiguous, or out of bounds is DO_NOT_APPLY (fail-closed) with numbered reasons.
 
 Scope of the audit (deliberate and honest): extracted_statements are
 model-derived extractions, NOT verified official text. This tool can only
-judge that proposed_fact_updates stay within the extraction. Verifying the
-extraction itself against the official page is a manual author step that
-always precedes any merge. There is no auto-merge path; the verdict is
-informational, exit 0/1 only.
+judge that proposed_fact_updates stay within the extraction. In CI, a passing
+verdict can be used by the narrow apply/PR automation for volatile platform
+facts; failures remain DO_NOT_APPLY.
 """
 
 from __future__ import annotations
@@ -411,7 +410,7 @@ def review_guarded(
     platform_root: Path,
     drift_report: Path | None,
     rounds: int,
-    shadow: bool = True,
+    shadow: bool = False,
 ) -> dict[str, Any]:
     """review() with an exception backstop: unexpected malformed input must
     become DO_NOT_APPLY with a contract problem code, never a traceback."""
@@ -438,11 +437,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--platform-root", type=Path, required=True, help="platforms/<platform> directory")
     parser.add_argument("--drift-report", type=Path, help="Drift report JSON for gate 2")
     parser.add_argument("--rounds", type=int, default=3, help="Consistency audit rounds (default 3)")
+    parser.add_argument("--shadow", action="store_true", help="Report-only mode; do not signal apply intent")
     args = parser.parse_args(argv)
-    report = review_guarded(args.proposal.resolve(), args.platform_root.resolve(), args.drift_report, args.rounds, True)
+    report = review_guarded(args.proposal.resolve(), args.platform_root.resolve(), args.drift_report, args.rounds, args.shadow)
     print(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True))
-    # Shadow mode is permanent now: the verdict is always informational. Exit 0
-    # when the audit chain completed (whatever it concluded), 1 on failures.
     return 0 if report["verdict"] == "PROPOSAL_CONSISTENT_WITH_EXTRACTION" else 1
 
 

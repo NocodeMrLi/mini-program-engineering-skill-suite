@@ -29,6 +29,7 @@ drift = load_script("platform_drift")
 reviewer = load_script("review_drift_proposal")
 recommendation = load_script("release_recommendation")
 drift_watch = load_script("drift_watch")
+apply_drift = load_script("apply_drift_proposal")
 agent_cli = load_script("agent_cli")
 
 
@@ -592,6 +593,100 @@ class V317AuditFollowUpTests(unittest.TestCase):
         r = self._run(build_default_proposal())
         self.assertEqual(r["verdict"], "PROPOSAL_CONSISTENT_WITH_EXTRACTION")
         self.assertEqual(r["problems"], [])
+
+    def test_shared_url_proposal_updates_only_matching_fact_id(self) -> None:
+        annotations = {
+            "operations-spec-scope": {
+                "verified": "2026-08-30",
+                "source": "https://example-official.test/product/",
+                "digest": "0" * 64,
+                "text": "old operations",
+            },
+            "review-rejection-flow": {
+                "verified": "2026-08-30",
+                "source": "https://example-official.test/product/",
+                "digest": "0" * 64,
+                "text": "old rejection",
+            },
+        }
+        results = [
+            {
+                "rule_id": "operations-spec-scope",
+                "state": "updated",
+                "url": "https://example-official.test/product/",
+                "fingerprint": "a" * 64,
+                "extracted_statements": {"A": "new operations"},
+            },
+            {
+                "rule_id": "review-rejection-flow",
+                "state": "updated",
+                "url": "https://example-official.test/product/",
+                "fingerprint": "a" * 64,
+                "extracted_statements": {"B": "new rejection"},
+            },
+        ]
+        proposal = drift.emit_proposal("wechat", results, annotations)
+        updates = {change["rule_id"]: set(change["proposed_fact_updates"]) for change in proposal["changes"]}
+        self.assertEqual(updates["operations-spec-scope"], {"operations-spec-scope"})
+        self.assertEqual(updates["review-rejection-flow"], {"review-rejection-flow"})
+
+
+class DriftApplyProposalTests(unittest.TestCase):
+    def test_apply_approved_proposal_updates_only_its_fact(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            platform_root = root / "platforms" / "wechat"
+            platform_root.mkdir(parents=True)
+            facts = platform_root / "facts.md"
+            facts.write_text(
+                "# facts\n\n"
+                "- 事实：old operations\n"
+                "  <!-- fact: operations-spec-scope verified=2026-08-30 source=https://example-official.test/product/ digest=0 -->\n"
+                "- 事实：old rejection\n"
+                "  <!-- fact: review-rejection-flow verified=2026-08-30 source=https://example-official.test/product/ digest=0 -->\n",
+                encoding="utf-8",
+            )
+            proposal = root / "proposal.json"
+            proposal.write_text(
+                json.dumps(
+                    {
+                        "format_version": 2,
+                        "platform": "wechat",
+                        "generated_at_utc": "2026-09-14T00:00:00Z",
+                        "changes": [
+                            {
+                                "rule_id": "operations-spec-scope",
+                                "state": "updated",
+                                "official_url": "https://example-official.test/product/",
+                                "fingerprint": "a" * 64,
+                                "requested_verify_points": ["A"],
+                                "extracted_statements": {"A": "new operations"},
+                                "proposed_fact_updates": {
+                                    "operations-spec-scope": {
+                                        "fact_id": "operations-spec-scope",
+                                        "current_text": "old operations",
+                                        "proposed_text": "A: new operations",
+                                        "source_digest": "a" * 64,
+                                    }
+                                },
+                            }
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            summary = root / "audit-summary.json"
+            summary.write_text(
+                json.dumps({"summaries": [{"platform": "wechat", "verdict": "PROPOSAL_CONSISTENT_WITH_EXTRACTION"}]}),
+                encoding="utf-8",
+            )
+            result = apply_drift.apply_proposal(root, proposal, apply_drift.approved_platforms(summary), dry_run=False)
+            text = facts.read_text(encoding="utf-8")
+        self.assertEqual(result["updated"], ["operations-spec-scope"])
+        self.assertIn("- 事实：A: new operations", text)
+        self.assertIn("verified=2026-09-14", text)
+        self.assertIn("digest=" + "a" * 64, text)
+        self.assertIn("- 事实：old rejection", text)
 
 
 class V318AuditFollowUpTests(unittest.TestCase):
