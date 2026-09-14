@@ -259,8 +259,12 @@ class DriftWatchBoundaryTests(unittest.TestCase):
         with patch.object(self.module.subprocess, "run", return_value=malformed):
             self.assertEqual(self.module.existing_open_issues("x"), set())
         valid = subprocess.CompletedProcess(args=[], returncode=0, stdout='[{"title":"one"}]', stderr="")
-        with patch.object(self.module.subprocess, "run", return_value=valid):
+        with patch.object(self.module.subprocess, "run", return_value=valid) as run_mock:
             self.assertEqual(self.module.existing_open_issues("x"), {"one"})
+            # Dedup must query ALL states (open + closed): a closed duplicate
+            # still suppresses re-opening (regression: #19 re-created after #9).
+            self.assertIn("--state", run_mock.call_args_list[0].args[0])
+            self.assertIn("all", run_mock.call_args_list[0].args[0])
         clean = {"actionable_count": 0, "platforms": []}
         dirty = {"actionable_count": 1, "platforms": []}
         with patch.object(self.module, "run", return_value=clean), contextlib.redirect_stdout(io.StringIO()):
