@@ -7,8 +7,9 @@ the redacted proposal (extracted_statements + drafted proposed_fact_updates),
 then run the deterministic gates plus K consistency audit rounds. One issue
 per platform carries the binary verdict
 (PROPOSAL_CONSISTENT_WITH_EXTRACTION / DO_NOT_APPLY) with per-rule evidence.
-Nothing ever merges automatically: even a consistency pass only bounds the
-draft to the model extraction; the author must verify the official page.
+In the scheduled workflow, a passing verdict is applied to volatile platform
+facts and submitted through a pull request with auto-merge enabled. Failures
+remain issue-only.
 Engine credentials arrive via environment (AGENT_API_*); they are never
 printed or written into reports.
 """
@@ -84,8 +85,9 @@ def audit_platform(platform_root: Path, rounds: int, out_dir: Path | None) -> di
         drift_report_path.write_text(
             json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
-    review = review_drift_proposal.review(proposal_path, platform_root, drift_report_path, rounds, shadow=True)
+    review = review_drift_proposal.review(proposal_path, platform_root, drift_report_path, rounds, shadow=False)
     summary["verdict"] = review["verdict"]
+    summary["shadow"] = review.get("shadow", False)
     summary["problems"] = review["problems"]
     summary["audit_rounds"] = [
         {"label": entry["label"], "verdict": entry.get("verdict"), "error": entry.get("error")}
@@ -127,9 +129,9 @@ def render_issue_body(summary: dict[str, Any]) -> str:
         ]
     lines += [
         "",
-        "Verdict semantics: PROPOSAL_CONSISTENT_WITH_EXTRACTION only means the drafted updates stay within the "
-        "model-derived extraction. It does NOT verify the extraction against the official page — before applying "
-        "anything, open the official URL and confirm yourself. No auto-merge exists.",
+        "Verdict semantics: PROPOSAL_CONSISTENT_WITH_EXTRACTION means the drafted updates stay within the "
+        "model-derived extraction and may enter the scheduled facts-only PR automation. It does NOT prove "
+        "platform upload/review/release behavior.",
         "",
         "Release recommendation right now:",
         "```",

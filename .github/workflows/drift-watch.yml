@@ -3,10 +3,11 @@ name: Drift watch
 # Weekly platform-rule freshness pipeline (decided by the author):
 # Saturdays 02:00 UTC = Beijing Saturday 10:00, inside the DeepSeek weekend
 # low-price window. Stage 1 is deterministic (L0/L1, zero tokens). Stage 2 runs
-# L2 extraction plus shadow-mode review through the HTTP engine using the
+# L2 extraction plus apply-ready review through the HTTP engine using the
 # AGENT_API_* secrets configured by the author; without the secrets the run
 # degrades to detection-only and still opens detection issues. Shadow mode is
-# ON: verdicts are reported on issues, nothing merges automatically.
+# OFF: passing audits are applied to volatile platform facts and submitted as
+# a PR with auto-merge enabled; rejected audits stay issue-only.
 on:
   schedule:
     - cron: "0 2 * * 6"  # Saturdays 02:00 UTC = Beijing Saturday 10:00
@@ -23,8 +24,9 @@ on:
         default: false
 
 permissions:
-  contents: read
+  contents: write
   issues: write
+  pull-requests: write
 
 concurrency:
   group: drift-watch
@@ -77,7 +79,7 @@ jobs:
           if-no-files-found: warn
 
   audit:
-    name: L2 extraction and shadow-mode review
+    name: L2 extraction and auto-merge review
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: detect
@@ -110,7 +112,7 @@ jobs:
       # (GitHub rejects the whole workflow with 422), so the credential check
       # happens inside the shell: audit runs when the key env is non-empty and
       # degrades with a clear message otherwise.
-      - name: Run audit (L2 + shadow-mode review, verdict issues)
+      - name: Run audit (L2 + apply-ready review, verdict issues)
         env:
           AGENT_API_BASE_URL: ${{ secrets.AGENT_API_BASE_URL }}
           AGENT_API_KEY: ${{ secrets.AGENT_API_KEY }}
@@ -141,6 +143,57 @@ jobs:
             echo "audit-summary.json missing after audit run" >&2
             exit 1
           fi
+
+      - name: Apply approved drift proposals
+        id: apply
+        if: always()
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          proposals=(audit-out/*-proposal.json)
+          if [ ! -f audit-out/audit-summary.json ] || [ "${#proposals[@]}" -eq 0 ]; then
+            echo "applied=0" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 scripts/apply_drift_proposal.py \
+            --audit-summary audit-out/audit-summary.json \
+            --out audit-out/apply-summary.json \
+            "${proposals[@]}"
+          applied="$(python3 - <<'PY'
+          import json
+          print(json.load(open("audit-out/apply-summary.json", encoding="utf-8")).get("applied_count", 0))
+          PY
+          )"
+          echo "applied=$applied" >> "$GITHUB_OUTPUT"
+
+      - name: Validate applied drift update
+        if: steps.apply.outputs.applied != '0'
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -q
+          python3 scripts/validate_suite.py .
+          python3 scripts/check_i18n_readme_structure.py .
+          python3 scripts/scan_sensitive_content.py . --format json
+
+      - name: Submit drift update PR and enable auto-merge
+        if: steps.apply.outputs.applied != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="codex/drift-auto-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add platforms
+          git commit -m "chore: apply approved platform drift facts"
+          git push --set-upstream origin "$branch"
+          pr_url="$(gh pr create \
+            --base main \
+            --head "$branch" \
+            --title "chore: apply approved platform drift facts" \
+            --body "Automated Saturday drift audit applied only PROPOSAL_CONSISTENT_WITH_EXTRACTION facts.md updates. CI must pass before merge.")"
+          gh pr merge "$pr_url" --squash --auto --delete-branch
 
       - name: Upload audit output (always)
         # Structured verdict trail: survives even when issue creation fails or

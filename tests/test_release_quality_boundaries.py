@@ -190,11 +190,11 @@ class PlatformDriftBoundaryTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             (root / "rule-map.json").write_text(json.dumps({"platform": "demo", "allowed_domains": ["docs.test"], "rules": [self.rule]}))
-            (root / "facts.md").write_text("- 事实：old\n<!-- fact: f1 verified=unknown source=https://docs.test/rule digest=unknown -->\n")
+            (root / "facts.md").write_text("- 事实：old\n<!-- fact: r1 verified=unknown source=https://docs.test/rule digest=unknown -->\n")
             outcome = {"rule_id": "r1", "state": "updated", "url": "https://docs.test/rule", "fingerprint": "a" * 64, "reason": "changed", "extracted_statements": {"point-a": "now"}}
             with patch.object(self.module, "check_rule", return_value=outcome):
                 report = self.module.run(root, None, False)
-            self.assertEqual(report["proposal"]["changes"][0]["proposed_fact_updates"]["f1"]["current_text"], "old")
+            self.assertEqual(report["proposal"]["changes"][0]["proposed_fact_updates"]["r1"]["current_text"], "old")
             with self.assertRaisesRegex(ValueError, "unknown-rule"):
                 self.module.run(root, "absent", False)
             proposal = root / "proposal.json"

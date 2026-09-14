@@ -8,10 +8,11 @@ Wraps platform_drift's L0/L1 checks for every platforms/<name>/ directory:
   (uses the repository's Platform rule drift template fields);
 - a missing or unreadable rule map fails closed (exit 2).
 
-L2 extraction and consistency review live in drift_audit.py. That
-stage runs in CI with the AGENT_API_* secrets configured by the author (see
-.github/workflows/drift-watch.yml) or locally with any CLI engine — the
-workflow degrades to detection-only when the secrets are absent.
+L2 extraction and consistency review live in drift_audit.py. That stage runs
+in CI with the AGENT_API_* secrets configured by the author (see
+.github/workflows/drift-watch.yml) or locally with any CLI engine. A passing
+scheduled audit can flow into the facts-only PR/auto-merge path; without
+secrets, the workflow degrades to detection-only.
 """
 
 from __future__ import annotations
@@ -200,8 +201,8 @@ def emit_issues(report: dict[str, Any], repo: str | None) -> int:
                 f"python3 scripts/platform_drift.py platforms/{platform_block['platform']} --rule {item['rule_id']} --proposal-out /tmp/proposal.json\n"
                 f"python3 scripts/review_drift_proposal.py /tmp/proposal.json --platform-root platforms/{platform_block['platform']} --drift-report /tmp/drift.json\n"
                 f"```\n"
-                f"No auto-merge exists: the reviewer's PROPOSAL_CONSISTENT_WITH_EXTRACTION only bounds the draft "
-                f"to the model extraction; the author must verify the official page before applying anything."
+                f"The Saturday audit now applies only PROPOSAL_CONSISTENT_WITH_EXTRACTION proposals through a "
+                f"facts-only PR with auto-merge enabled; DO_NOT_APPLY findings stay issue-only."
             )
             command = ["gh", "issue", "create", "--title", title, "--body", body, "--label", "drift"]
             if repo:
