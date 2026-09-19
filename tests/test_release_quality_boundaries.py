@@ -240,8 +240,9 @@ class DriftWatchBoundaryTests(unittest.TestCase):
         report = {"platforms": [{"platform": "demo", "results": [{"rule_id": "r1", "state": "unverifiable", "url": "u", "error": "x"}]}]}
         with patch.object(self.module, "gh_available", return_value=False), contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(self.module.emit_issues(report, None), 0)
-        with patch.object(self.module, "gh_available", return_value=True), patch.object(self.module, "existing_open_issues", return_value={"[Drift] demo: r1 -> unverifiable"}), contextlib.redirect_stdout(io.StringIO()):
+        with patch.object(self.module, "gh_available", return_value=True), patch.object(self.module, "existing_open_issues", return_value={"[Drift] demo: r1 -> unverifiable"}) as existing, contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(self.module.emit_issues(report, None), 0)
+            existing.assert_called_once_with("[Drift]")
         failed = subprocess.CompletedProcess(args=[], returncode=1, stdout="", stderr="denied")
         with patch.object(self.module, "gh_available", return_value=True), patch.object(self.module, "existing_open_issues", return_value=set()), patch.object(self.module.subprocess, "run", return_value=failed), contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(self.module.emit_issues(report, "o/r"), 1)
@@ -253,16 +254,21 @@ class DriftWatchBoundaryTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             self.assertFalse(self.module.gh_available())
         bad = subprocess.CompletedProcess(args=[], returncode=1, stdout="", stderr="")
-        with patch.object(self.module.subprocess, "run", return_value=bad):
+        with patch.object(self.module.subprocess, "run", return_value=bad) as run_mock:
             self.assertEqual(self.module.existing_open_issues("x"), set())
+            self.assertTrue(all("open" in call.args[0] for call in run_mock.call_args_list))
         malformed = subprocess.CompletedProcess(args=[], returncode=0, stdout="bad", stderr="")
         with patch.object(self.module.subprocess, "run", return_value=malformed):
             self.assertEqual(self.module.existing_open_issues("x"), set())
         valid = subprocess.CompletedProcess(args=[], returncode=0, stdout='[{"title":"one"}]', stderr="")
         with patch.object(self.module.subprocess, "run", return_value=valid) as run_mock:
             self.assertEqual(self.module.existing_open_issues("x"), {"one"})
-            # Dedup must query ALL states (open + closed): a closed duplicate
-            # still suppresses re-opening (regression: #19 re-created after #9).
+            self.assertIn("--state", run_mock.call_args_list[0].args[0])
+            self.assertIn("open", run_mock.call_args_list[0].args[0])
+        with patch.object(self.module.subprocess, "run", return_value=valid) as run_mock:
+            self.assertEqual(self.module.existing_open_issues("x", include_closed=True), {"one"})
+            # Audit verdict dedup may query ALL states: a closed NO_ACTIONABLE
+            # duplicate still suppresses re-opening (regression: #19 after #9).
             self.assertIn("--state", run_mock.call_args_list[0].args[0])
             self.assertIn("all", run_mock.call_args_list[0].args[0])
         clean = {"actionable_count": 0, "platforms": []}
@@ -312,8 +318,9 @@ class DriftAuditBoundaryTests(unittest.TestCase):
         with patch.object(self.module, "gh_available", return_value=False), contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(self.module.emit_issues([summary], None), 0)
         title = "[Drift-audit] demo: MANUAL_REVIEW"
-        with patch.object(self.module, "gh_available", return_value=True), patch.object(self.module, "existing_open_issues", return_value={title}), contextlib.redirect_stdout(io.StringIO()):
+        with patch.object(self.module, "gh_available", return_value=True), patch.object(self.module, "existing_open_issues", return_value={title}) as existing, contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(self.module.emit_issues([summary], None), 0)
+            existing.assert_called_once_with("[Drift-audit]", include_closed=True)
         failed = subprocess.CompletedProcess(args=[], returncode=1, stdout="", stderr="denied")
         with patch.object(self.module, "gh_available", return_value=True), patch.object(self.module, "existing_open_issues", return_value=set()), patch.object(self.module.subprocess, "run", return_value=failed), contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(self.module.emit_issues([summary], "o/r"), 1)
