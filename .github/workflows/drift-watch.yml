@@ -66,7 +66,8 @@ jobs:
           # --no-llm keeps detection on the deterministic path (L0/L1 only);
           # --emit-issues keeps the notification chain intact even when the
           # audit stage below is skipped (no credentials or skip-audit).
-          python3 scripts/drift_watch.py $args --no-llm --output drift-report.json --emit-issues
+          mkdir -p "$RUNNER_TEMP/drift-watch"
+          python3 scripts/drift_watch.py $args --no-llm --output "$RUNNER_TEMP/drift-watch/drift-report.json" --emit-issues
 
       - name: Upload drift report
         # Detection fails (rc=1) exactly when drift is actionable — that is
@@ -75,7 +76,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: drift-report
-          path: drift-report.json
+          path: ${{ runner.temp }}/drift-watch/drift-report.json
           if-no-files-found: warn
 
   audit:
