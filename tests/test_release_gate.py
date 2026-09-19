@@ -355,6 +355,13 @@ class ReleaseHistoryTests(unittest.TestCase):
         audit = workflow.split("  audit:", 1)[1]
         self.assertIn("fetch-depth: 0", audit)
 
+    def test_drift_detect_report_stays_in_runner_temp(self) -> None:
+        workflow = (ROOT / ".github" / "workflows" / "drift-watch.yml").read_text(encoding="utf-8")
+        detect = workflow.split("  detect:", 1)[1].split("  audit:", 1)[0]
+        self.assertIn('mkdir -p "$RUNNER_TEMP/drift-watch"', detect)
+        self.assertIn('--output "$RUNNER_TEMP/drift-watch/drift-report.json"', detect)
+        self.assertIn("path: ${{ runner.temp }}/drift-watch/drift-report.json", detect)
+
 
 
 class Gate4VerdictHandlingTests(unittest.TestCase):
