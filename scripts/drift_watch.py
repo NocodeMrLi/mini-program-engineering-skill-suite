@@ -158,22 +158,25 @@ def gh_available() -> bool:
     return bool(os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN"))
 
 
-def existing_open_issues(title_prefix: str) -> set[str]:
-    """Return titles of existing drift issues, open OR closed.
+def existing_open_issues(title_prefix: str, include_closed: bool = False) -> set[str]:
+    """Return titles of existing drift issues matching the prefix.
 
-    Dedup must look at closed issues too: an author closing a resolved
-    "no actionable drift" issue used to erase the dedup key, so the next
-    weekly run re-opened a same-titled duplicate (#19 after #9).
+    Detection issues default to open-only so a future same-rule drift can still
+    notify maintainers after an older drift issue was closed. Audit verdict
+    issues may opt into closed-state dedup: closing a resolved "no actionable
+    drift" issue used to erase the dedup key, so the next weekly run re-opened
+    a same-titled duplicate (#19 after #9).
     """
+    state = "all" if include_closed else "open"
     result = subprocess.run(
-        ["gh", "issue", "list", "--state", "all", "--json", "title", "--limit", "500", "--search", f"in:title {title_prefix}"],
+        ["gh", "issue", "list", "--state", state, "--json", "title", "--limit", "500", "--search", f"in:title {title_prefix}"],
         capture_output=True, check=False, text=True,
     )
     if result.returncode:
         # Older gh versions / appliances without --search: fall back to the
-        # plain all-state listing so dedup still sees closed duplicates.
+        # plain state listing so dedup keeps the requested open/all semantics.
         result = subprocess.run(
-            ["gh", "issue", "list", "--state", "all", "--json", "title", "--limit", "500"],
+            ["gh", "issue", "list", "--state", state, "--json", "title", "--limit", "500"],
             capture_output=True, check=False, text=True,
         )
     if result.returncode:
@@ -193,6 +196,8 @@ def emit_issues(report: dict[str, Any], repo: str | None) -> int:
     if not gh_available():
         print(json.dumps({"emit_issues": "skipped", "reason": "no-github-token"}, ensure_ascii=False))
         return 0
+    # Keep deterministic detection alerts open-only: closed historical drift
+    # issues must not suppress a genuinely new same-rule drift in a later week.
     existing = existing_open_issues("[Drift]")
     opened = 0
     failed: list[str] = []

@@ -154,7 +154,9 @@ def emit_issues(summaries: list[dict[str, Any]], repo: str | None) -> int:
     if not gh_available():
         print(json.dumps({"emit_issues": "skipped", "reason": "no-github-token"}, ensure_ascii=False))
         return 0
-    existing = existing_open_issues("[Drift-audit]")
+    # Audit verdict titles intentionally dedup across closed issues: resolved
+    # NO_ACTIONABLE_DRIFT verdicts should not be re-opened every Saturday.
+    existing = existing_open_issues("[Drift-audit]", include_closed=True)
     opened = 0
     failed: list[str] = []
     for summary in summaries:
