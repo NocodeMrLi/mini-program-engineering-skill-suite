@@ -202,7 +202,7 @@ def run_agent(cwd: Path, prompt: str, attempts: int = 4) -> tuple[str, str | Non
             ]
             try:
                 result = subprocess.run(
-                    command, capture_output=True, check=False, text=True, cwd=str(cwd)
+                    command, capture_output=True, check=False, cwd=str(cwd)
                 )
             except OSError as exc:
                 last_error = f"agent-execution-failed:{type(exc).__name__}"
@@ -210,7 +210,12 @@ def run_agent(cwd: Path, prompt: str, attempts: int = 4) -> tuple[str, str | Non
             if engine == "codex":
                 raw = answer_path.read_text(encoding="utf-8") if answer_path.is_file() else ""
             else:
-                raw = (result.stdout or "").strip()
+                stdout = result.stdout or b""
+                raw = (
+                    stdout.decode("utf-8", errors="replace").strip()
+                    if isinstance(stdout, bytes)
+                    else stdout.strip()
+                )
             candidate = extract_json_object(raw)
             if candidate is None:
                 last_error = f"agent-output-not-json:len={len(raw)}" if raw.strip() else "agent-output-empty"
