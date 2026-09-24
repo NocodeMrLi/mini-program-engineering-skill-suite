@@ -457,6 +457,24 @@ class DriftAuditUnitTests(unittest.TestCase):
         self.assertIn("agent-output-not-json:len=", error)
         self.assertNotIn("raw secret-looking", error)
 
+    def test_agent_cli_decodes_utf8_stdout_independent_of_system_locale(self) -> None:
+        # CLI engines emit UTF-8, but Windows commonly defaults subprocess text
+        # decoding to a legacy code page. Capture bytes and decode explicitly so
+        # valid non-ASCII JSON is not lost as an empty agent response.
+        payload = '{"ok": true, "message": "中文 🚀"}'
+        with patch.object(agent_cli, "resolve_engine", return_value="claude"):
+            with patch.object(agent_cli, "build_command", return_value=["fake-agent"]):
+                with patch.object(
+                    agent_cli.subprocess,
+                    "run",
+                    return_value=subprocess.CompletedProcess(
+                        args=[], returncode=0, stdout=payload.encode("utf-8"), stderr=b""
+                    ),
+                ):
+                    answer, error = agent_cli.run_agent(Path("/tmp"), "PROMPT", attempts=1)
+        self.assertIsNone(error)
+        self.assertEqual(json.loads(answer), {"ok": True, "message": "中文 🚀"})
+
 
 class AuditFixRegressionTests(unittest.TestCase):
     """Regressions for the codex-audit fix batch (release gates, uni matching, extractor stack)."""
