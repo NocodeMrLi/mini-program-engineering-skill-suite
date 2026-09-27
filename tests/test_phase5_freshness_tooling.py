@@ -470,10 +470,42 @@ class DriftAuditUnitTests(unittest.TestCase):
                     return_value=subprocess.CompletedProcess(
                         args=[], returncode=0, stdout=payload.encode("utf-8"), stderr=b""
                     ),
-                ):
+                ) as run_mock:
                     answer, error = agent_cli.run_agent(Path("/tmp"), "PROMPT", attempts=1)
         self.assertIsNone(error)
         self.assertEqual(json.loads(answer), {"ok": True, "message": "中文 🚀"})
+        run_kwargs = run_mock.call_args.kwargs
+        self.assertTrue(run_kwargs["capture_output"])
+        self.assertNotIn("text", run_kwargs)
+        self.assertNotIn("encoding", run_kwargs)
+
+    def test_agent_cli_reads_utf8_from_a_real_binary_subprocess(self) -> None:
+        payload = '{"ok": true, "message": "中文 🚀"}'
+        command = [
+            sys.executable,
+            "-c",
+            f"import sys; sys.stdout.buffer.write({payload.encode('utf-8')!r})",
+        ]
+        with patch.object(agent_cli, "resolve_engine", return_value="claude"):
+            with patch.object(agent_cli, "build_command", return_value=command):
+                answer, error = agent_cli.run_agent(Path("/tmp"), "PROMPT", attempts=1)
+        self.assertIsNone(error)
+        self.assertEqual(json.loads(answer), {"ok": True, "message": "中文 🚀"})
+
+    def test_agent_cli_rejects_invalid_utf8_without_rewriting_json(self) -> None:
+        payload = b'{"ok": true, "message": "bad \xff"}'
+        with patch.object(agent_cli, "resolve_engine", return_value="claude"):
+            with patch.object(agent_cli, "build_command", return_value=["fake-agent"]):
+                with patch.object(
+                    agent_cli.subprocess,
+                    "run",
+                    return_value=subprocess.CompletedProcess(
+                        args=[], returncode=0, stdout=payload, stderr=b""
+                    ),
+                ):
+                    answer, error = agent_cli.run_agent(Path("/tmp"), "PROMPT", attempts=1)
+        self.assertEqual(answer, "")
+        self.assertEqual(error, "agent-output-invalid-utf8")
 
 
 class AuditFixRegressionTests(unittest.TestCase):
