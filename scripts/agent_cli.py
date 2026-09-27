@@ -211,11 +211,14 @@ def run_agent(cwd: Path, prompt: str, attempts: int = 4) -> tuple[str, str | Non
                 raw = answer_path.read_text(encoding="utf-8") if answer_path.is_file() else ""
             else:
                 stdout = result.stdout or b""
-                raw = (
-                    stdout.decode("utf-8", errors="replace").strip()
-                    if isinstance(stdout, bytes)
-                    else stdout.strip()
-                )
+                if isinstance(stdout, bytes):
+                    try:
+                        raw = stdout.decode("utf-8").strip()
+                    except UnicodeDecodeError:
+                        last_error = "agent-output-invalid-utf8"
+                        continue
+                else:
+                    raw = stdout.strip()
             candidate = extract_json_object(raw)
             if candidate is None:
                 last_error = f"agent-output-not-json:len={len(raw)}" if raw.strip() else "agent-output-empty"
