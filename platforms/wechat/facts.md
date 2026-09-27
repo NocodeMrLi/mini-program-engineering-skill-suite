@@ -17,10 +17,10 @@
 
 - 事实：小程序使用用户隐私接口时，须在平台配置《用户隐私保护指引》，相关接口可用性以平台申报与审核状态为准。
   <!-- fact: privacy-guideline-required verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/ digest=549f0eb28b7409603b427e8f1da8af3bf4f4aa163cdfeee7d3cabe5fc0da0cf4 -->
-- 事实：运营规范主页正文现分七大节（原则说明、具体运营规范、小游戏特别规范、投诉与处罚、当地法律监管、免责声明、动态文档），提审与发布要求集中在「二、具体运营规范」下的注册提交、可用性和完整性、技术实现、UI、支付退款等 19 个小节；导航中的小商店、交易类、短剧等规范是独立子页面，不在主页正文。与提审直接相关的条款：5.19 提审版本须与实际发布上线版本一致，禁止以任何技术方式绕开或对抗审核监管；4.2 资质文件须真实合法有效，伪造可被拒审或追责。
-  <!-- fact: operations-spec-scope verified=2026-09-14 source=https://developers.weixin.qq.com/miniprogram/product/ digest=73cb8f6151acf5e19625001c4dbf72412b654cdbebddaaac916f78fbe390c749 -->
-- 事实：运营规范主页当前未载明驳回后的重提审流程与驳回原因查询入口（提取标记 NOT_STATED）；既往实践入口为小程序后台运维中心的审核记录页，以后台当前展示为准，属需登录确认的 manual 事实。
-  <!-- fact: review-rejection-flow verified=2026-09-14 source=https://developers.weixin.qq.com/miniprogram/product/ digest=73cb8f6151acf5e19625001c4dbf72412b654cdbebddaaac916f78fbe390c749 -->
+- 事实：运营规范主页正文仍分七大节（原则说明、具体运营规范、小游戏特别规范、投诉与处罚、当地法律监管、免责声明、动态文档）；「二、具体运营规范」仍有注册提交、基本信息、功能设置、主体、行为、信息内容、可用性与完整性、技术实现、UI、支付退款、隐私与数据等 19 个直接分节，其中「5. 行为规范」已扩展至 5.37。页面顶部的「常见拒绝情形」、服务条款、认证指引、类目与备案，以及导航中的小商店、交易类、短剧等均为独立入口，不应计入主页正文分节。与提审直接相关的条款包括 1.4（应按平台要求补充材料和修改，否则影响审核）、4.2（资质须真实合法有效，伪造可被拒审或追责）和 5.19（提审版本应与实际上线版本一致，不得绕开、规避或对抗审核监管）。
+  <!-- fact: operations-spec-scope verified=2026-09-27 source=https://developers.weixin.qq.com/miniprogram/product/ digest=97e453695a41d7af8638ee521ca2974750a71f92fa6b8b508eb071aaef5437cd -->
+- 事实：运营规范主页在「四、投诉与处罚规范」给出高层路径：平台可能提供申诉渠道，开发者整改后可通过该渠道重新提交发布审核；页面顶部另提供独立的「常见拒绝情形」入口。公开文档未说明某次提审驳回原因的账号级查询入口和具体后台操作步骤；具体原因、审核记录和重新提交操作仍应以登录后小程序后台的当前展示为准，属需登录确认的 manual 事实。
+  <!-- fact: review-rejection-flow verified=2026-09-27 source=https://developers.weixin.qq.com/miniprogram/product/ digest=97e453695a41d7af8638ee521ca2974750a71f92fa6b8b508eb071aaef5437cd -->
 - 事实：开发者工具的当前稳定版本与环境要求以官方下载页为准；项目配置与构建行为兼容性变化需按当前版本核对。
   <!-- fact: toolchain-devtools verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html digest=694dd716b1ff1a8c4fe7ce70ec8d457edb6a09a15de27576e0bad13286c129e5 -->
 
