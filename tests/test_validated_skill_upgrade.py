@@ -185,6 +185,22 @@ class SkillContractUpgradeTests(unittest.TestCase):
         self.assertIn("空对象和空数组仍为 truthy", workflow)
         self.assertIn("降级或标记 `unknown`", workflow)
 
+    def test_partial_snapshot_cannot_prove_repository_absence_or_release_blocker(self) -> None:
+        intake = read("skills/mini-program-project-intake-skill/SKILL.md")
+        workflow = read("skills/mini-program-verification-skill/references/verification-workflow.md")
+        combined = intake + workflow
+        for marker in (
+            "部分快照",
+            "完整性声明",
+            "未包含",
+            "真实仓库缺失",
+            "构建失败",
+            "发布阻断",
+        ):
+            self.assertIn(marker, combined)
+        self.assertIn("只可标记为证据不足", workflow)
+        self.assertIn("实际构建或解析失败", workflow)
+
     def test_new_public_references_and_tier4_gate_are_allowlisted(self) -> None:
         validator = read("scripts/validate_suite.py")
         root_skill = read("SKILL.md")
