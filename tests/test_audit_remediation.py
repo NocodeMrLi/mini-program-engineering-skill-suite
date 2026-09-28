@@ -222,6 +222,83 @@ class EvaluationGateTests(unittest.TestCase):
         }
         return self.signature.sign_document(payload, self.private_key, self.module.TRUSTED_SIGNER_KEY_ID)
 
+    def _fresh_attested_release(
+        self,
+        root: Path,
+        *,
+        add_forbidden_change: bool = False,
+        add_harness_change: bool = False,
+    ) -> tuple[Path, Path, str]:
+        """Build a real two-commit fresh release without a commit-hash fixed point."""
+        repo = build_release_repo(root)
+        self._install_public_key(repo)
+        (repo / "VERSION").write_text("1.1.0\n", encoding="utf-8")
+        (repo / "skills" / "demo" / "SKILL.md").write_text(
+            "---\nname: demo\ndescription: Use when demo.\n---\nnew capability body\n",
+            encoding="utf-8",
+        )
+        commit_all(repo, "feat: release subject")
+        subject_commit = git(repo, "rev-parse", "HEAD")
+        behavior = self.module.aggregate_fingerprint(
+            self.module.fingerprint_paths(repo, subject_commit, ("behavior",))
+        )
+        harness = self.module.aggregate_fingerprint(
+            self.module.fingerprint_paths(repo, subject_commit, ("harness",))
+        )
+        artifacts = repo / ".github" / "release-evidence"
+        stages: dict[str, dict[str, str]] = {}
+        for stage in self.module.REQUIRED_STAGES:
+            name = f"v1.1.0-{stage}.json"
+            artifact = {
+                "schema_version": 1,
+                "stage": stage,
+                "candidate_tag": "v1.1.0",
+                "candidate_commit": subject_commit,
+                "verdict": "PASS",
+                "skill_behavior_sha256": behavior,
+                "evaluation_harness_sha256": harness,
+                "engine": "test-agent",
+                "model": "test-model",
+                "generated_at_utc": "2026-09-28T00:00:00Z",
+            }
+            encoded = json.dumps(artifact, sort_keys=True).encode()
+            (artifacts / name).write_bytes(encoded)
+            stages[stage] = {
+                "artifact_path": name,
+                "artifact_sha256": hashlib.sha256(encoded).hexdigest(),
+            }
+        payload = {
+            "schema_version": 2,
+            "candidate_tag": "v1.1.0",
+            "candidate_commit": subject_commit,
+            "mode": "fresh",
+            "engine": "test-agent",
+            "model": "test-model",
+            "generated_at_utc": "2026-09-28T00:00:00Z",
+            "candidate_skill_behavior_sha256": behavior,
+            "candidate_evaluation_harness_sha256": harness,
+            "stages": stages,
+        }
+        gate_file = artifacts / "v1.1.0.json"
+        gate_file.write_text(
+            json.dumps(
+                self.signature.sign_document(payload, self.private_key, self.module.TRUSTED_SIGNER_KEY_ID)
+            ),
+            encoding="utf-8",
+        )
+        if add_forbidden_change:
+            (repo / "skills" / "demo" / "SKILL.md").write_text(
+                "---\nname: demo\ndescription: Use when demo.\n---\nchanged after evaluation\n",
+                encoding="utf-8",
+            )
+        if add_harness_change:
+            harness_path = repo / "tests" / "evals" / "post_evaluation_probe.py"
+            harness_path.parent.mkdir(parents=True, exist_ok=True)
+            harness_path.write_text("print('changed after evaluation')\n", encoding="utf-8")
+        commit_all(repo, "chore: attach release evidence")
+        git(repo, "tag", "v1.1.0")
+        return repo, gate_file, subject_commit
+
     def test_patch_reuse_passes_when_behavior_and_harness_identical(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -378,6 +455,142 @@ class EvaluationGateTests(unittest.TestCase):
             gate_file.write_text(json.dumps(self._fresh_declaration(repo, artifacts, "v1.1.0")), encoding="utf-8")
             report = self.module.verify(repo, "v1.1.0", "v1.0.0", "minor", gate_file)
         self.assertEqual(report["verdict"], "PASS", report.get("problems"))
+
+    def test_minor_release_accepts_evidence_only_attestation_commit(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            repo, gate_file, subject_commit = self._fresh_attested_release(Path(td))
+            tag_commit = git(repo, "rev-parse", "v1.1.0")
+            report = self.module.verify(repo, "v1.1.0", "v1.0.0", "minor", gate_file)
+        self.assertEqual(report["verdict"], "PASS", report.get("problems"))
+        self.assertEqual(report["evidence_subject_commit"], subject_commit[:12])
+        self.assertEqual(report["candidate_commit"], tag_commit[:12])
+
+    def test_fresh_attestation_commit_rejects_behavior_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            repo, gate_file, _ = self._fresh_attested_release(
+                Path(td), add_forbidden_change=True
+            )
+            report = self.module.verify(repo, "v1.1.0", "v1.0.0", "minor", gate_file)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertTrue(
+            any(problem.startswith("fresh:attestation-scope-violation:") for problem in report["problems"]),
+            report["problems"],
+        )
+
+    def test_fresh_attestation_requires_a_resolvable_subject_commit(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            repo, gate_file, _ = self._fresh_attested_release(Path(td))
+            evaluation = json.loads(gate_file.read_text(encoding="utf-8"))
+            evaluation["candidate_commit"] = "0" * 40
+            problems, _ = self.module.verify_fresh(
+                repo,
+                "v1.1.0",
+                evaluation,
+                gate_file.parent,
+            )
+        self.assertIn("fresh:candidate-commit-mismatch", problems)
+
+    def test_fresh_attestation_subject_must_be_an_ancestor_of_the_tag(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            repo, gate_file, _ = self._fresh_attested_release(Path(td))
+            original_branch = git(repo, "branch", "--show-current")
+            git(repo, "switch", "-q", "-c", "unrelated", "v1.0.0")
+            (repo / "README.md").write_text("unrelated history\n", encoding="utf-8")
+            commit_all(repo, "test: unrelated subject")
+            unrelated_commit = git(repo, "rev-parse", "HEAD")
+            git(repo, "switch", "-q", original_branch)
+            evaluation = json.loads(gate_file.read_text(encoding="utf-8"))
+            evaluation["candidate_commit"] = unrelated_commit
+            problems, _ = self.module.verify_fresh(
+                repo,
+                "v1.1.0",
+                evaluation,
+                gate_file.parent,
+            )
+        self.assertIn("fresh:candidate-commit-mismatch", problems)
+
+    def test_fresh_attestation_commit_rejects_harness_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            repo, gate_file, _ = self._fresh_attested_release(
+                Path(td), add_harness_change=True
+            )
+            report = self.module.verify(repo, "v1.1.0", "v1.0.0", "minor", gate_file)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertIn("fresh:attestation-harness-fingerprint-mismatch", report["problems"])
+
+    def test_fresh_attestation_scope_allows_evaluation_summary(self) -> None:
+        self.assertTrue(
+            self.module.allowed_fresh_attestation_path("EVALUATIONS.md", "v1.1.0")
+        )
+
+    def test_evaluation_artifact_loader_rejects_symlinks(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = root / "target.json"
+            target.write_text("{}\n", encoding="utf-8")
+            link = root / "evidence.json"
+            link.symlink_to(target)
+            with self.assertRaisesRegex(ValueError, "symlink-artifact"):
+                self.module.load_evaluation_artifact(link)
+
+    def test_fresh_evidence_rejects_a_symlinked_artifacts_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            repo = build_release_repo(root)
+            (repo / "VERSION").write_text("1.1.0\n", encoding="utf-8")
+            commit_all(repo, "feat: candidate")
+            git(repo, "tag", "v1.1.0")
+            artifacts = root / "artifacts"
+            artifacts.mkdir()
+            evaluation = self._fresh_declaration(repo, artifacts, "v1.1.0")
+            alias = root / "artifacts-link"
+            alias.symlink_to(artifacts, target_is_directory=True)
+            problems, _ = self.module.verify_fresh(
+                repo,
+                "v1.1.0",
+                evaluation,
+                alias,
+            )
+        self.assertIn("fresh:artifacts-dir-symlink", problems)
+
+    def test_attestor_signs_only_a_valid_fresh_branch(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            repo, gate_file, _ = self._fresh_attested_release(Path(td))
+            unsigned = json.loads(gate_file.read_text(encoding="utf-8"))
+            unsigned.pop("signature")
+            gate_file.write_text(json.dumps(unsigned), encoding="utf-8")
+            attestor = load_script("attest_release_evidence")
+            signed = attestor.attest(
+                repo,
+                "v1.1.0",
+                gate_file,
+                self.private_key,
+                self.public_key,
+            )
+            key_id = self.signature.verify_signed_document(
+                signed,
+                self.public_key,
+                expected_key_id=self.module.TRUSTED_SIGNER_KEY_ID,
+            )
+        self.assertEqual(key_id, self.module.TRUSTED_SIGNER_KEY_ID)
+
+    def test_attestor_refuses_a_branch_with_post_evaluation_behavior_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            repo, gate_file, _ = self._fresh_attested_release(
+                Path(td), add_forbidden_change=True
+            )
+            unsigned = json.loads(gate_file.read_text(encoding="utf-8"))
+            unsigned.pop("signature")
+            gate_file.write_text(json.dumps(unsigned), encoding="utf-8")
+            attestor = load_script("attest_release_evidence")
+            with self.assertRaisesRegex(ValueError, "attestation-scope-violation"):
+                attestor.attest(
+                    repo,
+                    "v1.1.0",
+                    gate_file,
+                    self.private_key,
+                    self.public_key,
+                )
 
     def test_stale_version_artifact_blocks_fresh(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -1063,6 +1276,30 @@ class ScannerBoundaryTests(unittest.TestCase):
         self.assertEqual(findings, [])
 class ReleaseWorkflowContractTests(unittest.TestCase):
     """P1-03 acceptance encoded as workflow-content regressions."""
+
+    def test_release_evidence_signing_workflow_is_owner_gated_and_read_only(self) -> None:
+        workflow = (
+            ROOT / ".github" / "workflows" / "sign-release-evidence.yml"
+        ).read_text(encoding="utf-8")
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("candidate_ref:", workflow)
+        self.assertIn("github.actor == github.repository_owner", workflow)
+        self.assertIn(
+            "github.ref_name == github.event.repository.default_branch",
+            workflow,
+        )
+        self.assertIn("contents: read", workflow)
+        self.assertIn("persist-credentials: false", workflow)
+        self.assertIn("EVALUATION_SIGNING_PRIVATE_KEY_B64", workflow)
+        self.assertIn("path: trusted-tooling", workflow)
+        self.assertIn("path: candidate", workflow)
+        self.assertIn("trusted-tooling/scripts/attest_release_evidence.py candidate", workflow)
+        self.assertIn(
+            "trusted-tooling/.github/release-evidence/trusted-signers.pem",
+            workflow,
+        )
+        self.assertNotIn("python3 scripts/attest_release_evidence.py .", workflow)
+        self.assertNotIn("contents: write", workflow)
 
     def test_no_clobber_upload_exists(self) -> None:
         workflow = (ROOT / ".github" / "workflows" / "release.yml").read_text(encoding="utf-8")

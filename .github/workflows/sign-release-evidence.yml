@@ -1,0 +1,81 @@
+name: Sign release evaluation evidence
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_ref:
+        description: "Branch or commit containing the unsigned fresh evidence"
+        required: true
+        type: string
+      candidate_tag:
+        description: "Unsigned fresh-evidence candidate, for example v3.2.0"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  sign:
+    if: >-
+      ${{ github.actor == github.repository_owner &&
+          github.ref_name == github.event.repository.default_branch }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout trusted tooling from the default branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 1
+          persist-credentials: false
+          path: trusted-tooling
+
+      - name: Checkout the unsigned evidence candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.candidate_ref }}
+          fetch-depth: 0
+          persist-credentials: false
+          path: candidate
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.11"
+
+      - name: Validate and sign fresh evidence
+        env:
+          RAW_TAG_INPUT: ${{ inputs.candidate_tag }}
+          EVALUATION_SIGNING_PRIVATE_KEY_B64: ${{ secrets.EVALUATION_SIGNING_PRIVATE_KEY_B64 }}
+        run: |
+          set -euo pipefail
+          candidate_tag="$RAW_TAG_INPUT"
+          if [[ "$candidate_tag" == *$'\n'* || "$candidate_tag" == *$'\r'* ]] ||
+             [[ ! "$candidate_tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Candidate tag must match v<major>.<minor>.<patch>" >&2
+            exit 1
+          fi
+          if [ -z "$EVALUATION_SIGNING_PRIVATE_KEY_B64" ]; then
+            echo "Release signing secret is unavailable" >&2
+            exit 1
+          fi
+          key_file="$(mktemp)"
+          trap 'rm -f "$key_file"' EXIT
+          printf '%s' "$EVALUATION_SIGNING_PRIVATE_KEY_B64" | base64 --decode > "$key_file"
+          chmod 600 "$key_file"
+          python3 trusted-tooling/scripts/attest_release_evidence.py candidate \
+            --candidate-tag "$candidate_tag" \
+            --declaration "candidate/.github/release-evidence/${candidate_tag}.json" \
+            --private-key "$key_file" \
+            --trusted-public-key trusted-tooling/.github/release-evidence/trusted-signers.pem \
+            --output /tmp/signed-release-evidence.json
+
+      - name: Upload signed declaration
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: signed-release-evidence-${{ inputs.candidate_tag }}
+          path: /tmp/signed-release-evidence.json
+          if-no-files-found: error
+          retention-days: 7

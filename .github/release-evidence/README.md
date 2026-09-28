@@ -16,6 +16,19 @@ behavior/harness fingerprints, candidate tag, and candidate fingerprints. The
 gate independently recomputes Git commits and fingerprints from the checkout.
 
 For fresh minor/major releases, the declaration and its nine referenced
-artifacts must be produced after the candidate commit exists. Every artifact is
-bound to the exact candidate tag, full commit SHA, stage, verdict, engine,
-model, timestamp, behavior fingerprint, and evaluation-harness fingerprint.
+artifacts must be produced after the release-subject commit exists. Every
+artifact is bound to the exact candidate tag, full subject commit SHA, stage,
+verdict, engine, model, timestamp, behavior fingerprint, and
+evaluation-harness fingerprint. The final tag may point to a later attestation
+commit only when the entire subject-to-tag diff consists of that tag's
+`v<semver>*.json` files in this directory and `EVALUATIONS.md`; behavior and
+harness fingerprints must remain byte-identical. This two-commit protocol
+avoids an impossible commit-hash self-reference without weakening binding.
+
+Unsigned fresh declarations are validated and signed by
+`.github/workflows/sign-release-evidence.yml`. The workflow is read-only,
+restricted to the repository owner, and can run only from the default branch.
+It executes the default branch's trusted signer and public key against a
+separate read-only candidate checkout, verifies the attestation scope before
+using the secret, and publishes only the signed declaration as a short-lived
+Actions artifact. Candidate-branch code never runs with the signing secret.

@@ -64,6 +64,7 @@ HARNESS_PREFIXES: tuple[str, ...] = (
 ROOT_SKILL_METADATA_DIFF = ("version", "last_reviewed")
 TRUSTED_SIGNER_KEY_ID = "release-evaluation-2026-08-31"
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+GIT_OID_RE = re.compile(r"^[0-9a-f]{40}(?:[0-9a-f]{24})?$")
 
 
 def _is_frontmatter_metadata_diff(root: Path, old_rev: str, new_rev: str, path: str) -> bool:
@@ -238,6 +239,8 @@ def aggregate_fingerprint(fingerprint: dict[str, str]) -> str:
 
 
 def load_evaluation_artifact(path: Path) -> dict[str, Any]:
+    if path.is_symlink():
+        raise ValueError(f"symlink-artifact:{path.name}")
     if not path.is_file():
         raise ValueError(f"missing-artifact:{path.name}")
     if path.stat().st_size > 20_000_000:
@@ -246,6 +249,32 @@ def load_evaluation_artifact(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"invalid-artifact:{path.name}:not-object")
     return value
+
+
+def is_ancestor(root: Path, ancestor: str, descendant: str) -> bool:
+    result = subprocess.run(
+        ["git", "-C", str(root), "merge-base", "--is-ancestor", ancestor, descendant],
+        capture_output=True,
+        check=False,
+    )
+    return result.returncode == 0
+
+
+def fresh_attestation_paths(root: Path, subject_commit: str, candidate_commit: str) -> list[str]:
+    return [
+        line
+        for line in git(root, "diff", "--name-only", f"{subject_commit}..{candidate_commit}").splitlines()
+        if line.strip()
+    ]
+
+
+def allowed_fresh_attestation_path(path: str, candidate_tag: str) -> bool:
+    if path == "EVALUATIONS.md":
+        return True
+    prefix = f".github/release-evidence/{candidate_tag}"
+    return path == f"{prefix}.json" or (
+        path.startswith(f"{prefix}-") and path.endswith(".json")
+    )
 
 
 def artifact_passes(report: dict[str, Any]) -> bool:
@@ -299,15 +328,41 @@ def verify_fresh(
     candidate_tag: str,
     evaluation: dict[str, Any],
     artifacts_dir: Path,
+    candidate_ref: str | None = None,
 ) -> tuple[list[str], dict[str, Any]]:
     """Every required stage must be hash-bound to this exact candidate."""
     problems: list[str] = []
+    if artifacts_dir.is_symlink():
+        problems.append("fresh:artifacts-dir-symlink")
     stage_results: dict[str, str] = {}
-    candidate_commit = commit_of(root, candidate_tag)
+    candidate_commit = commit_of(root, candidate_ref or candidate_tag)
+    subject_value = evaluation.get("candidate_commit")
+    subject_commit: str | None = None
+    attestation_paths: list[str] = []
+    if not isinstance(subject_value, str) or GIT_OID_RE.fullmatch(subject_value) is None:
+        problems.append("fresh:candidate-commit-mismatch")
+    else:
+        try:
+            subject_commit = commit_of(root, subject_value)
+        except ValueError:
+            problems.append("fresh:candidate-commit-mismatch")
+        else:
+            if subject_commit != subject_value or not is_ancestor(root, subject_commit, candidate_commit):
+                problems.append("fresh:candidate-commit-mismatch")
+            else:
+                attestation_paths = fresh_attestation_paths(root, subject_commit, candidate_commit)
+                for path in attestation_paths:
+                    if not allowed_fresh_attestation_path(path, candidate_tag):
+                        problems.append(f"fresh:attestation-scope-violation:{path}")
     behavior = aggregate_fingerprint(fingerprint_paths(root, candidate_commit, ("behavior",)))
     harness = aggregate_fingerprint(fingerprint_paths(root, candidate_commit, ("harness",)))
-    if evaluation.get("candidate_commit") != candidate_commit:
-        problems.append("fresh:candidate-commit-mismatch")
+    if subject_commit is not None:
+        subject_behavior = aggregate_fingerprint(fingerprint_paths(root, subject_commit, ("behavior",)))
+        subject_harness = aggregate_fingerprint(fingerprint_paths(root, subject_commit, ("harness",)))
+        if subject_behavior != behavior:
+            problems.append("fresh:attestation-behavior-fingerprint-mismatch")
+        if subject_harness != harness:
+            problems.append("fresh:attestation-harness-fingerprint-mismatch")
     if evaluation.get("candidate_skill_behavior_sha256") != behavior:
         problems.append("fresh:behavior-fingerprint-mismatch")
     if evaluation.get("candidate_evaluation_harness_sha256") != harness:
@@ -338,7 +393,7 @@ def verify_fresh(
             "schema_version": 1,
             "stage": stage,
             "candidate_tag": candidate_tag,
-            "candidate_commit": candidate_commit,
+            "candidate_commit": subject_commit,
             "verdict": "PASS",
             "skill_behavior_sha256": behavior,
             "evaluation_harness_sha256": harness,
@@ -356,6 +411,8 @@ def verify_fresh(
         "fresh_stage_results": stage_results,
         "artifacts_dir": str(artifacts_dir),
         "candidate_commit": candidate_commit[:12],
+        "evidence_subject_commit": subject_commit[:12] if subject_commit else None,
+        "attestation_paths": attestation_paths,
         "skill_behavior_sha256": behavior,
         "evaluation_harness_sha256": harness,
     }
