@@ -174,6 +174,17 @@ class SkillContractUpgradeTests(unittest.TestCase):
         for marker in ("稳定 ID", "专项维度", "`N/A`", "`check`"):
             self.assertIn(marker, quality)
 
+    def test_audit_findings_require_reproducible_coverage_and_counterevidence(self) -> None:
+        intake = read("skills/mini-program-project-intake-skill/SKILL.md")
+        verification = read("skills/mini-program-verification-skill/SKILL.md")
+        workflow = read("skills/mini-program-verification-skill/references/verification-workflow.md")
+        for marker in ("确定性目录画像", "同一份工具清单", "已发现问题", "未发现问题", "证据不足"):
+            self.assertIn(marker, intake)
+        for marker in ("机制反证闭环", "调用实参", "条件求值", "实际分支/兜底", "主动查找能推翻"):
+            self.assertIn(marker, verification + workflow)
+        self.assertIn("空对象和空数组仍为 truthy", workflow)
+        self.assertIn("降级或标记 `unknown`", workflow)
+
     def test_new_public_references_and_tier4_gate_are_allowlisted(self) -> None:
         validator = read("scripts/validate_suite.py")
         root_skill = read("SKILL.md")
