@@ -224,7 +224,9 @@ def validate_judgment(
     else:
         for arm in sorted(ARMS):
             value = critical_errors.get(arm)
-            if not isinstance(value, int) or isinstance(value, bool) or value != 0:
+            if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+                problems.append(f"{label}:{arm}-critical-errors-invalid")
+            elif arm == "with-skill" and value != 0:
                 problems.append(f"{label}:{arm}-critical-errors")
 
     target_scores = judgment.get("target_scores")
