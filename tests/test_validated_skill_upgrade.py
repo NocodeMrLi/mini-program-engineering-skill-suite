@@ -216,9 +216,11 @@ class SkillContractUpgradeTests(unittest.TestCase):
             "用工具枚举", "输入→写入→读取→呈现", "全称注释/承诺",
             "实际表达式", "游标走完集合并再次前进", "同一输入比较集合长度变化前后的索引",
             "非法数值", "重进", "不能只建议未来补测试", "未证实不得判无发现", "以发现为主体",
+            "onLoad→onShow→onHide→onShow→onUnload", "创建、暂停、恢复、销毁", "`NaN`、无穷和小数",
         ):
             self.assertIn(marker, risk_steps)
         self.assertIn("承诺、实际表达式、边界输入或最小反例、结论", minimum_output)
+        self.assertIn("页面生命周期证据和断点", minimum_output)
 
     def test_new_public_references_and_tier4_gate_are_allowlisted(self) -> None:
         validator = read("scripts/validate_suite.py")
