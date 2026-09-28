@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.1.13" alt="小程序开发工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.2.0" alt="小程序开发工程技能套件 封面" width="100%">
 </p>
 
 # 小程序开发工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.1.13-0EA5E9.svg" alt="Version: 3.1.13">
+  <img src="https://img.shields.io/badge/version-3.2.0-0EA5E9.svg" alt="Version: 3.2.0">
 </p>
 
 <p align="center">
@@ -261,7 +261,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 
 当前套件版本在发布前会经过：结构校验、敏感信息扫描、对公包导出的确定性检查、清单核对、路由评估、行为评估和独立终审。
 
-CI 还强制全仓脚本语句覆盖率不低于 85%，评估门禁、SemVer 建议器、敏感扫描和接收端复验四个关键模块的分支覆盖率不低于 90%。minor/major 行为版本还必须提供匿名真实项目 baseline/with-skill 同题配对的 Tier 4 产物非退化 PASS；patch 版本复用历史评测时，必须提交由仓库信任公钥验证的签名声明，绑定候选 tag、来源 tag/commit、九阶段 PASS 摘要及候选行为/评测基架指纹；任一绑定不一致即阻断发布。
+CI 还强制全仓脚本语句覆盖率不低于 85%，评估门禁、SemVer 建议器、敏感扫描和接收端复验四个关键模块的分支覆盖率不低于 90%。minor/major 行为版本还必须提供匿名真实项目 baseline/with-skill 同题配对的 Tier 4 产物非退化 PASS，并用仓库可信公钥验证签名的新鲜九阶段声明；声明绑定业务候选提交，后续 tag 封装提交只允许加入当前版本脱敏证据且行为/基架指纹必须不变。patch 版本复用历史评测时，同样必须签名绑定候选 tag、来源 tag/commit、九阶段 PASS 摘要及候选行为/评测基架指纹；任一绑定不一致即阻断发布。
 
 评测分层、证据边界与各版本公开摘要见 [EVALUATIONS.md](EVALUATIONS.md)。评测引擎与模型可插拔（codex / claude / gemini / OpenAI 兼容 API 任一可用者均可充当被测与判定引擎），审计元数据如实记录当次使用的引擎与模型；跨引擎通过是更强证据，分数不跨引擎直接比较。
 
@@ -307,9 +307,9 @@ shasum -a 256 -c SHA256SUMS
 然后解压并复验包内清单：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.1.13.tar.gz
-python3 mini-program-engineering-suite-v3.1.13/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.1.13
+tar -xzf mini-program-engineering-suite-v3.2.0.tar.gz
+python3 mini-program-engineering-suite-v3.2.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.2.0
 ```
 
 如果你拿到的是其他渠道提供的包，也可以通过包内 `package-manifest.json` 重新计算每个文件的大小和 SHA-256 摘要：
@@ -324,7 +324,7 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前工作版本：**3.1.13**。
+当前工作版本：**3.2.0**。
 
 ---
 

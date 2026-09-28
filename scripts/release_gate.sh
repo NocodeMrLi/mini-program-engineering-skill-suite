@@ -264,7 +264,8 @@ summary["evaluation_gate"] = {
     for key in (
         "verdict", "mode", "candidate_tag", "baseline_tag", "required_level",
         "executed_stages", "reused_stages", "reused_from", "reused_from_commit",
-        "candidate_commit", "skill_behavior_sha256", "evaluation_harness_sha256",
+        "candidate_commit", "evidence_subject_commit", "attestation_paths",
+        "skill_behavior_sha256", "evaluation_harness_sha256",
         "engine", "model", "signer_key_id", "problems",
     )
 }

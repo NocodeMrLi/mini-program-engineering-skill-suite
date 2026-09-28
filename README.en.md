@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.1.13" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.2.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.1.13-0EA5E9.svg" alt="Version: 3.1.13">
+  <img src="https://img.shields.io/badge/version-3.2.0-0EA5E9.svg" alt="Version: 3.2.0">
 </p>
 
 <p align="center">
@@ -248,7 +248,7 @@ This suite does not automatically install project dependencies, create cloud res
 
 The current suite version uses structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, and independent final judgment before release.
 
-CI additionally enforces at least 85% statement coverage across all scripts and at least 90% branch coverage in the evaluation gate, SemVer recommender, sensitive scanner, and recipient verifier. Minor and major behavior releases also require a Tier 4 PASS from paired baseline/with-skill anonymous project artifacts. A patch release that reuses earlier evaluations must provide a trusted-key-signed declaration binding the candidate tag, source tag/commit, nine PASS-stage attestations, and candidate behavior/harness fingerprints; any mismatch blocks release.
+CI additionally enforces at least 85% statement coverage across all scripts and at least 90% branch coverage in the evaluation gate, SemVer recommender, sensitive scanner, and recipient verifier. Minor and major behavior releases also require a Tier 4 PASS from paired baseline/with-skill anonymous project artifacts plus a trusted-key-signed fresh nine-stage declaration. Fresh evidence binds a release-subject commit; a later tag commit may add only that version's redacted evidence while preserving identical behavior/harness fingerprints. A patch release that reuses earlier evaluations must likewise bind the candidate tag, source tag/commit, nine PASS-stage attestations, and candidate fingerprints; any mismatch blocks release.
 
 Evaluation layers, evidence boundaries, and per-release public summaries are documented in [EVALUATIONS.md](EVALUATIONS.md). The evaluation engine and model are pluggable (any available one of codex / claude / gemini / OpenAI-compatible APIs can serve as the tested or judging engine); audit metadata records the engine and model actually used. Passing across engines is stronger evidence; scores are not compared across engine classes.
 
@@ -294,9 +294,9 @@ shasum -a 256 -c SHA256SUMS
 Then extract the archive and verify the package manifest:
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.1.13.tar.gz
-python3 mini-program-engineering-suite-v3.1.13/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.1.13
+tar -xzf mini-program-engineering-suite-v3.2.0.tar.gz
+python3 mini-program-engineering-suite-v3.2.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.2.0
 ```
 
 If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
@@ -311,7 +311,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current working version: **3.1.13**.
+Current working version: **3.2.0**.
 
 ---
 
