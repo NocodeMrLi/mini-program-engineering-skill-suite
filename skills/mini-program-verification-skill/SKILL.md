@@ -24,7 +24,7 @@ description: >-
 5. 每项记录实际命令或步骤、退出码、样本/设备、观察结果和证据位置；只写“测过了”不构成证据。
 6. 覆盖正常、空、错误、边界、重复操作、并发/乱序、恢复与回归；不为凑数量执行与风险无关的测试。
 7. 失败时保存最小失败证据，区分产品不符合、实现缺陷、测试环境阻塞和证据缺失；不通过修改测试期望掩盖失败。
-8. 使用 [证据可采信规则](references/evidence-admissibility.md) 记录产生工具、格式、版本、时间、环境/版本指纹、完整性、适用结论和不能证明的内容，并对每份证据给出 `admissible / limited / not-admissible` 质量标签；质量标签描述证据可采信程度，不与 `proven / not-proven` 等状态词混用或互相替代。
+8. 按 [证据可采信规则](references/evidence-admissibility.md) 逐份核对来源、时间、版本指纹、完整性、独立性和适用结论；质量标签不得用结论状态替代。
 9. 对未知项目先运行套件提供的只读 capability doctor（若独立安装则执行同等只读探测），再按 [验证能力与适配矩阵](references/verification-capability-matrix.md) 复用现有能力；不自动安装或执行候选命令。
 10. 多页面、多流程或多状态项目按 [分维度质量覆盖合同](references/dimensional-quality-contract.md) 从当前事实源枚举唯一目标，分开基础与专项覆盖并以只读 `check` 阻止基线漂移；再使用 [质量证据矩阵](assets/quality-evidence-matrix.md) 记录目标覆盖、包体/分包、启动/首屏、运行错误与发布后观察窗，并按 [验证工作流](references/verification-workflow.md) 和 [验证证据报告](assets/verification-evidence-report.md) 输出已执行、未执行和残余风险。
 
@@ -45,6 +45,7 @@ description: >-
 - 未执行、被阻塞和不适用项目，以及为什么未执行。
 - 当前可支持的最高状态、残余风险、不可推出结论和下一项高信息量验证。
 - 即使只评估截图转录或截断日志，也逐项输出采集工具、工具版本、时间、设备/环境、步骤、证据/构建指纹和完整性；缺失时必须明确写 `unknown` 或缺失，不能省略字段。
+- 每份证据写 `admissible / limited / not-admissible` 及理由；结构化输出没有专用字段时写入事实或限制。`proven / not-proven` 不能代替证据质量标签。
 
 ## 停止条件
 

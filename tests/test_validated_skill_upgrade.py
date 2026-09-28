@@ -201,6 +201,13 @@ class SkillContractUpgradeTests(unittest.TestCase):
         self.assertIn("只可标记为证据不足", workflow)
         self.assertIn("实际构建或解析失败", workflow)
 
+    def test_evidence_quality_labels_are_required_in_final_output(self) -> None:
+        verification = read("skills/mini-program-verification-skill/SKILL.md")
+        minimum_output = verification.split("## 最低输出", 1)[1].split("## 停止条件", 1)[0]
+        self.assertIn("`admissible / limited / not-admissible`", minimum_output)
+        self.assertIn("没有专用字段", minimum_output)
+        self.assertIn("不能代替证据质量标签", minimum_output)
+
     def test_new_public_references_and_tier4_gate_are_allowlisted(self) -> None:
         validator = read("scripts/validate_suite.py")
         root_skill = read("SKILL.md")
