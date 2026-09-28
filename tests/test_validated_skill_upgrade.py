@@ -6,6 +6,8 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -236,7 +238,7 @@ class ArtifactNondegradationGateTests(unittest.TestCase):
         self.assertTrue(any("retry_budget-invalid" in item for item in report["problems"]))
         self.assertTrue(any("retry-count-exceeds-budget" in item for item in report["problems"]))
 
-    def test_blinding_critical_regression_and_low_gain_fail_closed(self) -> None:
+    def test_blinding_critical_regression_and_zero_gain_fail_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
             bundle = make_bundle(root)
@@ -244,12 +246,12 @@ class ArtifactNondegradationGateTests(unittest.TestCase):
             judgment = root / payload["cases"][0]["judgment_path"]
             def degrade(value: dict) -> None:
                 value["blind"] = False
-                value["target_scores"]["with-skill"] = 71.0
+                value["target_scores"]["with-skill"] = 70.0
                 value["dimensions"]["correctness"]["with-skill"] = 80.0
             mutate_json(judgment, degrade)
             payload["cases"][0]["judgment_sha256"] = hashlib.sha256(judgment.read_bytes()).hexdigest()
             other = root / payload["cases"][1]["judgment_path"]
-            mutate_json(other, lambda value: value["target_scores"].__setitem__("with-skill", 71.0))
+            mutate_json(other, lambda value: value["target_scores"].__setitem__("with-skill", 70.0))
             payload["cases"][1]["judgment_sha256"] = hashlib.sha256(other.read_bytes()).hexdigest()
             write_json(bundle, payload)
             report = self.module.validate_bundle(bundle)
@@ -257,6 +259,27 @@ class ArtifactNondegradationGateTests(unittest.TestCase):
         self.assertTrue(any("not-blind" in item for item in report["problems"]))
         self.assertTrue(any("critical-regression" in item for item in report["problems"]))
         self.assertIn("bundle:mean-target-gain-below-minimum", report["problems"])
+
+    def test_critical_error_and_single_case_target_regression_cannot_be_averaged_away(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            payload = json.loads(bundle.read_text(encoding="utf-8"))
+            first = root / payload["cases"][0]["judgment_path"]
+            def fail_first(value: dict) -> None:
+                value["critical_errors"]["with-skill"] = 1
+                value["target_scores"]["with-skill"] = 60.0
+            mutate_json(first, fail_first)
+            payload["cases"][0]["judgment_sha256"] = hashlib.sha256(first.read_bytes()).hexdigest()
+            second = root / payload["cases"][1]["judgment_path"]
+            mutate_json(second, lambda value: value["target_scores"].__setitem__("with-skill", 100.0))
+            payload["cases"][1]["judgment_sha256"] = hashlib.sha256(second.read_bytes()).hexdigest()
+            write_json(bundle, payload)
+            report = self.module.validate_bundle(bundle)
+        self.assertGreaterEqual(report["mean_target_gain"], report["minimum_mean_target_gain"])
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertTrue(any("with-skill-critical-errors" in item for item in report["problems"]))
+        self.assertTrue(any("target-regression" in item for item in report["problems"]))
 
     def test_insufficient_runs_and_tampered_hash_fail_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -313,6 +336,42 @@ class ArtifactNondegradationGateTests(unittest.TestCase):
         self.assertIn("bundle:cases-below-minimum", report["problems"])
         self.assertTrue(any("target-score-invalid" in item for item in report["problems"]))
         self.assertTrue(any("outside-evidence-root" in item for item in report["problems"]))
+
+    def test_malformed_arm_and_nul_artifact_path_fail_with_a_report(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            payload = json.loads(bundle.read_text(encoding="utf-8"))
+            arm_attestation = payload["cases"][0]["runs"][0]
+            arm_record = root / arm_attestation["record_path"]
+            mutate_json(arm_record, lambda value: value.__setitem__("arm", []))
+            arm_attestation["record_sha256"] = hashlib.sha256(arm_record.read_bytes()).hexdigest()
+            path_attestation = payload["cases"][0]["runs"][1]
+            path_record = root / path_attestation["record_path"]
+            mutate_json(path_record, lambda value: value.__setitem__("artifact_path", "\x00"))
+            path_attestation["record_sha256"] = hashlib.sha256(path_record.read_bytes()).hexdigest()
+            write_json(bundle, payload)
+            report = self.module.validate_bundle(bundle)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertTrue(any("arm-invalid" in item for item in report["problems"]))
+        self.assertTrue(any("artifact-path-invalid" in item for item in report["problems"]))
+
+    def test_bundle_symlink_fails_closed_through_cli(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            link = root / "tier4-bundle-link.json"
+            link.symlink_to(bundle)
+            result = subprocess.run(
+                [sys.executable, str(GATE), str(link)],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        self.assertEqual(result.returncode, 1)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertTrue(any("bundle-unreadable" in item for item in report["problems"]))
 
     def test_release_chain_requires_tier4_stage(self) -> None:
         evaluation_gate = read("scripts/evaluation_gate.py")

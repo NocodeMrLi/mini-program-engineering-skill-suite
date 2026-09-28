@@ -61,14 +61,22 @@ def nonempty(value: Any) -> bool:
 
 
 def safe_relative_name(value: Any) -> str | None:
-    if not isinstance(value, str) or value in {"", ".", ".."} or Path(value).name != value:
+    if not isinstance(value, str) or value in {"", ".", ".."} or "\x00" in value:
+        return None
+    try:
+        if Path(value).name != value:
+            return None
+    except (OSError, RuntimeError, ValueError):
         return None
     return value
 
 
 def bound_path(base: Path, name: str) -> Path | None:
-    path = base / name
-    if path.is_symlink() or path.resolve(strict=False).parent != base.resolve():
+    try:
+        path = base / name
+        if path.is_symlink() or path.resolve(strict=False).parent != base.resolve():
+            return None
+    except (OSError, RuntimeError, ValueError):
         return None
     return path
 
@@ -82,6 +90,8 @@ def sha256_file(path: Path) -> str:
 
 
 def load_json(path: Path) -> dict[str, Any]:
+    if path.is_symlink():
+        raise ValueError(f"symlink:{path.name}")
     if not path.is_file():
         raise ValueError(f"missing:{path.name}")
     if path.stat().st_size > MAX_INPUT_BYTES:
@@ -359,7 +369,7 @@ def validate_bundle(bundle_path: Path) -> dict[str, Any]:
             if record.get("case_id") != case_id:
                 problems.append(f"{run_label}:case-id-mismatch")
             arm = record.get("arm")
-            if arm not in ARMS:
+            if not isinstance(arm, str) or arm not in ARMS:
                 problems.append(f"{run_label}:arm-invalid")
                 continue
             run_id = record.get("run_id")
@@ -450,7 +460,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("evidence_bundle", type=Path, help="Private Tier 4 evidence bundle JSON")
     parser.add_argument("--output", type=Path, help="Write the redacted gate report here")
     args = parser.parse_args(argv)
-    report = validate_bundle(args.evidence_bundle.resolve())
+    # Preserve the final path component so load_json can reject a bundle
+    # symlink instead of silently following it before validation.
+    report = validate_bundle(args.evidence_bundle.absolute())
     payload = json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
