@@ -25,7 +25,7 @@ description: >-
 6. 每项记录实际命令或步骤、退出码、样本/设备、观察结果和证据位置；只写“测过了”不构成证据。
 7. 覆盖正常、空、错误、边界、重复、并发/乱序、恢复与回归；不凑无关测试。
 8. 保存最小失败证据，区分产品、实现、环境、证据问题；不改测试期望掩盖失败。
-9. 按 [证据可采信规则](references/evidence-admissibility.md) 逐份核对来源、时间、版本、完整性、独立性、适用结论及边界；质量标签不得用结论状态替代。
+9. 按 [证据可采信规则](references/evidence-admissibility.md) 逐份核对来源、时间、版本、完整性、独立性、适用结论和不能证明的内容；质量标签不得用结论状态替代。
 10. 未知项目先运行只读 capability doctor（独立安装时同等探测），按 [验证能力与适配矩阵](references/verification-capability-matrix.md) 复用能力；不自动安装或执行候选命令。
 11. 多页面/流程/状态按 [分维度质量覆盖合同](references/dimensional-quality-contract.md) 枚举唯一目标，以只读 `check` 拦基线漂移；用 [质量证据矩阵](assets/quality-evidence-matrix.md) 记基础/专项、包体/分包、首屏、错误和发布观察窗，按 [验证工作流](references/verification-workflow.md) 与 [验证证据报告](assets/verification-evidence-report.md) 输出风险。
 
