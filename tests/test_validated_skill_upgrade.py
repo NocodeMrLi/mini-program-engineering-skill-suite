@@ -308,6 +308,32 @@ class ArtifactNondegradationGateTests(unittest.TestCase):
         self.assertTrue(any("with-skill-critical-errors" in item for item in report["problems"]))
         self.assertTrue(any("target-regression" in item for item in report["problems"]))
 
+    def test_baseline_error_is_a_comparator_not_a_candidate_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            payload = json.loads(bundle.read_text(encoding="utf-8"))
+            first = root / payload["cases"][0]["judgment_path"]
+            mutate_json(first, lambda value: value["critical_errors"].__setitem__("baseline", 1))
+            payload["cases"][0]["judgment_sha256"] = hashlib.sha256(first.read_bytes()).hexdigest()
+            write_json(bundle, payload)
+            report = self.module.validate_bundle(bundle)
+        self.assertEqual(report["verdict"], "PASS")
+        self.assertEqual(report["critical_error_count"], 0)
+
+    def test_baseline_critical_error_count_must_still_be_valid(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            payload = json.loads(bundle.read_text(encoding="utf-8"))
+            first = root / payload["cases"][0]["judgment_path"]
+            mutate_json(first, lambda value: value["critical_errors"].__setitem__("baseline", -1))
+            payload["cases"][0]["judgment_sha256"] = hashlib.sha256(first.read_bytes()).hexdigest()
+            write_json(bundle, payload)
+            report = self.module.validate_bundle(bundle)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertTrue(any("baseline-critical-errors-invalid" in item for item in report["problems"]))
+
     def test_insufficient_runs_and_tampered_hash_fail_closed(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
