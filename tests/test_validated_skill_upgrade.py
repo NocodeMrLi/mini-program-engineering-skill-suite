@@ -208,6 +208,12 @@ class SkillContractUpgradeTests(unittest.TestCase):
         self.assertIn("没有专用字段", minimum_output)
         self.assertIn("不能代替证据质量标签", minimum_output)
 
+    def test_audit_coverage_traces_each_domain_and_challenges_claims(self) -> None:
+        verification = read("skills/mini-program-verification-skill/SKILL.md")
+        risk_steps = verification.split("## 风险分层验证", 1)[1].split("## 状态与证据边界", 1)[0]
+        for marker in ("用工具枚举", "输入→写入→读取→呈现", "注释/承诺", "非法数值", "循环", "重进"):
+            self.assertIn(marker, risk_steps)
+
     def test_new_public_references_and_tier4_gate_are_allowlisted(self) -> None:
         validator = read("scripts/validate_suite.py")
         root_skill = read("SKILL.md")
