@@ -22,8 +22,9 @@ description: >-
 3. 核对源码和构建产物中的测试开关、模拟数据、调试入口、日志、后门路径和内部文案。
 4. 执行敏感信息扫描与人工匿名化复核；核对权限、隐私声明、域名/服务和实际功能一致性，但不回显凭证值。
 5. 准备版本说明、变更范围、已知问题、监控/观察点、回滚条件、回滚版本与复验步骤。
-6. 分别记录代码推送、平台上传、体验版、审核提交、审核结果和正式发布的证据；任何一层缺证据都保持 `unknown`。
-7. 使用 [发布治理工作流](references/release-governance-workflow.md) 判定阻塞，按 [发布就绪记录](assets/release-readiness-record.md) 输出。
+6. 项目包含云函数、云托管、外部后端、数据库、对象存储、依赖审计或分享/公开入口时，执行 [云端发布与发布后运维门禁](references/cloud-release-operations.md)：配置 preflight、production build/start/smoke、真实依赖 health、审计有效性、公开安全落地和运维交接分别取证。
+7. 分别记录代码推送、平台上传、体验版、审核提交、审核结果和正式发布的证据；任何一层缺证据都保持 `unknown`。
+8. 使用 [发布治理工作流](references/release-governance-workflow.md) 判定阻塞，按 [发布就绪记录](assets/release-readiness-record.md) 输出。
 
 外部动作发生中断、超时或回执不明确时，当前状态保持 `unknown`；先查询平台记录、目标版本和回执，再判断已生效、未生效或仍不确定。原上传/审核/发布授权不自动成为高风险动作的重放授权。
 
@@ -40,6 +41,7 @@ description: >-
 
 - 发布目标、当前分支、提交、版本、源码/构建/工具指纹与工作区状态。
 - 验证证据、安全、测试开关、敏感信息、权限、隐私和回滚检查结果。
+- 条件触发时的云配置、生产 build/start/smoke、依赖审计、分享/公开入口与发布后云环境交接结果。
 - 关键证据的产生工具、格式、版本、时间、目标指纹、可采信范围和不能证明的内容。
 - 每个发布层的当前状态、证据、缺失项与阻塞项。
 - 当前结论：`not-ready` / `release-ready` / `uploaded` / `review-submitted` / `review-approved` / `released`；只使用证据支持的最高状态。

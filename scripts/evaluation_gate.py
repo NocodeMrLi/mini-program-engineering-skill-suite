@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Machine-readable evaluation gate: no release without fresh or verifiably
-reused tier2/tier3/judge/signer evidence (audit P1-01).
+reused tier2/tier3/Tier 4/judge/signer evidence (audit P1-01).
 
 This gate is a REQUIRED input of scripts/release_gate.sh, so a release cannot
 be packaged without it. Two admission modes, both fail-closed:
@@ -43,6 +43,7 @@ REQUIRED_STAGES: tuple[str, ...] = (
     "behavior-held-out",
     "methodology-development",
     "methodology-held-out",
+    "artifact-nondegradation",
     "independent-judgment",
     "final-signature",
 )
@@ -51,7 +52,10 @@ REQUIRED_STAGES: tuple[str, ...] = (
 BEHAVIOR_PREFIXES: tuple[str, ...] = ("skills/", "shared/", "SKILL.md", "foundation/")
 # Evaluation harness: a change here also invalidates reuse even when the skill
 # text is identical (the measuring instrument itself moved).
-HARNESS_PREFIXES: tuple[str, ...] = ("tests/evals/",)
+HARNESS_PREFIXES: tuple[str, ...] = (
+    "tests/evals/",
+    "scripts/artifact_nondegradation_gate.py",
+)
 
 # Root SKILL.md frontmatter lines that are release METADATA (version,
 # last_reviewed), not behavior text: identical policy to
@@ -257,7 +261,7 @@ def _sha256(value: Any) -> bool:
 
 
 def validate_stage_attestations(stages: Any, source_version: str) -> list[str]:
-    """Validate the signed, minimal attestations for all eight private stages."""
+    """Validate the signed, minimal attestations for all required private stages."""
     if not isinstance(stages, dict):
         return ["evidence:stages-not-object"]
     problems: list[str] = []
@@ -509,7 +513,7 @@ def verify(
         report["executed_stages"] = list(REQUIRED_STAGES)
         report["reused_stages"] = []
         report["reuse_forbidden_reason"] = (
-            f"minor/major releases require fresh tier2/tier3/judge/signer evidence; "
+            f"minor/major releases require fresh tier2/tier3/tier4/judge/signer evidence; "
             f"required_level={required_level}"
         )
     elif mode == "reuse":

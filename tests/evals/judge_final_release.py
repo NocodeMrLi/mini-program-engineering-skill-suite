@@ -45,7 +45,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             "zero sensitive findings; two public manifests are identical and independently verified; Tier 1 passes; "
             "both routing splits meet 0.90; core and methodology development/held-out judgments all pass with "
             "skill pass rate 1.0 and no regression; all anonymous fixtures remain unchanged; the suite version and "
-            "frontmatter version equal the requested version; no business project, global installation, or external "
+            "frontmatter version equal the requested version; the Tier 4 artifact-nondegradation report passes "
+            "with at least two cases and two runs per arm, zero critical errors or critical regressions, no reported "
+            "problems, and finite mean target gain at or above its positive threshold; "
+            "no business project, global installation, or external "
             "platform mutation occurred. FAIL for a demonstrated violation. NOT_PROVEN for missing, malformed, or "
             "ambiguous evidence. Do not infer unreported checks and do not reward volume.\n\nEVIDENCE:\n"
             + json.dumps(evidence, ensure_ascii=False, indent=2, sort_keys=True)

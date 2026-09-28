@@ -18,6 +18,7 @@ GATE_ORDER = (
     ("behavior-held-out", "tier3 行为评测（held-out）"),
     ("methodology-development", "tier3 方法论评测（development）"),
     ("methodology-held-out", "tier3 方法论评测（held-out）"),
+    ("artifact-nondegradation", "tier4 真实项目产物非退化"),
     ("validation", "结构校验"),
     ("sensitive", "敏感信息扫描"),
     ("package-verification", "公共包清单复验"),
@@ -94,6 +95,14 @@ def metrics_of(report: dict[str, Any]) -> str:
         parts.append(f"findings {report['finding_count']}")
     if isinstance(report.get("candidate_count"), int) and isinstance(report.get("scanned_count"), int):
         parts.append(f"scanned {report['scanned_count']}/{report['candidate_count']}")
+    if isinstance(report.get("run_count"), int):
+        parts.append(f"runs {report['run_count']}")
+    if isinstance(report.get("mean_target_gain"), (int, float)):
+        parts.append(f"mean-target-gain {report['mean_target_gain']:.2f}")
+    if isinstance(report.get("critical_error_count"), int):
+        parts.append(f"critical-errors {report['critical_error_count']}")
+    if isinstance(report.get("critical_regression_count"), int):
+        parts.append(f"critical-regressions {report['critical_regression_count']}")
     if "judgments" in report and isinstance(report["judgments"], list):
         counts: dict[str, int] = {}
         for item in report["judgments"]:
@@ -112,7 +121,7 @@ def audit_of(report: dict[str, Any]) -> str:
     if not isinstance(audit, dict):
         return "n/a"
     parts: list[str] = []
-    for key in ("generated_at_utc", "engine", "model"):
+    for key in ("generated_at_utc", "engine", "model", "model_version"):
         if isinstance(audit.get(key), str) and audit[key]:
             parts.append(f"{key}={audit[key]}")
     if audit.get("prompt_sha256"):
@@ -148,6 +157,7 @@ def render_summary(version: str, gates: list[tuple[str, dict[str, Any]]]) -> str
             "  --routing-development <report.json> --routing-held-out <report.json> \\",
             "  --behavior-development <report.json> --behavior-held-out <report.json> \\",
             "  --methodology-development <report.json> --methodology-held-out <report.json> \\",
+            "  --artifact-nondegradation <tier4-report.json> \\",
             "  --validation <validate-report.json> --sensitive <scan-report.json> \\",
             "  --package-verification <verify-report.json> --independent-judgment <judge-report.json> \\",
             "  [--final-signature <signer-report.json>] --version <VERSION>",
@@ -158,6 +168,7 @@ def render_summary(version: str, gates: list[tuple[str, dict[str, Any]]]) -> str
             "- `tier1` 为本地静态检查，不调用模型；`tier2`/`tier3` 与判定、签署依赖本地 Agent 运行器。",
             "- 路由评测的 accuracy 只说明该批用例上的路由命中率，不推出真实任务成功率。",
             "- 行为与方法论评测的 `PASS` 表示该批匿名夹具上必需行为成立、禁止行为未出现、夹具未被修改；不推出更广任务的表现。",
+            "- tier4 的 `PASS` 只覆盖所记录的匿名代表项目、固定条件和产物 rubric；不推出所有项目有效，也不等于用户验收。",
             "- 本页不构成对任何真实小程序项目的验收、审核通过或正式发布证据。",
         ]
     )

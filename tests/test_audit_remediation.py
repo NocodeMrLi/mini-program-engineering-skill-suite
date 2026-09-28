@@ -233,6 +233,12 @@ class EvaluationGateTests(unittest.TestCase):
         self.assertEqual(report["reused_from"], "v1.0.0")
         self.assertTrue(report["skill_behavior_sha256"])
 
+    def test_tier4_validator_is_part_of_the_harness_fingerprint(self) -> None:
+        self.assertEqual(
+            self.module.classify_path("scripts/artifact_nondegradation_gate.py"),
+            "harness",
+        )
+
     def test_skill_text_change_forbids_reuse(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

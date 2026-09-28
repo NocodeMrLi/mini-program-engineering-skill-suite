@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic contracts for the internal three-tier Skill evaluation suite."""
+"""Deterministic contracts for the internal tier1-tier3 response evaluations."""
 
 from __future__ import annotations
 
