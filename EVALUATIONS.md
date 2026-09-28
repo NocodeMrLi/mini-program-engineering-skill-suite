@@ -9,6 +9,7 @@
 | tier1 结构与预算 | 本地静态检查：结构校验、frontmatter、链接、描述语言、token 预算、资源引用、开发内容泄漏 | 公共包结构完整且不超预算 | 任何 Agent 实际行为 |
 | tier2 路由评测 | 以九个组件的 frontmatter 描述为唯一输入，让独立 Agent 会话对用例选择技能，与预期路由比对 | 描述文本在该批用例上的路由命中率不低于 0.90 | 真实任务成功率；未覆盖用例的路由质量 |
 | tier3 行为/方法论评测 | 匿名夹具上加载对应技能后由独立 Agent 会话完成结构化响应，比对必需与禁止行为，并核对夹具未被修改 | 该批夹具上必需行为成立、禁止行为未出现、写入未越界 | 更广任务表现；真实项目效果 |
+| tier4 产物非退化 | 在匿名、隔离、可重置的代表项目上固定提示词、模型、快照、权限、工具与预算，多次配对运行 baseline/with-skill，并对真实产物盲评 | 该批代表项目逐案例无关键退化，且目标能力达到预设平均增益 | 所有项目表现；用户验收；平台发布结果 |
 | 判定（judge） | 独立新会话按固定 rubric 对 with-skill 与 baseline 同时判定 | 相同标准下的相对有效性 | 用户验收；任何真实项目结论 |
 | 独立签署（signer） | 汇总全部门禁产物与独立判定，输出最终版本结论 | 本版本通过既定发布门禁 | 发布者身份；安装后的使用效果 |
 
@@ -21,7 +22,17 @@
 
 ## 复现命令
 
-评测依赖本地 Agent 运行器（如 Codex CLI）；tier1 为纯本地检查。生成公开摘要：
+评测依赖本地 Agent 运行器（如 Codex CLI）；tier1 为纯本地检查。Tier 4 的原始项目产物、运行记录和盲评结果留在同一私有证据目录，先生成只含指标与哈希的脱敏报告：
+
+```bash
+python3 scripts/artifact_nondegradation_gate.py \
+  <private-tier4-evidence/tier4-bundle.json> \
+  --output <tier4-report.json>
+```
+
+私有 bundle 必须绑定候选 tag/commit、Skill 行为哈希和评测基架哈希。每个案例至少包含 baseline 与 with-skill 各两次运行；每条运行记录必须绑定相同的提示词、起始快照、运行环境、模型/版本、权限、工具、时间/调用预算、重试预算与实际重试次数，并记录产物相对路径及 SHA256。盲评记录必须隐藏来源、随机排序、绑定精确的 `run_id -> artifact_sha256`，并给出关键错误、目标分和逐维度分。证据文件只允许位于 bundle 同目录，不接受符号链接；公开仓库只保留脱敏报告，不收录私有产物。
+
+生成公开摘要：
 
 ```bash
 python3 scripts/summarize_evaluations.py \
@@ -29,6 +40,7 @@ python3 scripts/summarize_evaluations.py \
   --routing-development <report.json> --routing-held-out <report.json> \
   --behavior-development <report.json> --behavior-held-out <report.json> \
   --methodology-development <report.json> --methodology-held-out <report.json> \
+  --artifact-nondegradation <tier4-report.json> \
   --validation <validate-report.json> --sensitive <scan-report.json> \
   --package-verification <verify-report.json> --independent-judgment <judge-report.json> \
   --final-signature <signer-report.json> \
@@ -216,3 +228,4 @@ python3 scripts/summarize_evaluations.py \
 - 本页与摘要不构成对任何真实小程序项目的验收、平台审核通过或正式发布证据。
 - 评测夹具均为匿名合成材料；真实来源项目不参与技能验证，避免循环验证。
 - 评测结论只覆盖当批用例与夹具；不得推广为「套件在所有任务上有效」。
+- tier4 的私有运行记录、项目快照与产物必须先由 `scripts/artifact_nondegradation_gate.py` 复验；公开摘要只保留计数、阈值、结论和脱敏指纹。

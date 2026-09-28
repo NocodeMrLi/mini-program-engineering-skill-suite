@@ -21,7 +21,7 @@ metadata:
 ## 启动顺序
 
 1. 读取当前项目及上级目录中的 `AGENTS.md`、`CLAUDE.md` 或同类规则文件。
-2. 读取 [共享工程门禁](shared/engineering-guardrails.md)、[证据状态模型](shared/evidence-status-model.md)、[判断与确认规则](shared/decision-and-confirmation-rules.md) 和 [脱敏规则](shared/redaction-policy.md)。涉及中断恢复、资产或验证证据时，再分别读取 [中断恢复协议](skills/mini-program-debugging-skill/references/interruption-recovery-protocol.md)、[资产谱系记录](skills/mini-program-ui-device-skill/assets/asset-lineage-record.md) 和 [证据可采信规则](skills/mini-program-verification-skill/references/evidence-admissibility.md)；接管未知技术栈时可运行只读 `scripts/capability_doctor.py` 并按 [验证能力矩阵](skills/mini-program-verification-skill/references/verification-capability-matrix.md) 选择既有工具；涉及文档或对外输出时，再读取 [公开与内部文档边界](shared/documentation-boundaries.md)。
+2. 读取 [共享工程门禁](shared/engineering-guardrails.md)、[证据状态模型](shared/evidence-status-model.md)、[判断与确认规则](shared/decision-and-confirmation-rules.md) 和 [脱敏规则](shared/redaction-policy.md)，再按当前阶段读取对应分 Skill 及其引用合同。未知技术栈可运行只读 `scripts/capability_doctor.py`；涉及对外输出时读取 [文档边界](shared/documentation-boundaries.md)。
 3. 判断这是新项目、已有项目，还是没有项目目录的咨询任务。
 4. 已有项目若尚未建立本轮事实图，先使用 [项目接管 Skill](skills/mini-program-project-intake-skill/SKILL.md)。在完成只读接管前，不修改代码。
 5. 建立或恢复任务计划，记录原目标、当前阶段、完成证据和未完成项。
@@ -123,7 +123,8 @@ metadata:
 - `scripts/export_public_package.py`：按明确公共路径清单执行全候选敏感扫描和确定性导出，未知文件默认拒绝，并生成相对路径哈希清单。
 - `scripts/verify_public_package.py`：只读取收到的公共包，独立复算文件大小与 SHA-256，并拒绝缺失、篡改、新增、非法路径或损坏清单。
 - `scripts/summarize_evaluations.py`：把发布门禁的评测产物汇总为只含结论、关键指标与审计元数据的公开摘要，不含提示词、回复或夹具内容。
-- [评测证据说明](EVALUATIONS.md)：说明三层评测、判定与独立签署各自能证明什么，以及各版本公开摘要政策。
+- `scripts/artifact_nondegradation_gate.py`：fail-closed 复验私有 Tier 4 配对产物证据。
+- [评测证据说明](EVALUATIONS.md)：说明 tier1-4、独立判定、签署和公开摘要边界。
 - `scripts/capability_doctor.py`：只读识别原生/Taro/uni-app、既有脚本、测试依赖、分包和工具事实；不执行命令、不安装依赖、不输出配置值。
 - `install.sh`：从源码或已导出的公开包中安装套件，默认不覆盖已有目录，项目级安装必须显式传入目标项目路径。
 - `.github/workflows/ci.yml` 与 `.github/workflows/release.yml`：分别守住常规变更门禁和版本化发布包门禁；Release 附带压缩包、`package-manifest.json` 与 `SHA256SUMS`。
@@ -133,5 +134,5 @@ metadata:
 - [中断恢复协议](skills/mini-program-debugging-skill/references/interruption-recovery-protocol.md)：中断后把在途动作保持为 `unknown`，刷新事实并阻止盲目重放。
 - [资产谱系记录](skills/mini-program-ui-device-skill/assets/asset-lineage-record.md)：追踪原始/衍生资产、处理、目标槽位、文件指纹、批准和替换关系。
 - [证据可采信规则](skills/mini-program-verification-skill/references/evidence-admissibility.md)：判断证据来源、版本、完整性、适用结论和不能证明的内容。
-- `scripts/capability_doctor.py`：只读识别原生/Taro/uni-app、既有脚本、测试依赖、分包和工具事实；不执行命令、不安装依赖、不输出配置值。
 - [质量证据矩阵](skills/mini-program-verification-skill/assets/quality-evidence-matrix.md)：记录包体/分包、启动/首屏、运行错误和发布后观察窗。
+- 增强合同：[重定位与转向](skills/mini-program-project-intake-skill/references/relocation-and-pivot-audit.md)、[云状态与写入](skills/mini-program-architecture-skill/references/cloud-state-and-write-contracts.md)、[云资产交付](skills/mini-program-implementation-skill/references/cloud-asset-delivery-workflow.md)、[运行时状态与布局](skills/mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)、[分维度质量](skills/mini-program-verification-skill/references/dimensional-quality-contract.md)、[云发布与运维](skills/mini-program-release-skill/references/cloud-release-operations.md)。

@@ -108,6 +108,21 @@ class FinalReleaseSignerTests(unittest.TestCase):
                 "non_regression": True,
                 "audit": audit("methodology-held-out"),
             },
+            "artifact-nondegradation.json": {
+                "stage": "artifact-nondegradation",
+                "candidate_tag": f"v{version}",
+                "verdict": "PASS",
+                "problems": [],
+                "case_count": 2,
+                "minimum_case_count": 2,
+                "run_count": 8,
+                "minimum_runs_per_arm": 2,
+                "critical_error_count": 0,
+                "critical_regression_count": 0,
+                "minimum_mean_target_gain": 0.1,
+                "mean_target_gain": 0.2,
+                "audit": audit("artifact-nondegradation"),
+            },
             "validate.json": {"valid": True, "errors": [], "audit": audit("validate-suite")},
             "sensitive.json": {"finding_count": 0, "findings": [], "audit": audit("sensitive-scan")},
             "package.json": {
@@ -133,6 +148,7 @@ class FinalReleaseSignerTests(unittest.TestCase):
             "--behavior-held-out", str(root / "behavior-held.json"),
             "--methodology-development", str(root / "method-dev.json"),
             "--methodology-held-out", str(root / "method-held.json"),
+            "--artifact-nondegradation", str(root / "artifact-nondegradation.json"),
             "--validation", str(root / "validate.json"),
             "--sensitive", str(root / "sensitive.json"),
             "--package-verification", str(root / "package.json"),
@@ -185,6 +201,31 @@ class FinalReleaseSignerTests(unittest.TestCase):
             self.assertIn("tier1-not-pass", report["errors"])
             self.assertIn("version-file-mismatch", report["errors"])
             self.assertIn("public-manifest-mismatch", report["errors"])
+
+    def test_signer_rejects_incomplete_or_stale_tier4_summary(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            command = self.make_evidence(root)
+            path = root / "artifact-nondegradation.json"
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            payload.update(
+                {
+                    "candidate_tag": "v0.0.1",
+                    "problems": {},
+                    "run_count": 7,
+                    "critical_error_count": False,
+                    "critical_regression_count": False,
+                }
+            )
+            path.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+            result = subprocess.run(command, check=False, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1)
+            report = json.loads(result.stdout)
+            self.assertIn("artifact-nondegradation-version-mismatch", report["errors"])
+            self.assertIn("artifact-nondegradation-not-pass", report["errors"])
+            self.assertIn("artifact-nondegradation-critical-errors", report["errors"])
+            self.assertIn("artifact-nondegradation-critical-regression", report["errors"])
+            self.assertIn("artifact-nondegradation-runs-missing", report["errors"])
 
 
 if __name__ == "__main__":

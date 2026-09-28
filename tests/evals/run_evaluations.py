@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the internal three-tier evaluations without exporting their evidence."""
+"""Run internal tier1-tier3 response evaluations without exporting evidence."""
 
 from __future__ import annotations
 

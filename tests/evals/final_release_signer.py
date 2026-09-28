@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
@@ -35,7 +36,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     for name in (
         "tier1", "routing-development", "routing-held-out", "behavior-development", "behavior-held-out",
-        "methodology-development", "methodology-held-out", "validation", "sensitive", "package-verification",
+        "methodology-development", "methodology-held-out", "artifact-nondegradation", "validation", "sensitive", "package-verification",
         "manifest-a", "manifest-b", "version-file", "independent-judgment",
     ):
         parser.add_argument(f"--{name}", type=Path, required=True)
@@ -49,6 +50,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         routing = [load(args.routing_development), load(args.routing_held_out)]
         behavior = [load(args.behavior_development), load(args.behavior_held_out)]
         methodology = [load(args.methodology_development), load(args.methodology_held_out)]
+        artifact_nondegradation = load(args.artifact_nondegradation)
         validation = load(args.validation)
         sensitive = load(args.sensitive)
         package = load(args.package_verification)
@@ -76,6 +78,59 @@ def main(argv: Sequence[str] | None = None) -> int:
                     or item.get("non_regression") is not True
                 ):
                     errors.append(f"{family}-{index}-not-pass")
+        if artifact_nondegradation.get("stage") != "artifact-nondegradation":
+            errors.append("artifact-nondegradation-stage-mismatch")
+        if artifact_nondegradation.get("candidate_tag") != f"v{args.expected_version}":
+            errors.append("artifact-nondegradation-version-mismatch")
+        if artifact_nondegradation.get("verdict") != "PASS" or artifact_nondegradation.get("problems") != []:
+            errors.append("artifact-nondegradation-not-pass")
+        critical_error_count = artifact_nondegradation.get("critical_error_count")
+        if (
+            not isinstance(critical_error_count, int)
+            or isinstance(critical_error_count, bool)
+            or critical_error_count != 0
+        ):
+            errors.append("artifact-nondegradation-critical-errors")
+        critical_regression_count = artifact_nondegradation.get("critical_regression_count")
+        if (
+            not isinstance(critical_regression_count, int)
+            or isinstance(critical_regression_count, bool)
+            or critical_regression_count != 0
+        ):
+            errors.append("artifact-nondegradation-critical-regression")
+        minimum_cases = artifact_nondegradation.get("minimum_case_count")
+        case_count = artifact_nondegradation.get("case_count")
+        if (
+            not isinstance(minimum_cases, int)
+            or isinstance(minimum_cases, bool)
+            or minimum_cases < 2
+            or not isinstance(case_count, int)
+            or isinstance(case_count, bool)
+            or case_count < minimum_cases
+        ):
+            errors.append("artifact-nondegradation-cases-missing")
+        minimum_runs = artifact_nondegradation.get("minimum_runs_per_arm")
+        run_count = artifact_nondegradation.get("run_count")
+        if (
+            not isinstance(minimum_runs, int)
+            or isinstance(minimum_runs, bool)
+            or minimum_runs < 2
+            or not isinstance(run_count, int)
+            or isinstance(run_count, bool)
+            or not isinstance(case_count, int)
+            or isinstance(case_count, bool)
+            or run_count < case_count * minimum_runs * 2
+        ):
+            errors.append("artifact-nondegradation-runs-missing")
+        mean_gain = artifact_nondegradation.get("mean_target_gain")
+        minimum_gain = artifact_nondegradation.get("minimum_mean_target_gain")
+        if not all(
+            isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(float(value))
+            for value in (mean_gain, minimum_gain)
+        ):
+            errors.append("artifact-nondegradation-gain-missing")
+        elif float(minimum_gain) <= 0 or float(mean_gain) < float(minimum_gain):
+            errors.append("artifact-nondegradation-gain-below-minimum")
         if validation.get("valid") is not True or validation.get("errors"):
             errors.append("suite-validation-not-pass")
         if sensitive.get("finding_count") != 0 or sensitive.get("findings"):
@@ -102,6 +157,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             "behavior-held-out": behavior[1],
             "methodology-development": methodology[0],
             "methodology-held-out": methodology[1],
+            "artifact-nondegradation": artifact_nondegradation,
             "validation": validation,
             "sensitive": sensitive,
             "package-verification": package,

@@ -1,0 +1,331 @@
+#!/usr/bin/env python3
+"""Contracts for the evidence-filtered 2026-09-28 Skill suite upgrade."""
+
+from __future__ import annotations
+
+import hashlib
+import importlib.util
+import json
+import tempfile
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+GATE = ROOT / "scripts" / "artifact_nondegradation_gate.py"
+
+
+def read(relative: str) -> str:
+    return (ROOT / relative).read_text(encoding="utf-8")
+
+
+def load_gate():
+    spec = importlib.util.spec_from_file_location("artifact_nondegradation_gate", GATE)
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load Tier 4 gate")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def write_json(path: Path, value: dict) -> str:
+    raw = (json.dumps(value, ensure_ascii=False, sort_keys=True) + "\n").encode("utf-8")
+    path.write_bytes(raw)
+    return hashlib.sha256(raw).hexdigest()
+
+
+def write_blob(path: Path, value: str) -> str:
+    raw = value.encode("utf-8")
+    path.write_bytes(raw)
+    return hashlib.sha256(raw).hexdigest()
+
+
+def make_bundle(root: Path, *, case_count: int = 2) -> Path:
+    cases: list[dict] = []
+    for case_index in range(case_count):
+        case_id = f"case-{case_index + 1}"
+        controls = {
+            "prompt_sha256": hashlib.sha256(f"prompt:{case_id}".encode()).hexdigest(),
+            "snapshot_sha256": hashlib.sha256(f"snapshot:{case_id}".encode()).hexdigest(),
+            "environment_sha256": hashlib.sha256(b"fixture-environment").hexdigest(),
+            "model": "fixture-model",
+            "model_version": "fixture-model-1",
+            "permissions_sha256": "a" * 64,
+            "tools_sha256": "b" * 64,
+            "time_budget_seconds": 600,
+            "call_budget": 12,
+            "retry_budget": 1,
+            "retry_count": 0,
+        }
+        attestations: list[dict[str, str]] = []
+        run_ids: dict[str, list[str]] = {"baseline": [], "with-skill": []}
+        run_artifacts: dict[str, dict[str, str]] = {"baseline": {}, "with-skill": {}}
+        for arm in ("baseline", "with-skill"):
+            for repetition in (1, 2):
+                run_id = f"{case_id}-{arm}-{repetition}"
+                artifact_name = f"{run_id}.txt"
+                artifact_sha = write_blob(root / artifact_name, f"anonymous artifact {run_id}\n")
+                record = {
+                    "schema_version": 1,
+                    "case_id": case_id,
+                    "arm": arm,
+                    "run_id": run_id,
+                    "repetition": repetition,
+                    "controls": controls,
+                    "artifact_path": artifact_name,
+                    "artifact_sha256": artifact_sha,
+                }
+                record_name = f"{run_id}.json"
+                record_sha = write_json(root / record_name, record)
+                attestations.append({"record_path": record_name, "record_sha256": record_sha})
+                run_ids[arm].append(run_id)
+                run_artifacts[arm][run_id] = artifact_sha
+        for values in run_ids.values():
+            values.sort()
+        judgment = {
+            "schema_version": 1,
+            "case_id": case_id,
+            "blind": True,
+            "source_labels_hidden": True,
+            "artifact_order_randomized": True,
+            "rubric_sha256": "c" * 64,
+            "judge_engine": "fixture-judge",
+            "judge_model": "fixture-judge-1",
+            "generated_at_utc": "2026-09-28T00:00:00Z",
+            "run_ids": run_ids,
+            "run_artifacts": run_artifacts,
+            "critical_errors": {"baseline": 0, "with-skill": 0},
+            "target_scores": {"baseline": 70.0, "with-skill": 80.0},
+            "dimensions": {
+                "correctness": {"critical": True, "baseline": 90.0, "with-skill": 90.0},
+                "completeness": {"critical": False, "baseline": 70.0, "with-skill": 85.0},
+            },
+        }
+        judgment_name = f"{case_id}-judgment.json"
+        judgment_sha = write_json(root / judgment_name, judgment)
+        cases.append(
+            {
+                "id": case_id,
+                "runs": attestations,
+                "judgment_path": judgment_name,
+                "judgment_sha256": judgment_sha,
+            }
+        )
+    bundle = {
+        "schema_version": 1,
+        "candidate_tag": "v3.2.0",
+        "candidate_commit": "d" * 40,
+        "skill_behavior_sha256": "e" * 64,
+        "evaluation_harness_sha256": "f" * 64,
+        "engine": "fixture-runner",
+        "model": "fixture-model",
+        "model_version": "fixture-model-1",
+        "generated_at_utc": "2026-09-28T00:00:00Z",
+        "minimum_runs_per_arm": 2,
+        "minimum_case_count": 2,
+        "minimum_mean_target_gain": 5.0,
+        "cases": cases,
+    }
+    path = root / "tier4-bundle.json"
+    write_json(path, bundle)
+    return path
+
+
+def mutate_json(path: Path, update) -> None:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    update(value)
+    write_json(path, value)
+
+
+class SkillContractUpgradeTests(unittest.TestCase):
+    def test_u1_u2_are_wired_into_intake_and_specification(self) -> None:
+        intake = read("skills/mini-program-project-intake-skill/SKILL.md")
+        relocation = read("skills/mini-program-project-intake-skill/references/relocation-and-pivot-audit.md")
+        spec = read("skills/mini-program-product-spec-skill/SKILL.md")
+        template = read("skills/mini-program-product-spec-skill/assets/product-specification.md")
+        for marker in ("Git 顶层目录", "规范化远端", "五向基线"):
+            self.assertIn(marker, intake + relocation)
+        for marker in ("unresolved", "confirmed-existing", "confirmed-absent", "重复提交"):
+            self.assertIn(marker, spec + template)
+
+    def test_u3_u5_u7_are_concrete_architecture_and_release_contracts(self) -> None:
+        architecture = read("skills/mini-program-architecture-skill/references/cloud-state-and-write-contracts.md")
+        release = read("skills/mini-program-release-skill/references/cloud-release-operations.md")
+        for marker in (
+            "部分变量必须 fail-closed",
+            "持久化首次成功结果",
+            "作用域由服务端会话",
+            "只有有效结果才可写完成态",
+        ):
+            self.assertIn(marker, architecture)
+        for marker in ("production build", "production start", "not-verified", "发布后云环境交接"):
+            self.assertIn(marker, release)
+
+    def test_u4_u6_u8_have_execution_and_negative_boundaries(self) -> None:
+        assets = read("skills/mini-program-implementation-skill/references/cloud-asset-delivery-workflow.md")
+        ui = read("skills/mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md")
+        quality = read("skills/mini-program-verification-skill/references/dimensional-quality-contract.md")
+        for marker in ("Manifest", "Executor", "Verifier", "Report", "旧版 → 新版 → 旧版"):
+            self.assertIn(marker, assets)
+        for marker in ("resolved-empty", "attempt ID", "整页高度预算", "safe-area"):
+            self.assertIn(marker, ui)
+        for marker in ("稳定 ID", "专项维度", "`N/A`", "`check`"):
+            self.assertIn(marker, quality)
+
+    def test_new_public_references_and_tier4_gate_are_allowlisted(self) -> None:
+        validator = read("scripts/validate_suite.py")
+        root_skill = read("SKILL.md")
+        paths = (
+            "skills/mini-program-project-intake-skill/references/relocation-and-pivot-audit.md",
+            "skills/mini-program-architecture-skill/references/cloud-state-and-write-contracts.md",
+            "skills/mini-program-implementation-skill/references/cloud-asset-delivery-workflow.md",
+            "skills/mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md",
+            "skills/mini-program-verification-skill/references/dimensional-quality-contract.md",
+            "skills/mini-program-release-skill/references/cloud-release-operations.md",
+            "scripts/artifact_nondegradation_gate.py",
+        )
+        for path in paths:
+            with self.subTest(path=path):
+                self.assertIn(path, validator)
+                self.assertIn(path, root_skill)
+
+
+class ArtifactNondegradationGateTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.module = load_gate()
+
+    def test_complete_paired_evidence_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            bundle = make_bundle(Path(temp))
+            report = self.module.validate_bundle(bundle)
+        self.assertEqual(report["verdict"], "PASS", report["problems"])
+        self.assertEqual(report["stage"], "artifact-nondegradation")
+        self.assertEqual(report["case_count"], 2)
+        self.assertEqual(report["run_count"], 8)
+        self.assertEqual(report["critical_error_count"], 0)
+        self.assertEqual(report["critical_regression_count"], 0)
+        self.assertGreaterEqual(report["mean_target_gain"], report["minimum_mean_target_gain"])
+
+    def test_missing_artifact_and_control_mismatch_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            payload = json.loads(bundle.read_text(encoding="utf-8"))
+            first_record = root / payload["cases"][0]["runs"][0]["record_path"]
+            record = json.loads(first_record.read_text(encoding="utf-8"))
+            (root / record["artifact_path"]).unlink()
+            second = payload["cases"][0]["runs"][1]
+            second_path = root / second["record_path"]
+            def invalidate_controls(value: dict) -> None:
+                value["controls"]["call_budget"] = 99
+                value["controls"]["environment_sha256"] = "invalid"
+                value["controls"]["model"] = "different-model"
+                value["controls"]["model_version"] = "different-model-1"
+                value["controls"]["retry_budget"] = -1
+                value["controls"]["retry_count"] = 2
+            mutate_json(second_path, invalidate_controls)
+            second["record_sha256"] = hashlib.sha256(second_path.read_bytes()).hexdigest()
+            write_json(bundle, payload)
+            report = self.module.validate_bundle(bundle)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertTrue(any("artifact-missing" in item for item in report["problems"]))
+        self.assertTrue(any("controls-not-equivalent" in item for item in report["problems"]))
+        self.assertTrue(any("environment_sha256-invalid" in item for item in report["problems"]))
+        self.assertTrue(any("model-mismatch" in item for item in report["problems"]))
+        self.assertTrue(any("model-version-mismatch" in item for item in report["problems"]))
+        self.assertTrue(any("retry_budget-invalid" in item for item in report["problems"]))
+        self.assertTrue(any("retry-count-exceeds-budget" in item for item in report["problems"]))
+
+    def test_blinding_critical_regression_and_low_gain_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            payload = json.loads(bundle.read_text(encoding="utf-8"))
+            judgment = root / payload["cases"][0]["judgment_path"]
+            def degrade(value: dict) -> None:
+                value["blind"] = False
+                value["target_scores"]["with-skill"] = 71.0
+                value["dimensions"]["correctness"]["with-skill"] = 80.0
+            mutate_json(judgment, degrade)
+            payload["cases"][0]["judgment_sha256"] = hashlib.sha256(judgment.read_bytes()).hexdigest()
+            other = root / payload["cases"][1]["judgment_path"]
+            mutate_json(other, lambda value: value["target_scores"].__setitem__("with-skill", 71.0))
+            payload["cases"][1]["judgment_sha256"] = hashlib.sha256(other.read_bytes()).hexdigest()
+            write_json(bundle, payload)
+            report = self.module.validate_bundle(bundle)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertTrue(any("not-blind" in item for item in report["problems"]))
+        self.assertTrue(any("critical-regression" in item for item in report["problems"]))
+        self.assertIn("bundle:mean-target-gain-below-minimum", report["problems"])
+
+    def test_insufficient_runs_and_tampered_hash_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            payload = json.loads(bundle.read_text(encoding="utf-8"))
+            removed = payload["cases"][0]["runs"].pop()
+            record = json.loads((root / removed["record_path"]).read_text(encoding="utf-8"))
+            artifact = root / record["artifact_path"]
+            artifact.write_text("tampered\n", encoding="utf-8")
+            first_record = root / payload["cases"][1]["runs"][0]["record_path"]
+            first = json.loads(first_record.read_text(encoding="utf-8"))
+            (root / first["artifact_path"]).write_text("tampered too\n", encoding="utf-8")
+            write_json(bundle, payload)
+            report = self.module.validate_bundle(bundle)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertTrue(any("runs-below-minimum" in item for item in report["problems"]))
+        self.assertTrue(any("artifact-sha256-mismatch" in item for item in report["problems"]))
+
+    def test_judgment_must_bind_the_exact_artifact_hashes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            payload = json.loads(bundle.read_text(encoding="utf-8"))
+            judgment = root / payload["cases"][0]["judgment_path"]
+            def replace_binding(value: dict) -> None:
+                run_id = next(iter(value["run_artifacts"]["with-skill"]))
+                value["run_artifacts"]["with-skill"][run_id] = "0" * 64
+            mutate_json(judgment, replace_binding)
+            payload["cases"][0]["judgment_sha256"] = hashlib.sha256(judgment.read_bytes()).hexdigest()
+            write_json(bundle, payload)
+            report = self.module.validate_bundle(bundle)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertTrue(any("artifact-binding-mismatch" in item for item in report["problems"]))
+
+    def test_one_case_nonfinite_score_and_symlink_evidence_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            bundle = make_bundle(root)
+            payload = json.loads(bundle.read_text(encoding="utf-8"))
+            payload["cases"] = payload["cases"][:1]
+            judgment = root / payload["cases"][0]["judgment_path"]
+            mutate_json(judgment, lambda value: value["target_scores"].__setitem__("with-skill", float("nan")))
+            payload["cases"][0]["judgment_sha256"] = hashlib.sha256(judgment.read_bytes()).hexdigest()
+            first = payload["cases"][0]["runs"][0]
+            record_path = root / first["record_path"]
+            real_record = root / "real-record.json"
+            record_path.replace(real_record)
+            record_path.symlink_to(real_record)
+            first["record_sha256"] = hashlib.sha256(real_record.read_bytes()).hexdigest()
+            write_json(bundle, payload)
+            report = self.module.validate_bundle(bundle)
+        self.assertEqual(report["verdict"], "FAIL")
+        self.assertIn("bundle:cases-below-minimum", report["problems"])
+        self.assertTrue(any("target-score-invalid" in item for item in report["problems"]))
+        self.assertTrue(any("outside-evidence-root" in item for item in report["problems"]))
+
+    def test_release_chain_requires_tier4_stage(self) -> None:
+        evaluation_gate = read("scripts/evaluation_gate.py")
+        signer = read("tests/evals/final_release_signer.py")
+        judge = read("tests/evals/judge_final_release.py")
+        summary = read("scripts/summarize_evaluations.py")
+        evaluations = read("EVALUATIONS.md")
+        for text in (evaluation_gate, signer, judge, summary, evaluations):
+            self.assertIn("artifact-nondegradation", text)
+        self.assertIn('"scripts/artifact_nondegradation_gate.py"', evaluation_gate)
+        self.assertIn("zero critical errors or critical regressions", judge)
+        self.assertIn("tier4", evaluations.lower())
+
+
+if __name__ == "__main__":
+    unittest.main()

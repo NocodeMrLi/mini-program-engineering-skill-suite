@@ -38,9 +38,9 @@
 
 - **三平台事實層**：微信 / 支付寶 / 抖音的平台規則單一事實源，capability doctor 自動識別專案技術棧與目標平台；檢測能力如實分級——微信支援確定性指紋監測，支付寶 / 抖音依賴執行時查官方與用戶上報，不假裝能自動檢測（見[平台規則保鮮](#平台規則保鮮)）。
 - **平台規則保鮮流水線**：執行層即時對齊官方現行文件，內容層每週自動漂移檢測（指紋比對 → 抽取 → 影子審計 → 裁決 issue）；本地安裝的版本稍舊，也不會導致任務按過期規則執行（見[平台規則保鮮](#平台規則保鮮)）。
-- **真實 Agent CLI 全量驗證**：發布門禁的三層評測（結構 / 路由 / 行為）與獨立簽署在真實 Agent CLI 會話中全量執行——早期版本經 Codex CLI 實測驗收，現行評測引擎可插拔（Codex CLI / Claude Code / Gemini / OpenAI 相容 API），跨引擎通過是更強證據（見[驗證](#驗證)與 [EVALUATIONS.md](EVALUATIONS.md)）。
+- **真實 Agent CLI 與產物級驗證**：tier1-3 結構 / 路由 / 行為評測及獨立簽署在真實 Agent CLI 會話中執行；行為版本另需 tier4 匿名專案產物配對門禁。評測引擎可插拔（Codex CLI / Claude Code / Gemini / OpenAI 相容 API），跨引擎通過是更強證據（見[驗證](#驗證)與 [EVALUATIONS.md](EVALUATIONS.md)）。
 - **證據優先工程紀律**：狀態必須由匹配證據支撐，沒有證據就如實標註 unknown；3.0 起這套紀律沉澱為領域無關的基礎技能層 `foundation/`，可被任何 Agent 工程套件復用（見[設計原則](#設計原則)）。
-- **分層評測 + 獨立簽署**：tier1 結構 / tier2 路由 / tier3 行為三層評測、with-skill 與 baseline 獨立判定、held-out 批凍結前不可用於調參，門禁全 PASS 才發布（見 [EVALUATIONS.md](EVALUATIONS.md)）。
+- **分層評測 + 獨立簽署**：tier1 結構 / tier2 路由 / tier3 行為 / tier4 匿名真實專案產物非退化，配合 with-skill 與 baseline 獨立判定、held-out 批凍結前不可用於調參，門禁全 PASS 才發布（見 [EVALUATIONS.md](EVALUATIONS.md)）。
 - **供應鏈級發布治理**：SHA256 + 雙 manifest + fail-closed 出包 + 接收端複驗 + 敏感資訊掃描清零，六語言 README 結構一致性由腳本守護（見[包完整性](#包完整性)）。
 
 ---

@@ -557,6 +557,12 @@ class PublicExportFailClosedTests(unittest.TestCase):
                     "tier": 3, "split": "held-out", "mode": "with-skill", "dataset": "methodology",
                     "verdict": "PASS", "case_count": 2, "not_proven": 0, "cases": [], "audit": audit_agent,
                 },
+                "artifact-nondegradation": {
+                    "stage": "artifact-nondegradation", "verdict": "PASS", "case_count": 2,
+                    "run_count": 8, "critical_regression_count": 0,
+                    "minimum_mean_target_gain": 0.1, "mean_target_gain": 0.2,
+                    "audit": audit_agent,
+                },
                 "validation": {"valid": True, "errors": [], "checked_files": 85, "skill_count": 9},
                 "sensitive": {
                     "path": "source", "candidate_count": 10, "scanned_count": 10,
@@ -605,7 +611,7 @@ class PublicExportFailClosedTests(unittest.TestCase):
             for name in (
                 "routing-development", "routing-held-out", "behavior-development", "behavior-held-out",
                 "methodology-development", "methodology-held-out", "validation", "sensitive",
-                "package-verification", "independent-judgment",
+                "artifact-nondegradation", "package-verification", "independent-judgment",
             ):
                 arguments.extend([f"--{name}", str(missing)])
             result = subprocess.run(arguments, capture_output=True, check=False, text=True)
