@@ -211,12 +211,14 @@ class SkillContractUpgradeTests(unittest.TestCase):
     def test_audit_coverage_traces_each_domain_and_challenges_claims(self) -> None:
         verification = read("skills/mini-program-verification-skill/SKILL.md")
         risk_steps = verification.split("## 风险分层验证", 1)[1].split("## 状态与证据边界", 1)[0]
+        minimum_output = verification.split("## 最低输出", 1)[1].split("## 停止条件", 1)[0]
         for marker in (
-            "用工具枚举", "输入→写入→读取→呈现", "数据/配置", "注释/承诺",
-            "非法数值", "长度变化", "循环满周期", "重进", "全称注释/承诺",
-            "未证实不得判无发现", "以发现为主体",
+            "用工具枚举", "输入→写入→读取→呈现", "全称注释/承诺",
+            "实际表达式", "游标走完集合并再次前进", "同一输入比较集合长度变化前后的索引",
+            "非法数值", "重进", "不能只建议未来补测试", "未证实不得判无发现", "以发现为主体",
         ):
             self.assertIn(marker, risk_steps)
+        self.assertIn("承诺、实际表达式、边界输入或最小反例、结论", minimum_output)
 
     def test_new_public_references_and_tier4_gate_are_allowlisted(self) -> None:
         validator = read("scripts/validate_suite.py")
