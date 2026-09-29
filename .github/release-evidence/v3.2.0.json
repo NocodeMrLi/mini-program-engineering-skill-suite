@@ -4,51 +4,46 @@
   "candidate_skill_behavior_sha256": "16a66a6d6ba4e954770fccb690f524b5b84f41fb61c9ded34612401d03315ceb",
   "candidate_tag": "v3.2.0",
   "engine": "mixed-local-agent",
-  "generated_at_utc": "2026-09-29T02:41:18Z",
+  "generated_at_utc": "2026-09-29T02:47:26Z",
   "mode": "fresh",
   "model": "claude:default + deepseek-v4-pro",
   "schema_version": 2,
-  "signature": {
-    "algorithm": "rsa-sha256",
-    "key_id": "release-evaluation-2026-08-31",
-    "value": "WyDKMWOXUnwmq8kbxLUkX7KZ0Gy/Vxj2D8tNGTfE7dreAApbigBIHLi1wUqnoYg6pZwkjpMskpbQYlEvk4TWHfXEZ7E5Nz11G7E2FgAH7V/o32kwULQH5S4WLEI+7pA8guVty9ngBHO71pFI5nw62OgTZ10qgPTtU+pon0r5T2Yep+nxIO9Chx2Aims1s8z5PitSWMal7dBj5Qzv5Z54uWz897lGbZKc3TJmYkrqu7Idpr5aa5H9er/a0dtH8e+51lh9R18NNq4c3qe/Yv4x8rEdq/uAWCkyye7LXcdFbWY1OlrAT/fbJJm+GFhGIjCzi7WdLFj6IGhdeg1wetlSMPiZdHN8DpDl1fbc4ymx3HnLzMGlwnuU3/bcXHErVYN1U83Ri7ajm6TybUMc1nOSYsllfAIVJz75PewGMx4Y3Ns9A9MwXJllLWLuIgg6R59t8zA/e7G0mRamxjOKe/d6exSyKuikr0fO+Q4lBeQjm1MHmGvv4L0hxbC8EkHQvzLk"
-  },
   "stages": {
     "artifact-nondegradation": {
       "artifact_path": "v3.2.0-artifact-nondegradation.json",
-      "artifact_sha256": "ce4cbc86d1edcedee9516ce58ecce7143be42df1d98f0f4bd1f30d20cfda49dd"
+      "artifact_sha256": "1a89197425a0553cd209bf959098b22178b11593822f9df54f10a1161b8ea783"
     },
     "behavior-development": {
       "artifact_path": "v3.2.0-behavior-development.json",
-      "artifact_sha256": "8ac49b8c51804d2cbeccecc07188c78b78cf1584bf3c8c6038417417428d9b9c"
+      "artifact_sha256": "87a68abbde17b2440093cd3b3f3ea13c5a262f1400f28b447b0b9f59e005b250"
     },
     "behavior-held-out": {
-      "artifact_path": "v3.2.0-behavior-held-out.json",
-      "artifact_sha256": "ab8ebc783ed2984dde4245cbce04e61c5fe46ea464c3bc737a46ede89ca4ef4f"
+      "artifact_path": "v3.2.0-behavior-holdout.json",
+      "artifact_sha256": "006aa26f58406d322188e8880bbafad956dde94e1c690846a1b94785feb08922"
     },
     "final-signature": {
       "artifact_path": "v3.2.0-final-signature.json",
-      "artifact_sha256": "26a9df7642a8f60315c894bac5377d1d961cbd1dbc0549cc260ec53feb709f28"
+      "artifact_sha256": "bfd5a8b6b20e8e25683fa16614ebc53731d41bef0be858679dd4686e3e4767ec"
     },
     "independent-judgment": {
       "artifact_path": "v3.2.0-independent-judgment.json",
-      "artifact_sha256": "2796076c3126e3713cf151a5197f5931f9184708b22cf40086e35d98fa292af8"
+      "artifact_sha256": "5447990f44eddda3e85d0c1facdcd32e3494d98c40a9b54b2745ea72f996b81d"
     },
     "methodology-development": {
       "artifact_path": "v3.2.0-methodology-development.json",
-      "artifact_sha256": "5c100036b4370758944a851ec0e75cf46151b4f019c51e6c508663404205032e"
+      "artifact_sha256": "d83251096497cd0ae261d8d5ac77839e4f39a3d565594ebde65d622011af9c3d"
     },
     "methodology-held-out": {
       "artifact_path": "v3.2.0-methodology-held-out.json",
-      "artifact_sha256": "c09b717b58c70b54b2e29211542adacda220339ed78bb75c168a33bbc2cb083e"
+      "artifact_sha256": "be53d2c3ae277a08a99dea48a32919764c5026dbd61364c861f0c9a6e6788a47"
     },
     "routing-development": {
-      "artifact_path": "v3.2.0-routing-development.json",
-      "artifact_sha256": "2a58c9e71f6c4056567961cca35e7421a82af03081cfe83bed6bd83ccbe68666"
+      "artifact_path": "v3.2.0-routing-dev.json",
+      "artifact_sha256": "0ead52f7ad351f93c8907048b6cd211cb57b2b87d6c600e1df9a50851989d9e9"
     },
     "routing-held-out": {
       "artifact_path": "v3.2.0-routing-held-out.json",
-      "artifact_sha256": "08ca17f63ccb7c7add5eddd03c7954bfc96b894ee8ac8af3e0ba87cc34bf7289"
+      "artifact_sha256": "f245c3ecc64e97ea8e754b6e6ca61c746a73cbedbbdb01d43c6717947c29c9b5"
     }
   }
 }
