@@ -95,6 +95,10 @@ class SourceInventoryTests(unittest.TestCase):
                 "local-cloud-authority", "multiwrite-atomicity", "error-success-boundary",
             })
             self.assertTrue(all(target["line"] >= 1 for target in targets))
+            challenges = MODULE.inventory(root)["review_challenges"]
+            self.assertEqual(set(challenges), categories)
+            self.assertIn("NaN", challenges["numeric-guard"])
+            self.assertIn("N+1", challenges["length-modulo"])
 
     def test_review_targets_cover_distinct_guards_without_duplicate_lines(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -108,6 +112,30 @@ class SourceInventoryTests(unittest.TestCase):
             self.assertEqual(
                 [target["line"] for target in targets if target["category"] == "numeric-guard"],
                 [1, 2],
+            )
+
+    def test_no_constructs_means_no_review_challenges(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "app.js").write_text("App({})\n", encoding="utf-8")
+            facts = MODULE.inventory(root)
+            self.assertEqual(facts["review_targets"], [])
+            self.assertEqual(facts["review_challenges"], {})
+
+    def test_optional_boundary_lint_catches_omitted_nan_without_certifying_truth(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "storage.js").write_text("if (typeof n === 'number') save(n)\n", encoding="utf-8")
+            facts = MODULE.inventory(root)
+            report = "Read all 1 files. Range checks are correct."
+            self.assertEqual(MODULE.check_report(report, facts), [])
+            self.assertEqual(
+                MODULE.check_report(report, facts, check_challenges=True),
+                ["missing-numeric-boundary:NaN"],
+            )
+            self.assertEqual(
+                MODULE.check_report(report + " NaN requires manual branch calculation.", facts, check_challenges=True),
+                [],
             )
 
 
