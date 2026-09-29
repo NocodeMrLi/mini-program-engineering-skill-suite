@@ -222,6 +222,12 @@ class SkillContractUpgradeTests(unittest.TestCase):
         self.assertIn("承诺、实际表达式、边界输入或最小反例、结论", minimum_output)
         self.assertIn("页面生命周期证据和断点", minimum_output)
 
+    def test_anonymous_audit_does_not_inherit_external_version_claims(self) -> None:
+        verification = read("skills/mini-program-verification-skill/SKILL.md")
+        self.assertIn("匿名快照无 Git 时填 `unknown`", verification)
+        self.assertIn("不借外层提交", verification)
+        self.assertIn("数量须由清单算出，否则不报", verification)
+
     def test_new_public_references_and_tier4_gate_are_allowlisted(self) -> None:
         validator = read("scripts/validate_suite.py")
         root_skill = read("SKILL.md")
