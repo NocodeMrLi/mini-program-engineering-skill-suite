@@ -228,6 +228,19 @@ class SkillContractUpgradeTests(unittest.TestCase):
         self.assertIn("不借外层提交", verification)
         self.assertIn("数量须由清单算出，否则不报", verification)
 
+    def test_read_only_audit_uses_bounded_route_and_inventory(self) -> None:
+        root = read("SKILL.md")
+        route = read("references/routing-and-state-machine.md")
+        verification = read("skills/mini-program-verification-skill/SKILL.md")
+        audit = read("skills/mini-program-verification-skill/references/source-audit-workflow.md")
+        validator = read("scripts/validate_suite.py")
+        self.assertIn("源码审计短路径", root)
+        self.assertIn("只读源码审计模式", route)
+        self.assertIn("references/source-audit-workflow.md", verification)
+        self.assertIn("scripts/audit_source_inventory.py", audit)
+        self.assertIn("不声称“已读全部文件”", audit)
+        self.assertIn('"scripts/audit_source_inventory.py"', validator)
+
     def test_new_public_references_and_tier4_gate_are_allowlisted(self) -> None:
         validator = read("scripts/validate_suite.py")
         root_skill = read("SKILL.md")

@@ -47,6 +47,7 @@
 
 ## 验证与发布路由
 
+- 仅要求只读源码审计时，使用 [只读源码审计模式](../skills/mini-program-verification-skill/references/source-audit-workflow.md) 与确定性文件清单；不因报告提到配置风险就加载整套发布阶段规则。
 - 需要测试、回归、验收证据、质量判断或确认实现是否完成时，使用 [工程验证 Skill](../skills/mini-program-verification-skill/SKILL.md)。根据风险选择证据层，未执行层保持 unknown。
 - 需要版本、打包、导出、上传/审核/发布就绪判断、发布记录或回滚治理时，使用 [发布治理 Skill](../skills/mini-program-release-skill/SKILL.md)。默认只读，外部状态变化逐项授权。
 - 发布前按 `verification → wechat-platform（涉及微信当前规则时）→ release-ready`；上传、审核和正式发布不是自动连续动作，各自需要授权和平台证据。
