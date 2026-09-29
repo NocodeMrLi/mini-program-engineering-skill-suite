@@ -600,6 +600,7 @@ class PublicExportFailClosedTests(unittest.TestCase):
         self.assertIn("accuracy 1.00 (8/8)", output)
         self.assertIn(f"prompt_sha256={long_prompt_digest[:12]}", output)
         self.assertIn("judgments 2 (FAIL 1, PASS 1)", output)
+        self.assertIn("tier4 匿名代表项目产物非退化", output)
         self.assertNotIn("PROMPT_MARKER_MUST_NOT_APPEAR", output)
         self.assertNotIn(long_prompt_digest, output)
         self.assertNotIn("case-internal", output)

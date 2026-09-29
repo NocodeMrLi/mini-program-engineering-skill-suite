@@ -1,0 +1,14 @@
+{
+  "candidate_commit": "742e2631223db87d83ce0f0dc05220515e2da20d",
+  "candidate_tag": "v3.2.0",
+  "engine": "agent",
+  "evaluation_harness_sha256": "1e3bd35a1438ee88f5381e30f4d3dbe37daedf7694fa8890b052229349f9f672",
+  "generated_at_utc": "2026-09-29T02:47:26Z",
+  "model": "claude:default",
+  "schema_version": 1,
+  "skill_behavior_sha256": "16a66a6d6ba4e954770fccb690f524b5b84f41fb61c9ded34612401d03315ceb",
+  "source_generated_at_utc": "2026-09-29T02:16:46Z",
+  "source_report_sha256": "2a17a468c715d1188ee676ad64677d6cc3d77002aeeba64a1882867b413eecb0",
+  "stage": "behavior-held-out",
+  "verdict": "PASS"
+}

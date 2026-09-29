@@ -23,7 +23,7 @@ metadata:
 1. 读取当前项目及上级目录中的 `AGENTS.md`、`CLAUDE.md` 或同类规则文件。
 2. 读取 [共享工程门禁](shared/engineering-guardrails.md)、[证据状态模型](shared/evidence-status-model.md)、[判断与确认规则](shared/decision-and-confirmation-rules.md) 和 [脱敏规则](shared/redaction-policy.md)，再按当前阶段读取对应分 Skill 及其引用合同。未知技术栈可运行只读 `scripts/capability_doctor.py`；涉及对外输出时读取 [文档边界](shared/documentation-boundaries.md)。
 3. 判断这是新项目、已有项目，还是没有项目目录的咨询任务。
-4. 已有项目若尚未建立本轮事实图，先使用 [项目接管 Skill](skills/mini-program-project-intake-skill/SKILL.md)。在完成只读接管前，不修改代码。
+4. 已有项目开发若无本轮事实图，先用 [项目接管 Skill](skills/mini-program-project-intake-skill/SKILL.md)；纯只读审计走 [源码审计短路径](skills/mini-program-verification-skill/references/source-audit-workflow.md)。只读发现前不改代码。
 5. 建立或恢复任务计划，记录原目标、当前阶段、完成证据和未完成项。
 
 ## 判断当前阶段
@@ -126,6 +126,7 @@ metadata:
 - `scripts/artifact_nondegradation_gate.py`：fail-closed 复验私有 Tier 4 配对产物证据。
 - [评测证据说明](EVALUATIONS.md)：说明 tier1-4、独立判定、签署和公开摘要边界。
 - `scripts/capability_doctor.py`：只读识别原生/Taro/uni-app、既有脚本、测试依赖、分包和工具事实；不执行命令、不安装依赖、不输出配置值。
+- `scripts/audit_source_inventory.py`：只读生成文件清单、数量和指纹；匿名快照无 Git 时不借外层提交，拦截不实报告。
 - `install.sh`：从源码或已导出的公开包中安装套件，默认不覆盖已有目录，项目级安装必须显式传入目标项目路径。
 - `.github/workflows/ci.yml` 与 `.github/workflows/release.yml`：分别守住常规变更门禁和版本化发布包门禁；Release 附带压缩包、`package-manifest.json` 与 `SHA256SUMS`。
 

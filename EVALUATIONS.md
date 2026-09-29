@@ -53,6 +53,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 版本 | 日期 | 摘要 | 说明 |
 | --- | --- | --- | --- |
+| 3.2.0 | 2026-09-29 | 候选九阶段门禁 PASS；正式发布以 tag/Release 工件为准 | Tier 1 22/22；Tier 2 两批 32/32；Tier 3 四组升级版均 3/3 且非退化；Tier 4 两个独立匿名合成项目、8 份产物，零关键错误/退化，平均增益 4.665。受影响的 Tier 3 单例精准重跑，未变的基线按控制条件复用；不包含受保护来源项目。 |
 | 3.1.13 | 2026-09-01 | 签名评测证据链候选 | 仅将 `actions/upload-artifact` 固定依赖升级到官方 v7.0.1/Node 24 并加契约回归，不改九个子 Skill 行为正文与 `tests/evals/` 基架；复用 3.1.2 完整八阶段 PASS 私有产物并生成 v3.1.13 独立签名证明。正式结论以本 tag CI/Release、不可变工件和接收端复验为准。 |
 | 3.1.12 | 2026-09-01 | 正式 PASS | CI/Release 全绿；252 tests / 116 files / 122 candidates / 0 findings；patch/patch、`RECOMMEND_RELEASE`、签名评测 `PASS:reuse`；四工件 SHA256 与 116 文件接收端复验通过，仓库 `enabled=true`、Release `immutable=true`。发布日志仅有旧 upload-artifact Node 20 弃用提示，功能由运行器强制 Node 24 后成功；依赖升级顺延 v3.1.13。 |
 | 3.1.11 | 2026-09-01 | 发布物有效；正式工作流末步失败 | CI 全绿；Release gates、四工件创建与发布均成功，Release API 回读 `immutable=true`，SHA256 与 116 文件接收端复验通过。但工作流末步使用 `GITHUB_TOKEN` 调用 owner-only 仓库设置接口得到 HTTP 403，导致 Release Actions 红灯；因此不作为最终全绿版本，验收器修复顺延 v3.1.12。 |
@@ -74,6 +75,18 @@ python3 scripts/summarize_evaluations.py \
 | 2.1.0 | 2026-08-30 | 全部门禁 PASS（增量评测，见下表） | 引擎 `claude:default`（DeepSeek 后端）；tier1 与 methodology 重跑（2.1 变更影响面），routing 与 behavior 复用 2.0.0 PASS 产物（九个子 Skill 描述与行为文本与 v2.0.0 评测输入逐字节一致）；独立终审与签署 PASS |
 | 2.0.0 | 2026-08-29 | 全部门禁 PASS（见下表） | 引擎 `claude:default`（DeepSeek 后端）；tier2 路由 64/64；四个 tier3 判定 skill 1.00 且无回归，methodology-development 呈现最强对照（skill 1.00 / baseline 0.00）；独立终审与签署 PASS |
 | 1.4.0 | 2026-08-29 | 全部门禁 PASS（见下表） | 引擎 `claude:default`；tier2 路由 64/64；四个 tier3 判定 skill 1.00 且无回归；独立终审与签署 PASS |
+
+### 3.2.0 评测摘要（候选提交）
+
+| 门禁 | 结论 | 关键指标 | 证据边界 |
+| --- | --- | --- | --- |
+| Tier 1 | PASS | 22 项；根 Skill + 9 子 Skill | 本地确定性检查 |
+| Tier 2 development / held-out | PASS / PASS | 32/32、32/32 | 描述未变，复用同批有效路由证据 |
+| Tier 3 行为 development / held-out | PASS / PASS | 升级版 3/3、3/3；均非退化 | 留出组受影响单例重跑，其余按提示词哈希复用 |
+| Tier 3 方法论 development / held-out | PASS / PASS | 升级版 3/3、3/3；均非退化 | 两组各重跑受影响单例，旧对照模型一致 |
+| Tier 4 匿名代表项目产物非退化 | PASS | 2 案例、8 产物；平均增益 4.665；关键错误与关键退化均 0 | 固定快照/模型/权限/预算配对盲评，不外推真实项目 |
+| 结构、敏感与公开包 | PASS | 128 文件；135/135 扫描、0 发现；双 manifest 一致 | 两份独立公开包均通过接收端复验 |
+| 独立判定与本地最终签署 | PASS / PASS | 302 项单测；最终签署错误 0、未证明 0 | 仅证明候选门禁；RSA 声明及 GitHub Release 另行核验 |
 
 ### 3.1.2 评测摘要（精准最小）
 
