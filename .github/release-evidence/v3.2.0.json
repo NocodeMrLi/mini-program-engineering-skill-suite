@@ -8,6 +8,11 @@
   "mode": "fresh",
   "model": "claude:default + deepseek-v4-pro",
   "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "HbJjz5Ek+Ap36jbczrLGUfvaXhRsGdomTAP9z+9y+Pn3bV1wEjzVtnHPbUc7y1s4hX4QHhQEnYCNk56BH58vU7JxSBSxEKJf7N0oriUrZ7OhMurR91M30N/7l/cmXes0Tq94pplqjRIUuRZjY0x8Wns4jcndURbXsYtK6Evm4JDPHtz7dQh9fRjMEacxXqZzgvl7gHM3xpKD9dDQ08bKcuOsq+BqPj5fBTAlw3Ua2oec1qOUTBjLTPs5ZNMOpHI9LYF0hO4ngOgHC242i1beDso46qKogtWGA0tsQgIaiY6aTIsFoy3KFd7Swq0Up2lpsQLpla8AzBSty6z7mrvFPo9sdBXre6iR8gK8vc1J/UXigXZXaSrN5w5oNzjksK/DVAaU+QFI378qTDOzQexO2IQaFhTXy0lvxm27GXmSYnjvMPwZxpaXZIPvg0JYQ59Uwpa17Icjijju6djVg+2KYo2f7SRZxniqiqLA30Pki+57Kg4L/3KJebDwbJeR50vt"
+  },
   "stages": {
     "artifact-nondegradation": {
       "artifact_path": "v3.2.0-artifact-nondegradation.json",
