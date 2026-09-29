@@ -22,6 +22,53 @@ TOTAL_COUNT = re.compile(
     re.IGNORECASE,
 )
 COMMIT_CLAIM = re.compile(r"\bcommit\s+`?([0-9a-f]{7,40})\b", re.IGNORECASE)
+CODE_SUFFIXES = frozenset({".js", ".ts", ".wxs"})
+MAX_SCAN_BYTES = 1024 * 1024
+MAX_TARGETS_PER_CATEGORY_FILE = 12
+HOTSPOT_PATTERNS = (
+    ("active-resource", re.compile(r"\b(?:setInterval|setTimeout|addEventListener|wx\.on\w+)\s*\(")),
+    ("numeric-guard", re.compile(r"\btypeof\b.{0,100}?[=!]==?\s*['\"]number['\"]", re.DOTALL)),
+    ("length-modulo", re.compile(r"%\s*(?:[A-Za-z_$][\w$]*\.)*[A-Za-z_$][\w$]*\.length")),
+)
+
+
+def _hotspots(root: Path, files: list[str]) -> tuple[list[dict[str, Any]], list[str]]:
+    targets: list[dict[str, Any]] = []
+    skipped: list[str] = []
+    seen: set[tuple[str, str, int]] = set()
+
+    def add_target(category: str, relative: str, source: str, offset: int) -> None:
+        line = source.count("\n", 0, offset) + 1
+        key = (category, relative, line)
+        if key not in seen:
+            seen.add(key)
+            targets.append({"category": category, "path": relative, "line": line})
+
+    for relative in files:
+        path = root / relative
+        if path.suffix not in CODE_SUFFIXES:
+            continue
+        if path.stat().st_size > MAX_SCAN_BYTES:
+            skipped.append(relative)
+            continue
+        source = path.read_text(encoding="utf-8", errors="replace")
+        for category, pattern in HOTSPOT_PATTERNS:
+            matches = list(pattern.finditer(source))
+            for match in matches[:MAX_TARGETS_PER_CATEGORY_FILE]:
+                add_target(category, relative, source, match.start())
+            if len(matches) > MAX_TARGETS_PER_CATEGORY_FILE:
+                skipped.append(f"{relative}:{category}:truncated")
+        local_read = source.find("wx.getStorageSync")
+        if local_read >= 0 and "wx.cloud.callFunction" in source:
+            add_target("local-cloud-authority", relative, source, local_read)
+        cloud_add = re.search(r"\.add\s*\(", source)
+        if "db.collection" in source and cloud_add and re.search(r"\.(?:update|remove)\s*\(", source):
+            add_target("multiwrite-atomicity", relative, source, cloud_add.start())
+        handler = re.search(r"\bcatch\s*(?:\(|\{)", source)
+        if handler and re.search(r"localOnly|status\s*:\s*['\"]confirmed['\"]", source):
+            add_target("error-success-boundary", relative, source, handler.start())
+    targets.sort(key=lambda item: (item["category"], item["path"], item["line"]))
+    return targets, skipped
 
 
 def _git_commit(root: Path) -> str:
@@ -88,6 +135,7 @@ def inventory(root: Path) -> dict[str, Any]:
             for chunk in iter(lambda: stream.read(1024 * 1024), b""):
                 digest.update(chunk)
         tree.update(relative.encode("utf-8") + b"\0" + digest.digest())
+    targets, skipped = _hotspots(root, files)
     return {
         "schema_version": 1,
         "file_count": len(files),
@@ -95,6 +143,8 @@ def inventory(root: Path) -> dict[str, Any]:
         "tree_sha256": tree.hexdigest(),
         "git_commit": _git_commit(root),
         "excluded_directories": sorted(EXCLUDED_DIRECTORIES),
+        "review_targets": targets,
+        "hotspot_scan_skipped": skipped,
     }
 
 

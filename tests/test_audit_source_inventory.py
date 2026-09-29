@@ -67,6 +67,49 @@ class SourceInventoryTests(unittest.TestCase):
             self.assertFalse(json.loads(result.stdout)["valid"])
             self.assertEqual(MODULE.inventory(root)["file_count"], 1)
 
+    def test_generic_review_targets_are_hints_not_findings(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "page.js").write_text(
+                "Page({onHide(){clearInterval(this.t)},onShow(){this.t=setInterval(tick,1000)}})",
+                encoding="utf-8",
+            )
+            (root / "logic.js").write_text(
+                "if (typeof value === 'number') wx.setStorageSync('v',value);"
+                "const i = day % ITEMS.length;",
+                encoding="utf-8",
+            )
+            (root / "booking.js").write_text(
+                "wx.getStorageSync('booking'); wx.cloud.callFunction({name:'getBooking'});"
+                "Promise.resolve().catch(e => ({status:'confirmed',localOnly:true}));",
+                encoding="utf-8",
+            )
+            (root / "cloud.js").write_text(
+                "db.collection('a').add({data:{}}); db.collection('b').doc('1').update({data:{}});",
+                encoding="utf-8",
+            )
+            targets = MODULE.inventory(root)["review_targets"]
+            categories = {target["category"] for target in targets}
+            self.assertEqual(categories, {
+                "active-resource", "numeric-guard", "length-modulo",
+                "local-cloud-authority", "multiwrite-atomicity", "error-success-boundary",
+            })
+            self.assertTrue(all(target["line"] >= 1 for target in targets))
+
+    def test_review_targets_cover_distinct_guards_without_duplicate_lines(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "storage.js").write_text(
+                "if (typeof value.hour === 'number' && typeof value.minute === 'number') return value\n"
+                "if (typeof hour !== 'number' || typeof minute !== 'number') return false\n",
+                encoding="utf-8",
+            )
+            targets = MODULE.inventory(root)["review_targets"]
+            self.assertEqual(
+                [target["line"] for target in targets if target["category"] == "numeric-guard"],
+                [1, 2],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()
