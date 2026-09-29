@@ -1,0 +1,49 @@
+{
+  "candidate_commit": "742e2631223db87d83ce0f0dc05220515e2da20d",
+  "candidate_evaluation_harness_sha256": "1e3bd35a1438ee88f5381e30f4d3dbe37daedf7694fa8890b052229349f9f672",
+  "candidate_skill_behavior_sha256": "16a66a6d6ba4e954770fccb690f524b5b84f41fb61c9ded34612401d03315ceb",
+  "candidate_tag": "v3.2.0",
+  "engine": "mixed-local-agent",
+  "generated_at_utc": "2026-09-29T02:41:18Z",
+  "mode": "fresh",
+  "model": "claude:default + deepseek-v4-pro",
+  "schema_version": 2,
+  "stages": {
+    "artifact-nondegradation": {
+      "artifact_path": "v3.2.0-artifact-nondegradation.json",
+      "artifact_sha256": "ce4cbc86d1edcedee9516ce58ecce7143be42df1d98f0f4bd1f30d20cfda49dd"
+    },
+    "behavior-development": {
+      "artifact_path": "v3.2.0-behavior-development.json",
+      "artifact_sha256": "8ac49b8c51804d2cbeccecc07188c78b78cf1584bf3c8c6038417417428d9b9c"
+    },
+    "behavior-held-out": {
+      "artifact_path": "v3.2.0-behavior-held-out.json",
+      "artifact_sha256": "ab8ebc783ed2984dde4245cbce04e61c5fe46ea464c3bc737a46ede89ca4ef4f"
+    },
+    "final-signature": {
+      "artifact_path": "v3.2.0-final-signature.json",
+      "artifact_sha256": "26a9df7642a8f60315c894bac5377d1d961cbd1dbc0549cc260ec53feb709f28"
+    },
+    "independent-judgment": {
+      "artifact_path": "v3.2.0-independent-judgment.json",
+      "artifact_sha256": "2796076c3126e3713cf151a5197f5931f9184708b22cf40086e35d98fa292af8"
+    },
+    "methodology-development": {
+      "artifact_path": "v3.2.0-methodology-development.json",
+      "artifact_sha256": "5c100036b4370758944a851ec0e75cf46151b4f019c51e6c508663404205032e"
+    },
+    "methodology-held-out": {
+      "artifact_path": "v3.2.0-methodology-held-out.json",
+      "artifact_sha256": "c09b717b58c70b54b2e29211542adacda220339ed78bb75c168a33bbc2cb083e"
+    },
+    "routing-development": {
+      "artifact_path": "v3.2.0-routing-development.json",
+      "artifact_sha256": "2a58c9e71f6c4056567961cca35e7421a82af03081cfe83bed6bd83ccbe68666"
+    },
+    "routing-held-out": {
+      "artifact_path": "v3.2.0-routing-held-out.json",
+      "artifact_sha256": "08ca17f63ccb7c7add5eddd03c7954bfc96b894ee8ac8af3e0ba87cc34bf7289"
+    }
+  }
+}
