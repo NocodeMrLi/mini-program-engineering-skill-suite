@@ -138,6 +138,17 @@ class SourceInventoryTests(unittest.TestCase):
                 [],
             )
 
+    def test_local_change_count_is_not_snapshot_total(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / "app.js").write_text("App({})\n", encoding="utf-8")
+            facts = MODULE.inventory(root)
+            self.assertEqual(MODULE.check_report("Fix two handlers (2 files, 4 lines).", facts), [])
+            self.assertEqual(
+                MODULE.check_report("Full read of snapshot (2 files).", facts),
+                ["file-count-mismatch:2!=1"],
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

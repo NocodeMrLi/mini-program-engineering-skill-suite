@@ -17,7 +17,7 @@ EXCLUDED_DIRECTORIES = frozenset({".git", ".planning", ".venv", "node_modules", 
 MAX_FILES = 10000
 MAX_BYTES = 512 * 1024 * 1024
 TOTAL_COUNT = re.compile(
-    r"(?:\ball\s+|\btotal\s+|\bsnapshot\s*\(\s*|\(\s*|共\s*)"
+    r"(?:\ball\s+|\btotal\s+|\bsnapshot\s*\(\s*|共\s*)"
     r"(\d+)\s*(?:source\s+)?(?:files\b|个文件)",
     re.IGNORECASE,
 )
