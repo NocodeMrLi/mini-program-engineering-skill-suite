@@ -18,7 +18,7 @@ GATE_ORDER = (
     ("behavior-held-out", "tier3 行为评测（held-out）"),
     ("methodology-development", "tier3 方法论评测（development）"),
     ("methodology-held-out", "tier3 方法论评测（held-out）"),
-    ("artifact-nondegradation", "tier4 真实项目产物非退化"),
+    ("artifact-nondegradation", "tier4 匿名代表项目产物非退化"),
     ("validation", "结构校验"),
     ("sensitive", "敏感信息扫描"),
     ("package-verification", "公共包清单复验"),
