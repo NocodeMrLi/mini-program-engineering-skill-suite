@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.2.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.3.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.2.0-0EA5E9.svg" alt="Version: 3.2.0">
+  <img src="https://img.shields.io/badge/version-3.3.0-0EA5E9.svg" alt="Version: 3.3.0">
 </p>
 
 <p align="center">
@@ -206,19 +206,21 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-ตัวอย่าง v3.2.0 (หลังดาวน์โหลดจาก Release):
+ตัวอย่าง v3.3.0 (หลังดาวน์โหลดจาก Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.2.0.tar.gz
-python3 mini-program-engineering-suite-v3.2.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.2.0
+tar -xzf mini-program-engineering-suite-v3.3.0.tar.gz
+python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.3.0
 ```
 
 ---
 
 ## เวอร์ชัน
 
-เวอร์ชันปัจจุบัน: **3.2.0**.
+เวอร์ชันซอร์สปัจจุบัน: **3.3.0**. หลักฐานสำหรับการเผยแพร่อย่างเป็นทางการยังไม่ครบ ดู [EVALUATIONS.md](EVALUATIONS.md) และ [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)
+
+เวอร์ชันนี้เพิ่มข้อกำหนดตามเงื่อนไข 14 รายการ ครอบคลุมการกู้คืนคลาวด์ การลงลายมือชื่อ เวอร์ชันความเป็นส่วนตัว ความเข้ากันได้ของไคลเอนต์/แบ็กเอนด์ และเงื่อนไขแต่ละขั้น คุณภาพมาก่อน: แต่ละชุดงานต้องมีผลที่ตรวจรับได้ เชื่อมเข้าสู่ทางเข้าปกติของโครงการหลักอย่างปลอดภัย ระบุเงื่อนไขสิ้นสุดการแยกทดสอบ และทดสอบซ้ำเมื่อมีการเปลี่ยนแปลง ความเสี่ยง หรือช่องว่างหลักฐานใหม่ ดู [ขั้นตอนรับช่วงโครงการ](skills/mini-program-project-intake-skill/references/intake-workflow.md) และ [CHANGELOG.md](CHANGELOG.md)
 
 ---
 

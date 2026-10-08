@@ -84,6 +84,7 @@ REQUIRED_FILES = (
     "platforms/wechat/platform-evidence-layers.md",
     "platforms/wechat/wechat-platform-checklist.md",
     "platforms/wechat/privacy-permission-matrix.md",
+    "platforms/wechat/commerce-and-cloud-contracts.md",
     "platforms/wechat/facts.md",
     "platforms/wechat/rule-map.json",
     "platforms/alipay/facts.md",

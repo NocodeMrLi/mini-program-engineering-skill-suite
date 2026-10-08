@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.2.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.3.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.2.0-0EA5E9.svg" alt="Version: 3.2.0">
+  <img src="https://img.shields.io/badge/version-3.3.0-0EA5E9.svg" alt="Version: 3.3.0">
 </p>
 
 <p align="center">
@@ -206,19 +206,21 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-v3.2.0 の例（Release からダウンロード後）：
+v3.3.0 の例（Release からダウンロード後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.2.0.tar.gz
-python3 mini-program-engineering-suite-v3.2.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.2.0
+tar -xzf mini-program-engineering-suite-v3.3.0.tar.gz
+python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.3.0
 ```
 
 ---
 
 ## バージョン
 
-現在のバージョン：**3.2.0**。
+現在のソース版：**3.3.0**。正式リリースの証拠は未完了です。[EVALUATIONS.md](EVALUATIONS.md) と [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) を確認してください。
+
+本版はクラウド復旧、署名、プライバシーの版管理、クライアントとバックエンドの互換性、段階条件に関する14の条件付き契約を追加します。品質を優先し、各作業単位で確認可能な成果を示し、安全に主プロジェクトの通常入口へ接続します。隔離の終了条件を明示し、再テストは新しい変更・リスク・証拠不足に基づきます。[引き継ぎフロー](skills/mini-program-project-intake-skill/references/intake-workflow.md) と [CHANGELOG.md](CHANGELOG.md) を参照してください。
 
 ---
 

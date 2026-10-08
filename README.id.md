@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.2.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.3.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.2.0-0EA5E9.svg" alt="Version: 3.2.0">
+  <img src="https://img.shields.io/badge/version-3.3.0-0EA5E9.svg" alt="Version: 3.3.0">
 </p>
 
 <p align="center">
@@ -206,19 +206,21 @@ Untuk memeriksa package yang diterima:
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-Contoh v3.2.0 (setelah mengunduh dari Release):
+Contoh v3.3.0 (setelah mengunduh dari Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.2.0.tar.gz
-python3 mini-program-engineering-suite-v3.2.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.2.0
+tar -xzf mini-program-engineering-suite-v3.3.0.tar.gz
+python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.3.0
 ```
 
 ---
 
 ## Versi
 
-Versi saat ini: **3.2.0**.
+Versi sumber saat ini: **3.3.0**. Bukti rilis resmi belum lengkap; lihat [EVALUATIONS.md](EVALUATIONS.md) dan [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
+
+Versi ini menambahkan 14 kontrak bersyarat untuk pemulihan cloud, tanda tangan, versi privasi, kompatibilitas klien/backend, dan syarat tahap yang dapat dicapai. Kualitas tetap utama: setiap batch menghasilkan kemajuan yang bisa diperiksa, masuk dengan aman ke jalur utama proyek, menetapkan kapan isolasi berakhir, dan mengulang tes hanya untuk perubahan, risiko, atau kekurangan bukti baru. Lihat [alur pengambilalihan](skills/mini-program-project-intake-skill/references/intake-workflow.md) dan [CHANGELOG.md](CHANGELOG.md).
 
 ---
 

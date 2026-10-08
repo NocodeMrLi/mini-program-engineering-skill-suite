@@ -5,12 +5,12 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.9+ for bundled scripts; framework adapters are optional and discovered read-only.
 metadata:
-  version: "3.2.0"
+  version: "3.3.0"
   author: "Mini Program Engineering Suite contributors"
   maintainers: "Mini Program Engineering Suite contributors"
   language: "zh-CN"
   created: "2026-08-12"
-  last_reviewed: "2026-09-28"
+  last_reviewed: "2026-10-08"
   review_interval_days: "90"
 ---
 
@@ -42,7 +42,7 @@ metadata:
 | 独立测试、回归或交付证据判断 | [`mini-program-verification-skill`](skills/mini-program-verification-skill/SKILL.md) | 已实现 |
 | 版本、导出、上传/审核/发布就绪治理 | [`mini-program-release-skill`](skills/mini-program-release-skill/SKILL.md) | 已实现 |
 
-当目标组件尚未实现时，明确报告套件当前能力边界；可以继续做安全的只读发现与任务拆解，但不要伪装成已调用不存在的组件。已实现组件既可由主 Skill 编排，也可独立使用；组件只交换阶段产物，不直接调用彼此脚本。
+组件缺失时报告能力边界，仅做安全只读发现与拆解，不伪称调用。已实现组件可编排或独立使用，只交换阶段产物，不互调脚本。
 
 ## 编排工程任务
 
@@ -67,6 +67,7 @@ metadata:
 - 工具异常、超时或中止后的在途动作先保持 `unknown`，刷新本地与外部事实，不盲目重放写操作。
 - 资产变体与证据材料分别记录谱系、指纹、适用范围和不能证明的内容。
 - 已实现必须进入与风险匹配的验证；本地通过不能推导出真机、云端或发布通过。
+- 质量优先；按[推进与反馈合同](skills/mini-program-project-intake-skill/references/intake-workflow.md)交付每批可验收增量，及时接入主入口、限定隔离，复用有效检查；内部测试数量不代表用户进度。
 - 对外输出和安装包运行 `python3 scripts/scan_sensitive_content.py <path> --format json`。
 
 ## 中途问题与连续执行
@@ -104,7 +105,7 @@ metadata:
 - [工程验证 Skill](skills/mini-program-verification-skill/SKILL.md)：按风险分层执行静态、单元、集成、状态、真机、云端和发布验证，报告已执行、未执行与残余风险。
 - [发布治理 Skill](skills/mini-program-release-skill/SKILL.md)：核对版本、构建、安全、权限隐私、回滚和各发布层证据；默认只读，外部动作逐项授权。
 
-每个组件均包含独立的 `agents/openai.yaml`、工作流参考和可复用交付模板，可脱离主套件安装和触发；主 Skill 负责跨阶段编排、计划连续性和证据状态一致性。
+组件含 `agents/openai.yaml`、工作流与模板，可独立安装触发；主 Skill 统一编排、计划与证据状态。
 
 ## 共享模板与门禁
 

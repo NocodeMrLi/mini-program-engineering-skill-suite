@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.2.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.3.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.2.0-0EA5E9.svg" alt="Version: 3.2.0">
+  <img src="https://img.shields.io/badge/version-3.3.0-0EA5E9.svg" alt="Version: 3.3.0">
 </p>
 
 <p align="center">
@@ -294,9 +294,9 @@ shasum -a 256 -c SHA256SUMS
 Then extract the archive and verify the package manifest:
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.2.0.tar.gz
-python3 mini-program-engineering-suite-v3.2.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.2.0
+tar -xzf mini-program-engineering-suite-v3.3.0.tar.gz
+python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.3.0
 ```
 
 If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
@@ -311,7 +311,9 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current working version: **3.2.0**.
+Current source version: **3.3.0**. Formal release evidence is pending; check [EVALUATIONS.md](EVALUATIONS.md) and [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
+
+This version adds 14 conditional engineering contracts for cloud recovery, signing, privacy versions, client/backend compatibility, and reachable phase gates. Quality comes first: each batch delivers an inspectable increment, safely integrates into the main project entry, defines when isolation ends, and repeats tests only for new changes, risks, or evidence gaps. See the [intake workflow](skills/mini-program-project-intake-skill/references/intake-workflow.md) and [CHANGELOG.md](CHANGELOG.md).
 
 ---
 

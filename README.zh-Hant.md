@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.2.0" alt="小程式開發工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.3.0" alt="小程式開發工程技能套件 封面" width="100%">
 </p>
 
 # 小程式開發工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.2.0-0EA5E9.svg" alt="Version: 3.2.0">
+  <img src="https://img.shields.io/badge/version-3.3.0-0EA5E9.svg" alt="Version: 3.3.0">
 </p>
 
 <p align="center">
@@ -202,19 +202,21 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 ```
 
-以 v3.2.0 為例（從 Release 下載後）：
+以 v3.3.0 為例（從 Release 下載後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.2.0.tar.gz
-python3 mini-program-engineering-suite-v3.2.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.2.0
+tar -xzf mini-program-engineering-suite-v3.3.0.tar.gz
+python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.3.0
 ```
 
 ---
 
 ## 目前版本
 
-目前版本：**3.2.0**。
+目前原始碼版本：**3.3.0**。正式發布證據尚未收口，請查看 [EVALUATIONS.md](EVALUATIONS.md) 與 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
+
+本版新增14項按條件觸發的工程契約，涵蓋雲端恢復、簽章傳輸、隱私版本、端雲相容與階段門檻。品質優先：每批明確使用者可驗收增量，安全接入主專案正常入口，隔離須有接回條件，重複測試須對應新增改動、風險或證據缺口。詳見[接管工作流程](skills/mini-program-project-intake-skill/references/intake-workflow.md)與 [CHANGELOG.md](CHANGELOG.md)。
 
 ---
 
