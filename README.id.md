@@ -218,7 +218,7 @@ python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
 
 ## Versi
 
-Versi sumber saat ini: **3.3.0**. Bukti rilis resmi belum lengkap; lihat [EVALUATIONS.md](EVALUATIONS.md) dan [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
+Versi sumber saat ini: **3.3.0**. Catatan evaluasi dan penandatanganan tersedia di [EVALUATIONS.md](EVALUATIONS.md); versi yang telah dirilis dan unduhan tersedia di [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
 
 Versi ini menambahkan 14 kontrak bersyarat untuk pemulihan cloud, tanda tangan, versi privasi, kompatibilitas klien/backend, dan syarat tahap yang dapat dicapai. Kualitas tetap utama: setiap batch menghasilkan kemajuan yang bisa diperiksa, masuk dengan aman ke jalur utama proyek, menetapkan kapan isolasi berakhir, dan mengulang tes hanya untuk perubahan, risiko, atau kekurangan bukti baru. Lihat [alur pengambilalihan](skills/mini-program-project-intake-skill/references/intake-workflow.md) dan [CHANGELOG.md](CHANGELOG.md).
 

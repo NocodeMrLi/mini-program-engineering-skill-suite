@@ -218,7 +218,7 @@ python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
 
 ## バージョン
 
-現在のソース版：**3.3.0**。正式リリースの証拠は未完了です。[EVALUATIONS.md](EVALUATIONS.md) と [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) を確認してください。
+現在のソース版：**3.3.0**。評価と署名の記録は [EVALUATIONS.md](EVALUATIONS.md)、公開版とダウンロードは [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) を確認してください。
 
 本版はクラウド復旧、署名、プライバシーの版管理、クライアントとバックエンドの互換性、段階条件に関する14の条件付き契約を追加します。品質を優先し、各作業単位で確認可能な成果を示し、安全に主プロジェクトの通常入口へ接続します。隔離の終了条件を明示し、再テストは新しい変更・リスク・証拠不足に基づきます。[引き継ぎフロー](skills/mini-program-project-intake-skill/references/intake-workflow.md) と [CHANGELOG.md](CHANGELOG.md) を参照してください。
 

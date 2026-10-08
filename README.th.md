@@ -218,7 +218,7 @@ python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
 
 ## เวอร์ชัน
 
-เวอร์ชันซอร์สปัจจุบัน: **3.3.0**. หลักฐานสำหรับการเผยแพร่อย่างเป็นทางการยังไม่ครบ ดู [EVALUATIONS.md](EVALUATIONS.md) และ [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)
+เวอร์ชันซอร์สปัจจุบัน: **3.3.0**. ดูบันทึกการประเมินและการลงลายมือชื่อที่ [EVALUATIONS.md](EVALUATIONS.md) และดูรุ่นที่เผยแพร่พร้อมไฟล์ดาวน์โหลดที่ [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)
 
 เวอร์ชันนี้เพิ่มข้อกำหนดตามเงื่อนไข 14 รายการ ครอบคลุมการกู้คืนคลาวด์ การลงลายมือชื่อ เวอร์ชันความเป็นส่วนตัว ความเข้ากันได้ของไคลเอนต์/แบ็กเอนด์ และเงื่อนไขแต่ละขั้น คุณภาพมาก่อน: แต่ละชุดงานต้องมีผลที่ตรวจรับได้ เชื่อมเข้าสู่ทางเข้าปกติของโครงการหลักอย่างปลอดภัย ระบุเงื่อนไขสิ้นสุดการแยกทดสอบ และทดสอบซ้ำเมื่อมีการเปลี่ยนแปลง ความเสี่ยง หรือช่องว่างหลักฐานใหม่ ดู [ขั้นตอนรับช่วงโครงการ](skills/mini-program-project-intake-skill/references/intake-workflow.md) และ [CHANGELOG.md](CHANGELOG.md)
 

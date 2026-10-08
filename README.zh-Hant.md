@@ -214,7 +214,7 @@ python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
 
 ## 目前版本
 
-目前原始碼版本：**3.3.0**。正式發布證據尚未收口，請查看 [EVALUATIONS.md](EVALUATIONS.md) 與 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
+目前原始碼版本：**3.3.0**。評測與簽署紀錄見 [EVALUATIONS.md](EVALUATIONS.md)；正式發布狀態與下載檔案見 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
 
 本版新增14項按條件觸發的工程契約，涵蓋雲端恢復、簽章傳輸、隱私版本、端雲相容與階段門檻。品質優先：每批明確使用者可驗收增量，安全接入主專案正常入口，隔離須有接回條件，重複測試須對應新增改動、風險或證據缺口。詳見[接管工作流程](skills/mini-program-project-intake-skill/references/intake-workflow.md)與 [CHANGELOG.md](CHANGELOG.md)。
 
