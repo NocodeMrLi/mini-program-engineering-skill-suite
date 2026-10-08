@@ -11,6 +11,31 @@ permissions:
   contents: read
 
 jobs:
+  required-suite-check:
+    name: Verify public skill suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    needs: [verify, hygiene, secret-scan-negative-probe, installer, coverage]
+    if: ${{ always() }}
+    steps:
+      - name: Require every CI gate to pass
+        env:
+          CI_GATE_RESULTS: ${{ toJSON(needs) }}
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          results = json.loads(os.environ["CI_GATE_RESULTS"])
+          blocked = {name: item["result"] for name, item in results.items()
+                     if item["result"] != "success"}
+          if blocked:
+              print(f"Required CI gates did not all pass: {blocked}", file=sys.stderr)
+              sys.exit(1)
+          print("Every required CI gate passed")
+          PY
+
   verify:
     name: Verify public skill suite (${{ matrix.python-version }})
     runs-on: ubuntu-latest

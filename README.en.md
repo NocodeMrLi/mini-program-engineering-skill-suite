@@ -311,7 +311,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current source version: **3.3.0**. Formal release evidence is pending; check [EVALUATIONS.md](EVALUATIONS.md) and [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
+Current source version: **3.3.0**. See [EVALUATIONS.md](EVALUATIONS.md) for evaluation and signing records, and [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) for published versions and downloads.
 
 This version adds 14 conditional engineering contracts for cloud recovery, signing, privacy versions, client/backend compatibility, and reachable phase gates. Quality comes first: each batch delivers an inspectable increment, safely integrates into the main project entry, defines when isolation ends, and repeats tests only for new changes, risks, or evidence gaps. See the [intake workflow](skills/mini-program-project-intake-skill/references/intake-workflow.md) and [CHANGELOG.md](CHANGELOG.md).
 

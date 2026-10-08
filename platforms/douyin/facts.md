@@ -14,8 +14,8 @@
 ## 事实清单
 
 - 事实：抖音小程序版本发布需在开放平台控制台完成上传、提审与发布；审核要求与驳回处理以平台当前规则为准。
-  <!-- fact: release-review-flow verified=2026-09-28 source=https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/operation/version-review/standard digest=unknown -->
+  <!-- fact: release-review-flow verified=2026-10-08 source=https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/operation/version-review/standard digest=unknown -->
 - 事实：使用涉及用户信息的接口需按平台要求完成隐私相关配置并遵循用户授权与撤回路径；具体清单以平台当前文档为准。
-  <!-- fact: privacy-protection verified=2026-09-28 source=https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/open-capacity/basic-capacities/privacy-agreement digest=unknown -->
+  <!-- fact: privacy-protection verified=2026-10-08 source=https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/open-capacity/basic-capacities/privacy-agreement digest=unknown -->
 
-以上事实于 2026-09-28 再次人工核验：发布审核要求仍位于「经营 → 版本审核」分组的版本审核标准页，其中「五、隐私保护标准」仍列出 28 条合规要求；专门的「配置隐私协议」页仍要求控制台设置、动态更新隐私保护说明和用户授权，并保留官方/自定义/联合三种授权方式。核验入口见 rule-map 各条 `official.url`。
+以上事实于 2026-10-08 再次人工核验：版本审核标准页的隐私保护标准仍列出 28 条要求，涉及用户同意、拒绝授权后的处理和第三方信息处理约束；专门的「配置隐私协议」页仍要求控制台配置、动态生效、使用隐私接口前获得用户授权，并保留官方/自定义/联合三种授权方式，未配置的接口会受限。补充读取[发布上线](https://developer.open-douyin.com/docs/resource/zh-CN/mini-app/introduction/develop-process/publish)（页面更新时间 2026-04-30）：IDE 上传后在控制台版本管理中体验、自查、提审，驳回原因可见，审核通过后可立即或灰度发布。核验入口见 rule-map 各条 `official.url`。

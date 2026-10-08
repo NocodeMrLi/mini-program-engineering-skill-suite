@@ -324,7 +324,7 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前源码版本：**3.3.0**。正式发布证据尚未收口，发布状态见 [EVALUATIONS.md](EVALUATIONS.md) 与 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
+当前源码版本：**3.3.0**。评测与签署记录见 [EVALUATIONS.md](EVALUATIONS.md)；正式发布状态与下载文件见 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
 
 本版补充14项条件触发的工程合同，覆盖云端恢复、签名传输、隐私版本、端云兼容及阶段门禁。质量始终优先；每批明确用户可验收增量，安全可接入的效果及时进入主项目正常入口，隔离写明接回条件，重复测试须有新的改动、风险或证据缺口。具体要求见[接管工作流](skills/mini-program-project-intake-skill/references/intake-workflow.md)，完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 
