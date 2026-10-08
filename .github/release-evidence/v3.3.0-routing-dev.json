@@ -1,0 +1,18 @@
+{
+  "accuracy": 1.0,
+  "candidate_commit": "823bd1d1aa35f8c47592913b918bdd27752c116b",
+  "candidate_tag": "v3.3.0",
+  "case_count": 32,
+  "correct": 32,
+  "engine": "ZCode 0.16.9",
+  "evaluation_harness_sha256": "f5d7f088731faec754d87a8437df0182ae90ccfab48b8573a1dab5b5ed4be98d",
+  "generated_at_utc": "2026-10-08T15:16:23Z",
+  "minimum": 0.9,
+  "model": "GLM-5.3",
+  "schema_version": 1,
+  "skill_behavior_sha256": "20968d33a2d418b9a0c2a6beec8b517ba1ce055655ea578003d995857958ec34",
+  "source_generated_at_utc": "2026-10-08T12:32:09Z",
+  "source_report_sha256": "a96e49047669364976f4c37672052c131fa3ad88d88b106bb07de9f0e4e51be3",
+  "stage": "routing-development",
+  "verdict": "PASS"
+}
