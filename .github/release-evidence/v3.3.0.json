@@ -1,0 +1,54 @@
+{
+  "candidate_commit": "823bd1d1aa35f8c47592913b918bdd27752c116b",
+  "candidate_evaluation_harness_sha256": "f5d7f088731faec754d87a8437df0182ae90ccfab48b8573a1dab5b5ed4be98d",
+  "candidate_skill_behavior_sha256": "20968d33a2d418b9a0c2a6beec8b517ba1ce055655ea578003d995857958ec34",
+  "candidate_tag": "v3.3.0",
+  "engine": "ZCode 0.16.9",
+  "generated_at_utc": "2026-10-08T15:16:23Z",
+  "mode": "fresh",
+  "model": "GLM-5.3",
+  "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "Jkk/cwW/dZ7F+le5rbezV9HWSKX5fPKQDEmMdhbO9hE0GqysyDRD959qKAud6scKHvrQ9CbtH38+r2rKy2d0rLHnVCYOD+zlAmJIb4n4tnDWewhaRHjeAz23bJ0wQmvrpoOnt0emzTi3k0BAzfG+5L5mLhsVNmkuSYh+Ncqp1nm6DFdGN/nrVoWfiiaS+Gy2e5cIoGqCea3n2//HYlJo2fjFMWPlDZRD67YDULJ7Lt6+b5WFmuUnItl8PX4olNmlEzL3mOQDD6oAL15dfTTDuejuF9MwQxRei+RmGWWWIXZtlnVJJLddtYqodEuLNNIsZB50/yHXzll8lrN2I9d5vGJTB37J0LTZjcfcCipZybcFZmWaHIMAK6ZaN1YhmpPyPSiS23gN+SJS/Z6iKtlx75tCLATeI0P8Bh+6NTVsBNV26meMCR0dAq+rJMIC9amlDulUVPk4h0TV4pqclR4GE1sLkBTzio1ePHi1jTT/PVdk8frl5YeCNGQvroq3PR5O"
+  },
+  "stages": {
+    "artifact-nondegradation": {
+      "artifact_path": "v3.3.0-artifact-nondegradation.json",
+      "artifact_sha256": "4c136511281aa9cb2325c7a98941fc5a62f2a68f72e3497cc8b1481d0ebacf67"
+    },
+    "behavior-development": {
+      "artifact_path": "v3.3.0-behavior-dev.json",
+      "artifact_sha256": "070b291ef773ebccda4b7577e3e025f9a4316aa811378c59b7434c6211ba8add"
+    },
+    "behavior-held-out": {
+      "artifact_path": "v3.3.0-behavior-holdout.json",
+      "artifact_sha256": "510ea9e22646a026d0d43cb269a78051c796149d2e35fa171e844153ca310be5"
+    },
+    "final-signature": {
+      "artifact_path": "v3.3.0-final-signature.json",
+      "artifact_sha256": "a72acff1a9c956a2129daf78748aac16257704086673c48602f5f4e993ee3bb5"
+    },
+    "independent-judgment": {
+      "artifact_path": "v3.3.0-independent-judgment.json",
+      "artifact_sha256": "1e0e1c091f0407da42b6c07df94ee005d55708cd92a5e67d9ffb8b3934048835"
+    },
+    "methodology-development": {
+      "artifact_path": "v3.3.0-methodology-dev.json",
+      "artifact_sha256": "14ac1234331502a916f3d3989a474e58a5383e891065e5c3f21b3e95f114c7de"
+    },
+    "methodology-held-out": {
+      "artifact_path": "v3.3.0-methodology-holdout.json",
+      "artifact_sha256": "8a2ecb94bcc15bf594ad15de7725eced5d7ebb0332d71dcb02703b8d9ed420af"
+    },
+    "routing-development": {
+      "artifact_path": "v3.3.0-routing-dev.json",
+      "artifact_sha256": "b2c944e1cedf133b19f44c2614d4b92eeaf630f168fb3230103831a3f854c14b"
+    },
+    "routing-held-out": {
+      "artifact_path": "v3.3.0-routing-holdout.json",
+      "artifact_sha256": "8f22e08d164e122f0da882fea9139aad07bdbb370c7946c5532f7332c8bd9c86"
+    }
+  }
+}

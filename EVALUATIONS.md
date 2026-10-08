@@ -2,11 +2,11 @@
 
 本页说明这套技能在冻结发布前经过的评测分层、各层能证明什么、公开摘要政策，以及如何复现。评测摘要本身由 `scripts/summarize_evaluations.py` 从内部评测产物生成，只包含结论、关键指标与审计元数据，不包含提示词、模型回复或夹具内容。
 
-当前工作版本 3.3.0 为未发布候选；以下 3.2.0 及更早记录只支持对应历史版本，不证明新行为。新候选的本地合同检查、原创场景判断和正式 Tier 2–4/签署分别记录，正式发布证据尚未收口。
+3.3.0 的九阶段新评测已通过，使用 ZCode 0.16.9 / GLM-5.3；以下历史记录只支持对应历史版本。独立模型判定、可信 RSA 证据签名、最终 CI、tag 与不可变 Release 分层验收；可信声明见 `.github/release-evidence/v3.3.0.json`，正式发布及接收端工件以 [v3.3.0 Release](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.3.0) 为准。
 
-3.3.0 分支的有限选择场景配对：两个独立上下文分别读取冻结旧合同与新候选合同，原创 28 题均为 28/28；本批无正确率增益。独立审查发现并关闭四处合同/评测器问题后，受影响的八题及一个新增反例定向复验 9/9。原始与增量指纹分开保留；这是合同判断检查，不是正式 Tier 3 留出、Tier 4 成品盲评、成本增益或真实平台验收，不能据此放行正式发布。
+3.3.0 分支的有限选择场景配对：两个独立上下文分别读取冻结旧合同与新候选合同，原创 28 题均为 28/28；本批无正确率增益。独立审查发现并关闭四处合同/评测器问题后，受影响的八题及一个新增反例定向复验 9/9。原始与增量指纹分开保留；这是前期合同判断检查，不是正式 Tier 3 留出、Tier 4 成品盲评、成本增益或真实平台验收；新候选的正式评测另行完成并记录在下方。
 
-随后补强质量优先与用户可验收反馈合同，对支付接入和无界面工程两种原创场景作定向只读审查，未发现质量门削弱或强加 UI/文档的问题。先前 317 项全量回归通过；最新文本补强另做 15 项合同/分发/评测器回归及 22 项 Tier 1，不重复未受影响的全部模型场景。以上均属未发布分支验证，未量化证明真实工程效率改善。
+随后补强质量优先与用户可验收反馈合同，对支付接入和无界面工程两种原创场景作定向只读审查，未发现质量门削弱或强加 UI/文档的问题。先前 317 项全量回归通过；最新文本补强另做 15 项合同/分发/评测器回归及 22 项 Tier 1，不重复未受影响的全部模型场景。以上为前期合同验证；完整候选评测另见下方 3.3.0 摘要，未量化证明真实工程效率改善。
 
 ## 评测分层
 
@@ -59,6 +59,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 版本 | 日期 | 摘要 | 说明 |
 | --- | --- | --- | --- |
+| 3.3.0 | 2026-10-08 | 九阶段 fresh 评测 PASS；正式发布以 tag/Release 工件为准 | GLM-5.3；Tier 1 22/22，路由两批 32/32；行为/方法论四组升级版均 3/3、非退化；Tier 4 两个独立匿名项目、8 份产物，平均增益 1.310，升级版关键错误与退化均 0；317 项确定性测试。 |
 | 3.2.0 | 2026-09-29 | 候选九阶段门禁 PASS；正式发布以 tag/Release 工件为准 | Tier 1 22/22；Tier 2 两批 32/32；Tier 3 四组升级版均 3/3 且非退化；Tier 4 两个独立匿名合成项目、8 份产物，零关键错误/退化，平均增益 4.665。受影响的 Tier 3 单例精准重跑，未变的基线按控制条件复用；不包含受保护来源项目。 |
 | 3.1.13 | 2026-09-01 | 签名评测证据链候选 | 仅将 `actions/upload-artifact` 固定依赖升级到官方 v7.0.1/Node 24 并加契约回归，不改九个子 Skill 行为正文与 `tests/evals/` 基架；复用 3.1.2 完整八阶段 PASS 私有产物并生成 v3.1.13 独立签名证明。正式结论以本 tag CI/Release、不可变工件和接收端复验为准。 |
 | 3.1.12 | 2026-09-01 | 正式 PASS | CI/Release 全绿；252 tests / 116 files / 122 candidates / 0 findings；patch/patch、`RECOMMEND_RELEASE`、签名评测 `PASS:reuse`；四工件 SHA256 与 116 文件接收端复验通过，仓库 `enabled=true`、Release `immutable=true`。发布日志仅有旧 upload-artifact Node 20 弃用提示，功能由运行器强制 Node 24 后成功；依赖升级顺延 v3.1.13。 |
@@ -81,6 +82,28 @@ python3 scripts/summarize_evaluations.py \
 | 2.1.0 | 2026-08-30 | 全部门禁 PASS（增量评测，见下表） | 引擎 `claude:default`（DeepSeek 后端）；tier1 与 methodology 重跑（2.1 变更影响面），routing 与 behavior 复用 2.0.0 PASS 产物（九个子 Skill 描述与行为文本与 v2.0.0 评测输入逐字节一致）；独立终审与签署 PASS |
 | 2.0.0 | 2026-08-29 | 全部门禁 PASS（见下表） | 引擎 `claude:default`（DeepSeek 后端）；tier2 路由 64/64；四个 tier3 判定 skill 1.00 且无回归，methodology-development 呈现最强对照（skill 1.00 / baseline 0.00）；独立终审与签署 PASS |
 | 1.4.0 | 2026-08-29 | 全部门禁 PASS（见下表） | 引擎 `claude:default`；tier2 路由 64/64；四个 tier3 判定 skill 1.00 且无回归；独立终审与签署 PASS |
+
+### 3.3.0 评测摘要（冻结发布主体）
+
+| 门禁 | 结论 | 关键指标 | 审计元数据 |
+| --- | --- | --- | --- |
+| tier1 结构、预算与资源引用 | PASS | checks 22; skills 10 | generated_at_utc=2026-10-08T14:49:46Z; engine=local |
+| tier2 路由评测（development） | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-10-08T12:32:09Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=aafa5f7d5655; schema_sha256=270ad09d74ce |
+| tier2 路由评测（held-out） | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-10-08T12:32:09Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=d1c39a79eba9; schema_sha256=e09c2427d29e |
+| tier3 行为评测（development） | PASS | skill 1.00; baseline 0.67; non-regression true; judgments 6 (FAIL 1, PASS 5) | generated_at_utc=2026-10-08T13:06:14Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=9b93048803a9; schema_sha256=720380e2c911 |
+| tier3 行为评测（held-out） | PASS | skill 1.00; baseline 1.00; non-regression true; judgments 6 (PASS 6) | generated_at_utc=2026-10-08T13:15:18Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=b88840c35a20; schema_sha256=c2b570af60c3 |
+| tier3 方法论评测（development） | PASS | skill 1.00; baseline 0.67; non-regression true; judgments 6 (FAIL 1, PASS 5) | generated_at_utc=2026-10-08T13:53:26Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=7462c757967c; schema_sha256=69f3202da950 |
+| tier3 方法论评测（held-out） | PASS | skill 1.00; baseline 0.00; non-regression true; judgments 6 (FAIL 3, PASS 3) | generated_at_utc=2026-10-08T14:04:46Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=240753b1d8c4; schema_sha256=beb9a608d15d |
+| tier4 匿名代表项目产物非退化 | PASS | cases 2; runs 8; mean-target-gain 1.31; critical-errors 0; critical-regressions 0 | generated_at_utc=2026-10-08T15:12:17Z; engine=ZCode 0.16.9; model=GLM-5.3; model_version=GLM-5.3 via ZCode 0.16.9; provider version label, weights revision unavailable |
+| 结构校验 | PASS | skills 9 | n/a |
+| 敏感信息扫描 | PASS | findings 0; scanned 146/146 | n/a |
+| 公共包清单复验 | PASS | files 129 | n/a |
+| 独立判定 | PASS | n/a | generated_at_utc=2026-10-08T15:12:48Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=896ef47a1230; schema_sha256=d2bbfb65afef |
+| 独立终审签署 | PASS | n/a | generated_at_utc=2026-10-08T15:13:27Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=896ef47a1230; schema_sha256=d2bbfb65afef |
+
+本轮仅使用 GLM-5.3，不调用 DeepSeek；开发/留出输入、匿名成品快照、处理说明和 rubric 先冻结。限流/超时及隔离不合格调用保留为失败，不计入通过结果；同提示词、同运行器的完整有效答案按审计哈希保留，仅补缺失调用。行为与成品会话禁用插件及 MCP，禁止工具执行并逐一审计零执行；完整工具限制和最终答卷约束仅应用于剩余案例的双方，配对条件一致，来源隐藏后独立盲评。成品双方采用相同精简答卷格式，保留完整快照和评分标准；旧格式失败与诊断产物不混入正式对照。私有词面预检对中文等价表达的误报经源码核对修正，原答卷未改、未重跑。旧主体的成品盲评出现退化后已停止发布，修正通用审计顺序再重新生成受影响产物；本版本路由与行为/方法论输入经证明未改变，有效结果按同提示词哈希保留，不能把旧失败重写成通过。原始提示词、答卷、夹具和失败记录仅存私有目录。
+
+该批合成审查通过不等于真实小程序的支付、云端、真机、用户验收或工程效率已验证。
 
 ### 3.2.0 评测摘要（候选提交）
 
