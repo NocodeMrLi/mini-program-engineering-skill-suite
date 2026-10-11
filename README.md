@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.3.0" alt="小程序开发工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.4.0" alt="小程序开发工程技能套件 封面" width="100%">
 </p>
 
 # 小程序开发工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.3.0-0EA5E9.svg" alt="Version: 3.3.0">
+  <img src="https://img.shields.io/badge/version-3.4.0-0EA5E9.svg" alt="Version: 3.4.0">
 </p>
 
 <p align="center">
@@ -29,6 +29,8 @@
 **小程序开发工程技能套件** 是一套面向 Agent 的技能套件，专为小程序从 0 到 1 开发、已有项目接管和上线前治理设计。它把「先弄清楚要做什么、怎么做、做到哪一步、有没有证据」这条链路拆成可执行的工程流程，帮助不熟悉小程序开发的人在 Agent 辅助下少踩坑、少返工、不越权。
 
 英文名：**Mini Program Engineering Skill Suite**。
+
+3.4.0 补强页面刷新、退出与取消、异步保存、云端身份和恢复队列的边界检查，并把必要前置、用户选定的操作分工与及时交接纳入工作流。目标是保住质量，同时减少无收益的重复检查，让用户及时看到主项目中的实际进展。
 
 ---
 
@@ -307,9 +309,9 @@ shasum -a 256 -c SHA256SUMS
 然后解压并复验包内清单：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.3.0.tar.gz
-python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.3.0
+tar -xzf mini-program-engineering-suite-v3.4.0.tar.gz
+python3 mini-program-engineering-suite-v3.4.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.4.0
 ```
 
 如果你拿到的是其他渠道提供的包，也可以通过包内 `package-manifest.json` 重新计算每个文件的大小和 SHA-256 摘要：
@@ -324,9 +326,9 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前源码版本：**3.3.0**。评测与签署记录见 [EVALUATIONS.md](EVALUATIONS.md)；正式发布状态与下载文件见 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
+当前源码版本：**3.4.0**。评测与签署记录见 [EVALUATIONS.md](EVALUATIONS.md)；正式发布状态与下载文件见 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
 
-本版补充14项条件触发的工程合同，覆盖云端恢复、签名传输、隐私版本、端云兼容及阶段门禁。质量始终优先；每批明确用户可验收增量，安全可接入的效果及时进入主项目正常入口，隔离写明接回条件，重复测试须有新的改动、风险或证据缺口。具体要求见[接管工作流](skills/mini-program-project-intake-skill/references/intake-workflow.md)，完整变更见 [CHANGELOG.md](CHANGELOG.md)。
+3.3.0 补充14项条件触发的工程合同，覆盖云端恢复、签名传输、隐私版本、端云兼容及阶段门禁。质量始终优先；每批明确用户可验收增量，安全可接入的效果及时进入主项目正常入口，隔离写明接回条件，重复测试须有新的改动、风险或证据缺口。具体要求见[接管工作流](skills/mini-program-project-intake-skill/references/intake-workflow.md)，完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 
 ---
 

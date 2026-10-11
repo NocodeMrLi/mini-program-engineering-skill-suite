@@ -42,6 +42,10 @@
 
 ## 根因门禁
 
+按[运行时合同](../../mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)区分旧响应隔离与新查询发生、控制器停止与界面复位、会话归属与保存代次、空值与派生兜底。用可控promise逐边界复现，记录调用次数、持久结果和当前界面，保留正常路径。
+
+按[微信适配](../../../platforms/wechat/commerce-and-cloud-contracts.md)核本次身份/固定诊断；按[云合同](../../mini-program-architecture-skill/references/cloud-state-and-write-contracts.md)核独立响应、目标SDK封装、非抛出错误、业务读回与I/O前持久预算。同类型不证明同格式/标识，没抛异常不证明根字段更新，Timer间隔不证明实际节奏，先分机制再补最小证据，不放宽校验求通过。
+
 编译/预览路线失败后，依据实际错误选择一次具体人工配合或有据替代，说明对象、预期结论与尝试上限。无新证据不反复重启、重打包或同一 GUI 点击。用户已有原生工具可简单完成时先采用该路径；未知外部写入仍保留原请求并查询，换工具不能重放。按 [工具与分工核对](../../mini-program-project-intake-skill/references/intake-workflow.md) 复用有效产物及已有事实。
 
 只有当证据能排除主要替代解释、根因能解释关键现象且修复/反例实验按预测变化时，才标记“根因已证实”。否则使用“最可能假设”并列出下一项判别实验。

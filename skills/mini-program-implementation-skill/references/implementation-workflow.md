@@ -58,4 +58,6 @@
 
 ## 验证交接
 
+涉及刷新、展示、取消和编辑保存时执行[运行时状态合同](../../mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)，核新查询发生、完整界面复位、跨await归属、成功清理代次和显式空值隔离。共享交互列全入口；动作菜单与含输入表单分别守退出/内容保护。使用实际Page/Component调用方及可控持久/事件边界，不以孤立守卫或源码词命中替代行为。
+
 交给验证阶段的内容只包括目标、差异、保护项、执行证据、未覆盖层级、残余风险和回滚方式。实现报告不得使用 `accepted`、`device-verified`、`uploaded` 或 `released`，除非另有对应独立证据。
