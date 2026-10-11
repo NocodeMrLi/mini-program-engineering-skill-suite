@@ -2,7 +2,7 @@
 
 本页说明这套技能在冻结发布前经过的评测分层、各层能证明什么、公开摘要政策，以及如何复现。评测摘要本身由 `scripts/summarize_evaluations.py` 从内部评测产物生成，只包含结论、关键指标与审计元数据，不包含提示词、模型回复或夹具内容。
 
-3.4.0 的九阶段新评测通过，使用 ZCode 0.16.9 / GLM-5.3。两轮适配审查后完成 10 项技术与协作合同增量；本轮未使用 DeepSeek。可信声明见 `.github/release-evidence/v3.4.0.json`；CI、RSA 签名、tag、不可变 Release 与接收端复验分别验收，正式工件以 [v3.4.0 Release](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.4.0) 为准。升级分支合并 main 仍待负责人另行决定。
+3.4.0 的九阶段新评测通过，使用 ZCode 0.16.9 / GLM-5.3。两轮适配审查后完成 10 项技术与协作合同增量；本轮未使用 DeepSeek。可信声明见 `.github/release-evidence/v3.4.0.json`；CI、RSA 签名、tag、不可变 Release 与接收端复验分别验收，正式工件以 [v3.4.0 Release](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.4.0) 为准。v3.4.0 从升级分支发布；合并 main 按负责人后续授权执行，合并记录见 Git 历史。
 
 3.3.0 的九阶段新评测已通过，使用 ZCode 0.16.9 / GLM-5.3；以下历史记录只支持对应历史版本。独立模型判定、可信 RSA 证据签名、最终 CI、tag 与不可变 Release 分层验收；可信声明见 `.github/release-evidence/v3.3.0.json`，正式发布及接收端工件以 [v3.3.0 Release](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.3.0) 为准。
 
