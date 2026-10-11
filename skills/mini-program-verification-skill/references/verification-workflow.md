@@ -61,6 +61,10 @@
 
 ## 下一项验证选择
 
+按[运行时合同](../../mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)分别执行刷新意图、展示退场、取消复位、保存续作、编辑空值矩阵；按[云合同](../../mini-program-architecture-skill/references/cloud-state-and-write-contracts.md)核请求作用域、独立SDK/响应、恢复发现与持久预算/节奏。调用方方法及存储读回是受控行为层；运行时通知/命中、物理输入法、真实云终止/索引/自然调度另取证，不混为真机/云端通过。
+
+核[最后操作交接](../../mini-program-project-intake-skill/references/intake-workflow.md)反例：闭服务正式可用不得称只差上传，获准先提审后开放不得无据禁止提审，有效证据人工上传零额外演练，实际失败补必要复验，事实回答不强索截图/不代独立回执，可选维护不强加人工/必需保护不关闭，等待通知不自动合并。检查实际宿主输出及受控工具轨迹/配合请求，关键词不算行为验收；未执行工具不得声称工具行为已验。
+
 按条件触发增量矩阵，不创建无关业务功能：
 
 | 合同 | 必测反例 | 判定边界 |

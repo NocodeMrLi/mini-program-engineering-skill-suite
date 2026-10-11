@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.3.0" alt="小程式開發工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.4.0" alt="小程式開發工程技能套件 封面" width="100%">
 </p>
 
 # 小程式開發工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.3.0-0EA5E9.svg" alt="Version: 3.3.0">
+  <img src="https://img.shields.io/badge/version-3.4.0-0EA5E9.svg" alt="Version: 3.4.0">
 </p>
 
 <p align="center">
@@ -29,6 +29,8 @@
 **小程式開發工程技能套件** 是一套面向 Agent 的技能套件，主要服務微信小程式從 0 到 1 開發、既有專案接手與上線前治理。它把「先弄清楚要做什麼、怎麼做、做到哪一步、是否有證據」拆成可執行流程，讓不熟悉小程式工程的人也能在 Agent 協助下少踩坑、少返工、不越權。
 
 英文名：**Mini Program Engineering Skill Suite**。
+
+3.4.0 補強頁面刷新、退出與取消、非同步儲存、雲端身分與恢復佇列的邊界檢查，並明確必要前置、使用者選定的分工與及時交接。品質優先，同時減少沒有收益的重複檢查，讓使用者及時看到主專案的實際進展。
 
 > 說明：平台事實層現已覆蓋微信、支付寶、抖音三個平台（檢測能力如實分級，見下文「平台規則保鮮」）。LINE MINI App、Telegram Mini Apps 等其他生態可借鑑本套件方法，但仍需針對平台規則另行適配。
 
@@ -202,21 +204,21 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 ```
 
-以 v3.3.0 為例（從 Release 下載後）：
+以 v3.4.0 為例（從 Release 下載後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.3.0.tar.gz
-python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.3.0
+tar -xzf mini-program-engineering-suite-v3.4.0.tar.gz
+python3 mini-program-engineering-suite-v3.4.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.4.0
 ```
 
 ---
 
 ## 目前版本
 
-目前原始碼版本：**3.3.0**。評測與簽署紀錄見 [EVALUATIONS.md](EVALUATIONS.md)；正式發布狀態與下載檔案見 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
+目前原始碼版本：**3.4.0**。評測與簽署紀錄見 [EVALUATIONS.md](EVALUATIONS.md)；正式發布狀態與下載檔案見 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
 
-本版新增14項按條件觸發的工程契約，涵蓋雲端恢復、簽章傳輸、隱私版本、端雲相容與階段門檻。品質優先：每批明確使用者可驗收增量，安全接入主專案正常入口，隔離須有接回條件，重複測試須對應新增改動、風險或證據缺口。詳見[接管工作流程](skills/mini-program-project-intake-skill/references/intake-workflow.md)與 [CHANGELOG.md](CHANGELOG.md)。
+3.3.0 新增14項按條件觸發的工程契約，涵蓋雲端恢復、簽章傳輸、隱私版本、端雲相容與階段門檻。品質優先：每批明確使用者可驗收增量，安全接入主專案正常入口，隔離須有接回條件，重複測試須對應新增改動、風險或證據缺口。詳見[接管工作流程](skills/mini-program-project-intake-skill/references/intake-workflow.md)與 [CHANGELOG.md](CHANGELOG.md)。
 
 ---
 

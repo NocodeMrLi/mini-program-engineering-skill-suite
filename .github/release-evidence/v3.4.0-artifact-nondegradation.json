@@ -1,0 +1,19 @@
+{
+  "candidate_commit": "2f6c654eac692453692856f710add5d74c140f0c",
+  "candidate_tag": "v3.4.0",
+  "case_count": 2,
+  "engine": "ZCode 0.16.9",
+  "evaluation_harness_sha256": "f5d7f088731faec754d87a8437df0182ae90ccfab48b8573a1dab5b5ed4be98d",
+  "generated_at_utc": "2026-10-11T06:49:20Z",
+  "mean_target_gain": 3.4350000000000023,
+  "minimum_mean_target_gain": 1.0,
+  "model": "GLM-5.3",
+  "problems": [],
+  "run_count": 8,
+  "schema_version": 1,
+  "skill_behavior_sha256": "ecb50db76fe6f5a91f43355cd1bb3fbf1ed693004f4c1e06cdca15bded091a6a",
+  "source_generated_at_utc": "2026-10-11T06:47:48Z",
+  "source_report_sha256": "5ef1e3d2f2687036943e3ffa357c403d19763e7039fb87c03e616be84c3e92e1",
+  "stage": "artifact-nondegradation",
+  "verdict": "PASS"
+}

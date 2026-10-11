@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.3.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.4.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.3.0-0EA5E9.svg" alt="Version: 3.3.0">
+  <img src="https://img.shields.io/badge/version-3.4.0-0EA5E9.svg" alt="Version: 3.4.0">
 </p>
 
 <p align="center">
@@ -29,6 +29,8 @@
 **Mini Program Engineering Skill Suite** adalah kumpulan Agent Skill untuk membantu pengembangan WeChat Mini Program dari nol, mengambil alih proyek yang sudah ada, dan menyiapkan rilis dengan bukti yang jelas. Suite ini memecah pekerjaan menjadi alur yang dapat dieksekusi: apa yang harus dikonfirmasi, bagaimana membangunnya, sejauh mana pekerjaan sudah selesai, dan bukti apa yang tersedia.
 
 Nama Tionghoa: **小程序开发工程技能套件**.
+
+3.4.0 memperkuat pemeriksaan penyegaran, keluar dan pembatalan, penyimpanan asinkron, identitas cloud, serta antrean pemulihan. Persiapan wajib, pembagian kerja pilihan pengguna, dan serah terima tepat waktu diperjelas untuk menjaga kualitas, menghindari pemeriksaan tanpa manfaat, dan memperlihatkan kemajuan nyata proyek.
 
 > Catatan: lapisan fakta platform kini mencakup WeChat, Alipay, dan Douyin (kemampuan deteksi dilabeli jujur — lihat "Kesegaran Aturan Platform" di bawah). Untuk LINE MINI App, Telegram Mini Apps, atau ekosistem mini app lain, prinsip suite ini dapat dijadikan referensi, tetapi aturan platform tetap perlu diadaptasi secara terpisah.
 
@@ -206,21 +208,21 @@ Untuk memeriksa package yang diterima:
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-Contoh v3.3.0 (setelah mengunduh dari Release):
+Contoh v3.4.0 (setelah mengunduh dari Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.3.0.tar.gz
-python3 mini-program-engineering-suite-v3.3.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.3.0
+tar -xzf mini-program-engineering-suite-v3.4.0.tar.gz
+python3 mini-program-engineering-suite-v3.4.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.4.0
 ```
 
 ---
 
 ## Versi
 
-Versi sumber saat ini: **3.3.0**. Catatan evaluasi dan penandatanganan tersedia di [EVALUATIONS.md](EVALUATIONS.md); versi yang telah dirilis dan unduhan tersedia di [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
+Versi sumber saat ini: **3.4.0**. Catatan evaluasi dan penandatanganan tersedia di [EVALUATIONS.md](EVALUATIONS.md); versi yang telah dirilis dan unduhan tersedia di [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
 
-Versi ini menambahkan 14 kontrak bersyarat untuk pemulihan cloud, tanda tangan, versi privasi, kompatibilitas klien/backend, dan syarat tahap yang dapat dicapai. Kualitas tetap utama: setiap batch menghasilkan kemajuan yang bisa diperiksa, masuk dengan aman ke jalur utama proyek, menetapkan kapan isolasi berakhir, dan mengulang tes hanya untuk perubahan, risiko, atau kekurangan bukti baru. Lihat [alur pengambilalihan](skills/mini-program-project-intake-skill/references/intake-workflow.md) dan [CHANGELOG.md](CHANGELOG.md).
+3.3.0 menambahkan 14 kontrak bersyarat untuk pemulihan cloud, tanda tangan, versi privasi, kompatibilitas klien/backend, dan syarat tahap yang dapat dicapai. Kualitas tetap utama: setiap batch menghasilkan kemajuan yang bisa diperiksa, masuk dengan aman ke jalur utama proyek, menetapkan kapan isolasi berakhir, dan mengulang tes hanya untuk perubahan, risiko, atau kekurangan bukti baru. Lihat [alur pengambilalihan](skills/mini-program-project-intake-skill/references/intake-workflow.md) dan [CHANGELOG.md](CHANGELOG.md).
 
 ---
 

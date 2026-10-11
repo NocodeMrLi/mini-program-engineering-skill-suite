@@ -1,0 +1,54 @@
+{
+  "candidate_commit": "2f6c654eac692453692856f710add5d74c140f0c",
+  "candidate_evaluation_harness_sha256": "f5d7f088731faec754d87a8437df0182ae90ccfab48b8573a1dab5b5ed4be98d",
+  "candidate_skill_behavior_sha256": "ecb50db76fe6f5a91f43355cd1bb3fbf1ed693004f4c1e06cdca15bded091a6a",
+  "candidate_tag": "v3.4.0",
+  "engine": "ZCode 0.16.9",
+  "generated_at_utc": "2026-10-11T06:49:20Z",
+  "mode": "fresh",
+  "model": "GLM-5.3",
+  "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "DLAVbTxv8BmkuorQuzPr+fIKBPAFpKRpREuavjonCZZfjOpZmnfnRBVJHdDyDKar1L1Z+Uc2Br5pEPMmIqqcUthgPJe6ng+uZmburrtXV0derJCULbrUNvsdo5JwlFJgVocgspWFkLFJFqX+anjQw+1vNx1bqXOuFJYtqUEaSMMGo5aB3TtwKts2PqR4ENyS8tzgxoMYnDWOAe1RFMIFVeyF0L9RKjnJJHFnyemkLRZwC0S6NxHuC6GJR1DiA4Km+PmAJngvy4AR83eU6BrN3AVRNopXR7m7u5far9ov7qLWrh4rQenpxk2sW7MahPrsagAHfvWMfhZSRdvzqUnQrq3u/4aCH/UL9n0U2FN0YTEL9PjfHZ0ABl3Pxf5Y5n3EeeRpibDW2TL1pqL/pCOrqDAeylJquC53TlmQVUXfr+TQlflqV2RRgfZl2tYX2PwkJ8QVlsOmYkRNVqebBR3ESKAQ6sxxOCyT8gpvaPHO2qdbobBcEuatCKzaggDAhWhz"
+  },
+  "stages": {
+    "artifact-nondegradation": {
+      "artifact_path": "v3.4.0-artifact-nondegradation.json",
+      "artifact_sha256": "80bf44a507006d837a77a6e448cbda3d672f4cac19fbd0d59d6492e04dae83a7"
+    },
+    "behavior-development": {
+      "artifact_path": "v3.4.0-behavior-dev.json",
+      "artifact_sha256": "4be471869c40a5fb8c65296907ba043517a4040afb6bebb9bca19dea87cd757e"
+    },
+    "behavior-held-out": {
+      "artifact_path": "v3.4.0-behavior-holdout.json",
+      "artifact_sha256": "b113cd77be611e225d198811a9011ec0ae761637ce854811cf9239525601fc96"
+    },
+    "final-signature": {
+      "artifact_path": "v3.4.0-final-signature.json",
+      "artifact_sha256": "bfb32e78922e65cadd4ed11eec53b0e0bf0bc7803694aa5908e6025556416e90"
+    },
+    "independent-judgment": {
+      "artifact_path": "v3.4.0-independent-judgment.json",
+      "artifact_sha256": "689def036ed8d77ee14f26cbc6592a96c68eb756b94fb4ca826399dfc454db49"
+    },
+    "methodology-development": {
+      "artifact_path": "v3.4.0-methodology-dev.json",
+      "artifact_sha256": "1c6b6c25170cf53b84d16174b9763967395e44447f780ffba37032203a0a846e"
+    },
+    "methodology-held-out": {
+      "artifact_path": "v3.4.0-methodology-holdout.json",
+      "artifact_sha256": "f51244c21998ab759933e94dbb8d83d19747d8f7da5a1b4eecf559f3a033ef11"
+    },
+    "routing-development": {
+      "artifact_path": "v3.4.0-routing-dev.json",
+      "artifact_sha256": "7d92250c7760db6327cbcd2cb0849af2411b8c2043899d6fc8097952335fd72c"
+    },
+    "routing-held-out": {
+      "artifact_path": "v3.4.0-routing-holdout.json",
+      "artifact_sha256": "55f2d38b3651592d6c2cdcfc9bb6f475e52188042007ef5134506eb16b6be987"
+    }
+  }
+}
