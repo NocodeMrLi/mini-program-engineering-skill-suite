@@ -40,7 +40,9 @@ Nama Tionghoa: **小程序开发工程技能套件**.
 
 - **Lapisan fakta tiga platform**: satu sumber kebenaran aturan platform WeChat / Alipay / Douyin, dengan capability doctor yang mendeteksi stack dan platform target secara otomatis. Kemampuan deteksi dilabeli jujur: WeChat mendukung pemantauan fingerprint deterministik, sementara Alipay / Douyin mengandalkan pemeriksaan dokumen resmi saat runtime dan laporan pengguna, bukan berpura-pura deteksi otomatis (lihat [Kesegaran Aturan Platform](#kesegaran-aturan-platform)).
 - **Pipeline kesegaran aturan platform**: eksekusi memeriksa dokumen resmi terkini, sementara lapisan konten memeriksa drift setiap minggu. Hanya pembaruan `facts.md` yang konsisten menurut audit dibuatkan PR dengan auto-merge setelah CI lulus; hasil lain tetap menjadi issue (lihat [Kesegaran Aturan Platform](#kesegaran-aturan-platform)).
-- **Verifikasi Agent CLI nyata dan tingkat artefak**: tier1-3 struktur / routing / perilaku serta penandatanganan independen berjalan dalam sesi Agent CLI nyata, sedangkan rilis perubahan perilaku juga wajib melewati tier4 artefak proyek anonim berpasangan. Engine evaluasi dapat ditukar (Codex CLI / Claude Code / Gemini / API kompatibel OpenAI), dan lolos lintas engine adalah bukti yang lebih kuat (lihat [Verifikasi](#verifikasi) dan [EVALUATIONS.md](EVALUATIONS.md)).
+- **Sesi Agent nyata dan verifikasi artefak**: tier1 adalah pemeriksaan statis lokal; tier2/3 dan penilaian model independen memakai sesi Agent nyata, sementara rilis perubahan perilaku juga memerlukan tier4 artefak proyek anonim berpasangan. Versi 3.4.0 memakai ZCode / GLM-5.3. Dukungan engine tidak berarti semua engine telah diuji; lihat cakupan nyata di [EVALUATIONS.md](EVALUATIONS.md).
+- **Pemeriksaan operasi sehari-hari lebih lengkap**: memandu Agent memeriksa penyegaran saat kembali, penutupan dan pembukaan dialog, pengetikan lanjutan dengan autosave, serta pemulihan kegagalan cloud agar status lama tidak mengganggu pekerjaan baru. Hasil harus diverifikasi pada proyek tujuan.
+- **Kualitas utama, kemajuan terlihat**: lanjutkan alur utama, berikan hasil yang dapat diperiksa, uji ulang sesuai perubahan, kegagalan nyata atau kekurangan bukti, dan segera serahkan langkah manual pilihan pengguna agar konfirmasi dan koordinasi tidak berulang.
 - **Disiplin rekayasa berbasis bukti**: setiap klaim status harus didukung bukti yang cocok, jika tidak maka dilabeli unknown secara jujur. Sejak 3.0 disiplin ini dirapikan menjadi lapisan skill fondasi `foundation/` yang netral domain dan dapat digunakan ulang oleh suite rekayasa Agent mana pun (lihat [Prinsip Desain](#prinsip-desain)).
 - **Evaluasi berlapis + penandatanganan independen**: tier1 struktur / tier2 routing / tier3 perilaku / tier4 non-regresi artefak proyek sintetis anonim, penilaian independen with-skill vs. baseline, dan batch held-out yang tetap dibekukan hingga rilis — semua gerbang harus PASS sebelum rilis (lihat [EVALUATIONS.md](EVALUATIONS.md)).
 - **Tata kelola rilis kelas supply chain**: SHA256 + dual manifest + packaging fail-closed + verifikasi ulang sisi penerima + pemindaian informasi sensitif tanpa temuan; konsistensi struktur README enam bahasa dijaga oleh skrip (lihat [Integritas Paket](#integritas-paket)).
@@ -133,7 +135,7 @@ Skill ini tidak ditulis dari tutorial abstrak. Ia disarikan dari kolaborasi jang
 
 Aturan platform terus berubah, sehingga aturan yang di-hardcode ke dalam skill pasti kedaluwarsa. Sejak 2.0 suite ini memakai "segar saat eksekusi, evolusi terkontrol":
 
-- **Eksekusi selalu mengikuti sumber resmi.** Untuk langkah yang menyentuh platform (upload, pengajuan review, rilis, deklarasi privasi, kuota), agent memeriksa dulu apakah fakta yang tercatat masih segar (setiap fakta membawa tanggal verifikasi dan sidik jari sumber); langkah kedaluwarsa atau berisiko tinggi memeriksa dokumentasi resmi terkini sebelum dieksekusi. **Versi lokal yang sedikit lama tidak akan menjalankan aturan kedaluwarsa** — hanya mengubah seberapa sering sumber resmi dikonsultasikan, bukan ketepatan.
+- **Periksa bukti resmi sebelum eksekusi.** Untuk upload, pengajuan review, rilis, deklarasi privasi dan kuota, agent harus memeriksa tanggal, sumber serta cakupan fakta dan membaca dokumentasi resmi terkini untuk informasi lama atau berisiko tinggi. Jika tidak dapat dipastikan, pertahankan unknown dan hentikan tindakan yang bergantung padanya. Proses ini tidak menjamin ketepatan versi lama; perbarui suite lokal juga.
 - **Konten berevolusi terkontrol.** Pemelihara mendeteksi perubahan aturan dengan alat drift (perbandingan sidik jari halaman resmi) dan mengirimkan pembaruan melalui audit independen beberapa putaran; Anda dapat melaporkan perubahan yang Anda temukan lewat templat **Platform rule drift** di Issues.
 - **Ingin versi terbaru?** Unduh paket baru dari Releases dan instal ulang dengan `install.sh --force`; suite tidak pernah memperbarui instalasi lokal secara diam-diam.
 
@@ -171,6 +173,17 @@ Setelah instalasi, buka sesi Agent baru dan jalankan:
 /mini-program-engineering-suite Saya ingin membuat WeChat Mini Program dari nol. Bantu mulai dari scope produk dan langkah pengembangan.
 ```
 
+### Memperbarui Instalasi Yang Ada
+
+Merge repository atau penerbitan tag tidak mengganti file skill lokal. Unduh dan verifikasi paket publik dari Releases, lalu jalankan di direktori hasil ekstraksi:
+
+```bash
+cd mini-program-engineering-suite-v3.4.0
+bash install.sh --target auto --force
+```
+
+Simpan cadangan versi lama di luar direktori penemuan skill runner dan periksa VERSION pada setiap lokasi instalasi. Jika komponen dipasang terpisah, perbarui salinan atau pintu masuknya juga agar versi tidak bercampur. Konten baru dapat dibaca pada giliran berikutnya atau sesi baru.
+
 ---
 
 ## Yang Tidak Dilakukan
@@ -183,7 +196,7 @@ Suite ini tidak otomatis menginstal dependency, membuat cloud resources, mengung
 
 Sebelum dianggap siap dibekukan, suite ini melewati structural validation, sensitive-content scanning, deterministic public-package export, manifest verification, routing evaluation, behavior evaluation, dan independent final judgment.
 
-Mulai 2.0 ada **platform rule freshness**: langkah yang menyentuh platform (upload/review/privacy) selalu mengikuti aturan resmi terkini — versi lokal yang sedikit lama tidak akan menjalankan aturan kedaluwarsa. Engine evaluasi dan model dapat diganti-ganti (codex / claude / gemini / API kompatibel OpenAI).
+Periksa fakta platform berdasarkan tanggal, sumber dan cakupan. Jika tidak dapat dipastikan, pertahankan unknown dan hentikan tindakan terkait. Dukungan engine dan cakupan yang benar-benar diuji dicatat terpisah dalam [EVALUATIONS.md](EVALUATIONS.md).
 
 Lapisan evaluasi, batas bukti, dan ringkasan publik per versi dijelaskan di [EVALUATIONS.md](EVALUATIONS.md).
 
