@@ -38,7 +38,9 @@
 
 - **Three-platform fact layer**: a single source of truth for WeChat / Alipay / Douyin platform rules, with capability doctor auto-detecting the project stack and target platform. Detection capability is labeled honestly: WeChat supports deterministic fingerprint monitoring, while Alipay / Douyin rely on runtime checks against official docs and user reports instead of pretending to auto-detect (see [Platform Rule Freshness](#platform-rule-freshness)).
 - **Platform rule freshness pipeline**: execution checks current official docs at run time, while the content layer checks drift weekly. Only audit-consistent `facts.md` updates become PRs with CI-gated auto-merge; other outcomes remain issues (see [Platform Rule Freshness](#platform-rule-freshness)).
-- **Real agent CLI and artifact-level verification**: tier1-3 structure / routing / behavior gates and independent signing run in real agent CLI sessions, while behavior releases also require tier4 paired anonymous-project artifacts. The evaluation engine is pluggable (Codex CLI / Claude Code / Gemini / OpenAI-compatible API); passing across engines is stronger evidence (see [Verification](#verification) and [EVALUATIONS.md](EVALUATIONS.md)).
+- **Real agent sessions and artifact-level verification**: tier1 is a local static check; tier2/3 and independent model judgments use real agent sessions, while behavior releases also require tier4 paired anonymous-project artifacts. Version 3.4.0 used ZCode / GLM-5.3. Pluggable engine support does not mean every engine has been tested; see [EVALUATIONS.md](EVALUATIONS.md) for the actual scope.
+- **More complete everyday-operation checks**: guide the agent through return refreshes, dialog close/reopen, continued typing and autosave, and cloud failure recovery so stale state does not interfere with new work. Verify the outcome in the target project.
+- **Quality first, visible progress**: advance the main flow, deliver inspectable results, retest for changed behavior, actual failures or evidence gaps, and promptly hand off the manual steps the user chose, reducing repeated confirmation and coordination.
 - **Evidence-first engineering discipline**: every status claim must be backed by matching evidence, otherwise it is honestly labeled unknown. Since 3.0 this discipline ships as a domain-neutral foundation skill layer (`foundation/`) that any agent engineering suite can reuse (see [Design Principles](#design-principles)).
 - **Tiered evaluation with independent signing**: tier1 structure / tier2 routing / tier3 behavior / tier4 anonymous synthetic-project artifact non-regression, independent with-skill vs. baseline judgment, and held-out batches that stay frozen until release — every gate must PASS before shipping (see [EVALUATIONS.md](EVALUATIONS.md)).
 - **Supply-chain-grade release governance**: SHA256 checksums, dual manifests, fail-closed packaging, receiver-side re-verification, and a sensitive-content scan with zero findings; six-language README structure consistency is enforced by script (see [Package Integrity](#package-integrity)).
@@ -121,7 +123,7 @@ This Skill suite was not written from an abstract tutorial. It was distilled fro
 
 Platform rules keep changing, so any rule hardcoded into a skill goes stale. Since 2.0 the suite follows "fresh at execution, controlled in evolution":
 
-- **Execution always defers to the official source.** For platform-touching steps (upload, review submission, release, privacy declarations, quotas), the agent first checks whether the recorded platform facts are still fresh (each fact carries a verification date and source fingerprint); stale or high-risk steps check the current official documentation before executing. **A slightly outdated local install never causes a task to follow stale rules** — it only changes how often official sources are consulted, never correctness.
+- **Check official evidence before execution.** For uploads, review submissions, releases, privacy declarations and quotas, require the agent to check the date, source and scope of recorded facts, and consult current official documentation for stale or high-risk matters. If a fact cannot be confirmed, keep it unknown and stop actions that depend on it. This process does not guarantee correctness on an older version; keep the local suite updated.
 - **Suite content evolves under control.** The maintainer detects rule changes with drift tooling (fingerprint comparison against official pages) and lands updates through multi-round independent audits; you can report a rule change you spotted via the **Platform rule drift** issue template (voluntary, pre-filled).
 - **Want the latest copy?** Download the new package from [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) and reinstall with `install.sh --force`. The suite never silently auto-updates a local install.
 
@@ -237,6 +239,17 @@ The recommended flow is product specification, architecture, implementation, UI/
 - what needs your confirmation next.
 
 For existing projects, start with read-only project intake before changing anything. External actions such as upload, review submission, release, cloud changes, and repository permission changes require separate authorization.
+
+### Update An Existing Installation
+
+Merging the repository or publishing a tag does not replace local skill files. Download and verify a public package from Releases, then run this inside the extracted directory:
+
+```bash
+cd mini-program-engineering-suite-v3.4.0
+bash install.sh --target auto --force
+```
+
+Keep rollback backups outside the runner’s skill-discovery directories. Check VERSION at each actual installation location. If components were installed separately, update their copies or entry points too, so versions stay aligned. Updated content can be read on the next turn or in a new session.
 
 ---
 
