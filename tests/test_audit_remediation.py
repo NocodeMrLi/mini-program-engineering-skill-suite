@@ -1349,7 +1349,13 @@ class ReleaseWorkflowContractTests(unittest.TestCase):
             for path in (ROOT / ".github" / "workflows").glob("*.yml")
         )
         self.assertNotIn("65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08", workflows)
-        self.assertIn("043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1", workflows)
+        pins = [line.strip().split("actions/upload-artifact@", 1)[1]
+                for line in workflows.splitlines()
+                if "uses: actions/upload-artifact@" in line]
+        self.assertTrue(pins, "Upload steps must remain present")
+        self.assertEqual(set(pins), {
+            "cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2"
+        })
 
 
 if __name__ == "__main__":
