@@ -2,6 +2,8 @@
 
 本页说明这套技能在冻结发布前经过的评测分层、各层能证明什么、公开摘要政策，以及如何复现。评测摘要本身由 `scripts/summarize_evaluations.py` 从内部评测产物生成，只包含结论、关键指标与审计元数据，不包含提示词、模型回复或夹具内容。
 
+3.4.0 的九阶段新评测通过，使用 ZCode 0.16.9 / GLM-5.3。两轮适配审查后完成 10 项技术与协作合同增量；本轮未使用 DeepSeek。可信声明见 `.github/release-evidence/v3.4.0.json`；CI、RSA 签名、tag、不可变 Release 与接收端复验分别验收，正式工件以 [v3.4.0 Release](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.4.0) 为准。升级分支合并 main 仍待负责人另行决定。
+
 3.3.0 的九阶段新评测已通过，使用 ZCode 0.16.9 / GLM-5.3；以下历史记录只支持对应历史版本。独立模型判定、可信 RSA 证据签名、最终 CI、tag 与不可变 Release 分层验收；可信声明见 `.github/release-evidence/v3.3.0.json`，正式发布及接收端工件以 [v3.3.0 Release](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.3.0) 为准。
 
 3.3.0 分支的有限选择场景配对：两个独立上下文分别读取冻结旧合同与新候选合同，原创 28 题均为 28/28；本批无正确率增益。独立审查发现并关闭四处合同/评测器问题后，受影响的八题及一个新增反例定向复验 9/9。原始与增量指纹分开保留；这是前期合同判断检查，不是正式 Tier 3 留出、Tier 4 成品盲评、成本增益或真实平台验收；新候选的正式评测另行完成并记录在下方。
@@ -59,6 +61,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 版本 | 日期 | 摘要 | 说明 |
 | --- | --- | --- | --- |
+| 3.4.0 | 2026-10-11 | 九阶段 fresh 评测 PASS；正式发布以 tag/Release 工件为准 | GLM-5.3；Tier 1 22/22，路由两批 32/32，行为/方法论四组升级版均 3/3、非退化；Tier 4 两个独立匿名项目、8 份产物，平均增益 3.435，升级版关键错误与退化均 0；317 项确定性测试。 |
 | 3.3.0 | 2026-10-08 | 九阶段 fresh 评测 PASS；正式发布以 tag/Release 工件为准 | GLM-5.3；Tier 1 22/22，路由两批 32/32；行为/方法论四组升级版均 3/3、非退化；Tier 4 两个独立匿名项目、8 份产物，平均增益 1.310，升级版关键错误与退化均 0；317 项确定性测试。 |
 | 3.2.0 | 2026-09-29 | 候选九阶段门禁 PASS；正式发布以 tag/Release 工件为准 | Tier 1 22/22；Tier 2 两批 32/32；Tier 3 四组升级版均 3/3 且非退化；Tier 4 两个独立匿名合成项目、8 份产物，零关键错误/退化，平均增益 4.665。受影响的 Tier 3 单例精准重跑，未变的基线按控制条件复用；不包含受保护来源项目。 |
 | 3.1.13 | 2026-09-01 | 签名评测证据链候选 | 仅将 `actions/upload-artifact` 固定依赖升级到官方 v7.0.1/Node 24 并加契约回归，不改九个子 Skill 行为正文与 `tests/evals/` 基架；复用 3.1.2 完整八阶段 PASS 私有产物并生成 v3.1.13 独立签名证明。正式结论以本 tag CI/Release、不可变工件和接收端复验为准。 |
@@ -82,6 +85,26 @@ python3 scripts/summarize_evaluations.py \
 | 2.1.0 | 2026-08-30 | 全部门禁 PASS（增量评测，见下表） | 引擎 `claude:default`（DeepSeek 后端）；tier1 与 methodology 重跑（2.1 变更影响面），routing 与 behavior 复用 2.0.0 PASS 产物（九个子 Skill 描述与行为文本与 v2.0.0 评测输入逐字节一致）；独立终审与签署 PASS |
 | 2.0.0 | 2026-08-29 | 全部门禁 PASS（见下表） | 引擎 `claude:default`（DeepSeek 后端）；tier2 路由 64/64；四个 tier3 判定 skill 1.00 且无回归，methodology-development 呈现最强对照（skill 1.00 / baseline 0.00）；独立终审与签署 PASS |
 | 1.4.0 | 2026-08-29 | 全部门禁 PASS（见下表） | 引擎 `claude:default`；tier2 路由 64/64；四个 tier3 判定 skill 1.00 且无回归；独立终审与签署 PASS |
+
+### 3.4.0 评测摘要（冻结发布主体）
+
+| 门禁 |结论 | 关键指标 | 审计元数据 |
+| --- | --- | --- | --- |
+| tier1 结构、预算与资源引用 | PASS | checks 22; skills 10 | generated_at_utc=2026-10-11T06:27:25Z; engine=local |
+| tier2 路由评测（development） | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-10-11T05:55:37Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=aafa5f7d5655; schema_sha256=270ad09d74ce |
+| tier2 路由评测（held-out） | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-10-11T05:55:32Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=d1c39a79eba9; schema_sha256=e09c2427d29e |
+| tier3 行为评测（development） | PASS | skill 1.00; baseline 1.00; non-regression true; judgments 6 (PASS 6) | generated_at_utc=2026-10-11T06:26:28Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=863312c0f2f0; schema_sha256=720380e2c911 |
+| tier3 行为评测（held-out） | PASS | skill 1.00; baseline 1.00; non-regression true; judgments 6 (PASS 6) | generated_at_utc=2026-10-11T06:32:03Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=b4ff8446899f; schema_sha256=ba7cc662deab |
+| tier3 方法论评测（development） | PASS | skill 1.00; baseline 0.33; non-regression true; judgments 6 (FAIL 2, PASS 4) | generated_at_utc=2026-10-11T06:34:25Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=fac1acd14129; schema_sha256=d1e8159c2278 |
+| tier3 方法论评测（held-out） | PASS | skill 1.00; baseline 0.00; non-regression true; judgments 6 (FAIL 3, PASS 3) | generated_at_utc=2026-10-11T06:36:08Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=ad766f91278d; schema_sha256=fcc1e7df3e0c |
+| tier4 匿名代表项目产物非退化 | PASS | cases 2; runs 8; mean-target-gain 3.44; critical-errors 0; critical-regressions 0 | generated_at_utc=2026-10-11T06:47:48Z; engine=ZCode 0.16.9; model=GLM-5.3; model_version=GLM-5.3 via ZCode 0.16.9; provider version label, weights revision unavailable |
+| 结构校验 | PASS | skills 9 | n/a |
+| 敏感信息扫描 | PASS | findings 0; scanned 156/156 | n/a |
+| 公共包清单复验 | PASS | files 129 | n/a |
+| 独立判定 | PASS | n/a | generated_at_utc=2026-10-11T06:48:27Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=21525c667f64; schema_sha256=d2bbfb65afef |
+| 独立终审签署 | PASS | n/a | generated_at_utc=2026-10-11T06:49:05Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=21525c667f64; schema_sha256=d2bbfb65afef |
+
+三组受最终文本影响的案例仅重跑升级版及对应独立配对判定，未变案例按精确提示词/响应哈希保留；组内判定保留原始及增量来源。限流、超时、合同缺项与盲评输入缺项的失败记录保留，未降低 rubric 或阈值。独立匿名夹具及十项协作决策不证明真实云端、平台、设备或工程效率增益。
 
 ### 3.3.0 评测摘要（冻结发布主体）
 
