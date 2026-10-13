@@ -294,40 +294,76 @@ def validate_transport_recovery(base: Path, record: dict[str, Any], policy: Any)
                     or [event.get("context", {}).get("enabledPluginCount") for event in execution
                         if event.get("event") == "bootstrap.app.startup.plugins.completed"] != [0]):
                 raise ValueError("refusal-stage-tools-or-plugins-invalid")
-            raw = bound_bytes(base, stage["refusal_sse"])
-            completed = [row for row in ledger if row.get("event") == "upstream-completed"]
-            if len(completed) != 1 or completed[0]["response_sha256"] != sha256_bytes(raw):
-                raise ValueError("refusal-not-bound-to-dispatch")
-            # SSE data permits no space after ':' and multiple data lines per frame.
-            # Parse every frame; never skip a generated, malformed, or unknown event.
-            frames, data = [], []
-            for line in raw.decode("utf-8").splitlines() + [""]:
-                if line == "":
-                    if data:
-                        frames.append("\n".join(data))
-                        data = []
-                elif line.startswith(":") or line.startswith(("event:", "id:", "retry:")):
-                    continue
-                elif line.startswith("data:"):
-                    value = line[5:]
-                    data.append(value[1:] if value.startswith(" ") else value)
-                else:
-                    raise ValueError("refusal-sse-invalid")
-            if not frames or frames[-1] != "[DONE]" or frames.count("[DONE]") != 1:
-                raise ValueError("refusal-sse-incomplete")
-            events = [json.loads(frame) for frame in frames[:-1]]
-            if (len(events) != 2 or events[0]["type"] != "response.failed"
-                    or events[0]["response"]["error"]["code"] != "rate_limit_exceeded"
-                    or events[0]["response"]["output"] != []
-                    or events[0]["response"]["status"] != "failed"
-                    or events[0]["response"]["usage"] is not None
-                    or events[0]["response"]["model"] != controls["model"]
-                    or events[1]["type"] != "error"
-                    or events[1]["code"] != "rate_limit_exceeded"
-                    or audit["status"] != "failed"
+            if (audit["status"] != "failed"
                     or bound_bytes(base, stage["stdout"]).strip()
                     or recovered[2] != prompt):
                 raise ValueError("refusal-or-exact-input-invalid")
+            has_json = stage.get("refusal_json") is not None
+            if has_json and stage.get("refusal_sse") is not None:
+                raise ValueError("ambiguous-refusal-format")
+            if has_json:
+                raw = bound_bytes(base, stage["refusal_json"])
+                errors = [row for row in ledger if row.get("event") == "upstream-http-error"]
+                denial_dispatches = [row for row in ledger if row.get("event") == "upstream-dispatch"]
+                if (len(errors) != 1 or errors[0].get("ordinal") != 1
+                        or errors[0].get("status") != 429
+                        or errors[0].get("response_sha256") != sha256_bytes(raw)
+                        or errors[0].get("content_type", "").split(";", 1)[0].strip().lower() != "application/json"
+                        or errors[0].get("content_encoding") not in (None, "identity")
+                        or len(denial_dispatches) != 1 or denial_dispatches[0].get("upstream") != "api.z.ai"
+                        or audit.get("provider") != "zai"
+                        or any(row.get("event") == "upstream-completed" for row in ledger)):
+                    raise ValueError("json-refusal-not-bound-to-dispatch")
+                def unique_fields(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+                    result: dict[str, Any] = {}
+                    for key, value in pairs:
+                        if key in result:
+                            raise ValueError("json-refusal-duplicate-field")
+                        result[key] = value
+                    return result
+                denial = json.loads(raw, object_pairs_hook=unique_fields)
+                error = denial.get("error") if isinstance(denial, dict) else None
+                if (not isinstance(denial, dict) or set(denial) != {"type", "error", "request_id"}
+                        or denial.get("type") != "error" or not nonempty(denial.get("request_id"))
+                        or not isinstance(error, dict) or set(error) != {"type", "code", "message"}
+                        or error.get("type") != "rate_limit_error" or error.get("code") != "1302"
+                        or not nonempty(error.get("message"))):
+                    raise ValueError("json-refusal-has-output-or-unknown-shape")
+            else:
+                raw = bound_bytes(base, stage["refusal_sse"])
+                completed = [row for row in ledger if row.get("event") == "upstream-completed"]
+                if len(completed) != 1 or completed[0]["response_sha256"] != sha256_bytes(raw):
+                    raise ValueError("refusal-not-bound-to-dispatch")
+                # SSE data permits no space after ':' and multiple data lines per frame.
+                # Parse every frame; never skip a generated, malformed, or unknown event.
+                frames, data = [], []
+                for line in raw.decode("utf-8").splitlines() + [""]:
+                    if line == "":
+                        if data:
+                            frames.append("\n".join(data))
+                            data = []
+                    elif line.startswith(":") or line.startswith(("event:", "id:", "retry:")):
+                        continue
+                    elif line.startswith("data:"):
+                        value = line[5:]
+                        data.append(value[1:] if value.startswith(" ") else value)
+                    else:
+                        raise ValueError("refusal-sse-invalid")
+                if not frames or frames[-1] != "[DONE]" or frames.count("[DONE]") != 1:
+                    raise ValueError("refusal-sse-incomplete")
+                events = [json.loads(frame) for frame in frames[:-1]]
+                if (len(events) != 2 or events[0]["type"] != "response.failed"
+                        or events[0]["response"]["error"]["code"] != "rate_limit_exceeded"
+                        or events[0]["response"]["output"] != []
+                        or events[0]["response"]["status"] != "failed"
+                        or events[0]["response"]["usage"] is not None
+                        or events[0]["response"]["model"] != controls["model"]
+                        or events[1]["type"] != "error"
+                        or events[1]["code"] != "rate_limit_exceeded"
+                        or audit["status"] != "failed"
+                        or bound_bytes(base, stage["stdout"]).strip()
+                        or recovered[2] != prompt):
+                    raise ValueError("refusal-or-exact-input-invalid")
             for field in ("provider_config_sha256", "adapter_sha256", "maximum_provider_calls"):
                 if audit[field] != recovered[1][field]:
                     raise ValueError("recovery-configuration-changed")
@@ -588,7 +624,8 @@ def validate_bundle(bundle_path: Path) -> dict[str, Any]:
                                 if actual_session in engine_sessions_seen:
                                     problems.append(f"{run_label}:actual-engine-session-reused")
                                 engine_sessions_seen.add(actual_session)
-                            refusal = stage["refusal_sse"]["sha256"] if stage["role"] == "repair" and controls["retry_count"] == 1 else None
+                            refusal = ((stage.get("refusal_json") or stage.get("refusal_sse"))["sha256"]
+                                       if stage["role"] == "repair" and controls["retry_count"] == 1 else None)
                             if (digest in transport_audits_seen or session in transport_sessions_seen
                                     or refusal is not None and refusal in refusal_responses_seen):
                                 problems.append(f"{run_label}:transport-session-reused")

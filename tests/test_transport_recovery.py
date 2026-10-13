@@ -115,4 +115,52 @@ class RecoveryEvidence(unittest.TestCase):
    write_json(p,b);self.assertEqual(g.validate_bundle(p)['verdict'],'FAIL');self.assertTrue(any('actual-transport-profile-invalid'in x for x in g.validate_bundle(p)['problems']))
  def test_tampered_hash_or_unsafe_reference_block(self):
   r=self.trial();r['transport_stages'][0]['audit']['sha256']='0'*64;self.assertTrue(self.check(r));r=self.trial();r['transport_stages'][0]['audit']['path']='../outside';self.assertTrue(self.check(r))
+ def json_trial(self):
+  r=self.trial();row=r['transport_stages'][-2]
+  denial={'type':'error','error':{'type':'rate_limit_error','code':'1302','message':'Rate limit reached'},'request_id':'request-unique'}
+  self.json_refusal(r,json.dumps(denial).encode());return r
+ def json_refusal(self,r,raw,status=429,content_type='application/json',upstream='api.z.ai'):
+  row=r['transport_stages'][-2];row.pop('refusal_sse',None);row['refusal_json']=self.bind(raw)
+  ledger=[{'event':'upstream-dispatch','ordinal':1,'model':'GLM-5.3','upstream':upstream},{'event':'upstream-http-error','ordinal':1,'status':status,'content_type':content_type,'content_encoding':None,'response_sha256':g.sha256_bytes(raw)}]
+  blob=b'\n'.join(json.dumps(x).encode()for x in ledger);row['ledger']=self.bind(blob);self.change_audit(r,-2,'provider_request_ledger_sha256',g.sha256_bytes(blob));self.change_audit(r,-2,'provider','zai')
+ def test_canonical_zai_429_no_output_denial_passes(self):
+  self.assertEqual(self.check(self.json_trial()),[])
+ def test_json_generated_fields_usage_or_partial_stream_block(self):
+  for key,value in [('output','generated'),('usage',{'output_tokens':1}),('response',{'content':'generated'})]:
+   r=self.json_trial();d=json.loads(g.bound_bytes(self.root,r['transport_stages'][-2]['refusal_json']));d[key]=value;self.json_refusal(r,json.dumps(d).encode());self.assertTrue(self.check(r))
+  r=self.json_trial();raw=g.bound_bytes(self.root,r['transport_stages'][-2]['refusal_json'])+b'\ndata: {"text":"partial"}';self.json_refusal(r,raw);self.assertTrue(self.check(r))
+ def test_json_unknown_error_codes_timeout_and_shape_block(self):
+  for code in ('timeout','1303',1302,None):
+   r=self.json_trial();d=json.loads(g.bound_bytes(self.root,r['transport_stages'][-2]['refusal_json']));d['error']['code']=code;self.json_refusal(r,json.dumps(d).encode());self.assertTrue(self.check(r))
+  r=self.json_trial();d=json.loads(g.bound_bytes(self.root,r['transport_stages'][-2]['refusal_json']));d['error']['type']='api_error';self.json_refusal(r,json.dumps(d).encode());self.assertTrue(self.check(r))
+ def test_json_requires_actual_429_json_zai_dispatch_and_provider(self):
+  for status,content_type,upstream in [(200,'application/json','api.z.ai'),(429,'text/event-stream','api.z.ai'),(429,'application/json','other.example')]:
+   r=self.json_trial();raw=g.bound_bytes(self.root,r['transport_stages'][-2]['refusal_json']);self.json_refusal(r,raw,status,content_type,upstream);self.assertTrue(self.check(r))
+  r=self.json_trial();self.change_audit(r,-2,'provider','different');self.assertTrue(self.check(r))
+ def test_json_denial_duplicate_or_ambiguous_format_block(self):
+  r=self.json_trial();raw=g.bound_bytes(self.root,r['transport_stages'][-2]['refusal_json']).replace(b'"code": "1302"',b'"code": "timeout", "code": "1302"');self.json_refusal(r,raw);self.assertTrue(self.check(r))
+  r=self.json_trial();r['transport_stages'][-2]['refusal_sse']=self.bind(b'anything');self.assertTrue(self.check(r))
+ def test_json_denial_requires_empty_stdout_and_same_exact_input(self):
+  r=self.json_trial();r['transport_stages'][-2]['stdout']=self.bind(b'partial model report');self.assertTrue(self.check(r))
+  r=self.json_trial();r['transport_stages'][-1]['prompt']=self.bind(b'changed feedback');self.change_audit(r,-1,'prompt_sha256',g.sha256_bytes(b'changed feedback'));self.assertTrue(self.check(r))
+ def test_json_refusal_tool_or_mcp_event_still_blocks(self):
+  for name in ('tool.call.started','mcp.tool.started','mcp.server.connect.started'):
+   r=self.json_trial();r['transport_stages'][-2]['execution_events']=self.bind([{'event':'bootstrap.app.startup.plugins.completed','context':{'enabledPluginCount':0}},{'event':name,'context':{}}]);self.assertTrue(self.check(r))
+ def test_json_recovery_counts_original_dispatch_and_elapsed(self):
+  for key,value in [('actual_provider_calls',4),('elapsed_seconds',3.0)]:
+   r=self.json_trial();r[key]=value;self.assertTrue(self.check(r))
+ def json_bundle(self):
+  from test_validated_skill_upgrade import write_json
+  p,b=self.paired_bundle()
+  for case in b['cases']:
+   for ref in case['runs']:
+    rp=self.root/ref['record_path'];r=json.loads(rp.read_text())
+    if r['controls']['retry_count']==1:
+     a=json.loads(g.bound_bytes(self.root,r['transport_stages'][-2]['audit']));d={'type':'error','error':{'type':'rate_limit_error','code':'1302','message':'Rate limit reached'},'request_id':a['id']};self.json_refusal(r,json.dumps(d).encode());ref['record_sha256']=write_json(rp,r)
+  write_json(p,b);return p,b
+ def test_json_recovery_bundle_integrates_without_changing_rubric(self):
+  p,b=self.json_bundle();self.assertEqual(g.validate_bundle(p)['verdict'],'PASS')
+ def test_json_refusal_reuse_across_distinct_sessions_is_rejected(self):
+  from test_validated_skill_upgrade import write_json
+  p,b=self.json_bundle();refs=[case['runs'][0] for case in b['cases']];first=json.loads((self.root/refs[0]['record_path']).read_text());raw=g.bound_bytes(self.root,first['transport_stages'][-2]['refusal_json']);rp=self.root/refs[1]['record_path'];r=json.loads(rp.read_text());self.json_refusal(r,raw);refs[1]['record_sha256']=write_json(rp,r);write_json(p,b);self.assertTrue(any('transport-session-reused' in x for x in g.validate_bundle(p)['problems']))
 if __name__=='__main__':unittest.main()
