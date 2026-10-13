@@ -1,0 +1,19 @@
+{
+  "baseline_pass_rate": 0.6667,
+  "candidate_commit": "7ca1ee0ac5839e716353b8502ded55d1bd52a42f",
+  "candidate_tag": "v3.5.0",
+  "case_count_per_mode": 3,
+  "engine": "ZCode 0.16.9",
+  "evaluation_harness_sha256": "f5d7f088731faec754d87a8437df0182ae90ccfab48b8573a1dab5b5ed4be98d",
+  "generated_at_utc": "2026-10-13T05:17:36Z",
+  "model": "GLM-5.3",
+  "non_regression": true,
+  "not_proven": 0,
+  "schema_version": 1,
+  "skill_behavior_sha256": "a79395b8eb5e182dcba1c72fc7113e62c71be60be1cbf4279079fa862d0e0f33",
+  "skill_pass_rate": 1.0,
+  "source_generated_at_utc": "2026-10-13T02:32:25Z",
+  "source_report_sha256": "41647463ef01c86b03d25b2370abef1ecfe4097b19b73679965e05ea1dca943c",
+  "stage": "methodology-development",
+  "verdict": "PASS"
+}

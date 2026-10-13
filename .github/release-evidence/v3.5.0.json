@@ -1,0 +1,49 @@
+{
+  "candidate_commit": "7ca1ee0ac5839e716353b8502ded55d1bd52a42f",
+  "candidate_evaluation_harness_sha256": "f5d7f088731faec754d87a8437df0182ae90ccfab48b8573a1dab5b5ed4be98d",
+  "candidate_skill_behavior_sha256": "a79395b8eb5e182dcba1c72fc7113e62c71be60be1cbf4279079fa862d0e0f33",
+  "candidate_tag": "v3.5.0",
+  "engine": "ZCode 0.16.9",
+  "generated_at_utc": "2026-10-13T05:17:36Z",
+  "mode": "fresh",
+  "model": "GLM-5.3",
+  "schema_version": 2,
+  "stages": {
+    "artifact-nondegradation": {
+      "artifact_path": "v3.5.0-artifact-nondegradation.json",
+      "artifact_sha256": "ebdb7c36f2cde2338e8e0c7e21b06644a3f52520fff08ac1ba8642082b9254c7"
+    },
+    "behavior-development": {
+      "artifact_path": "v3.5.0-behavior-dev.json",
+      "artifact_sha256": "a471efd6069592857553eecebb1052f4af9d3182d56bacd47a18563c5afe3de4"
+    },
+    "behavior-held-out": {
+      "artifact_path": "v3.5.0-behavior-holdout.json",
+      "artifact_sha256": "f823a06503114969db90c36d4df1a098d97e82e5288df683089ffb8326f98a84"
+    },
+    "final-signature": {
+      "artifact_path": "v3.5.0-final-signature.json",
+      "artifact_sha256": "ead39fea1131c25a67af9721c4d106b6db059b74c2472387d93741157bb8364b"
+    },
+    "independent-judgment": {
+      "artifact_path": "v3.5.0-independent-judgment.json",
+      "artifact_sha256": "55eef5e512afe1c41b1ca487123f7be61cbe4ffe4f9806bb247aae400c3ba8e8"
+    },
+    "methodology-development": {
+      "artifact_path": "v3.5.0-methodology-dev.json",
+      "artifact_sha256": "deaee05476b315376d357ff844acd4ea76453e64e40eac4f59885b5be692a301"
+    },
+    "methodology-held-out": {
+      "artifact_path": "v3.5.0-methodology-holdout.json",
+      "artifact_sha256": "7e84584ddb88958da279cfe58344d37ff9725f286de79d6912bcd5adccad253b"
+    },
+    "routing-development": {
+      "artifact_path": "v3.5.0-routing-dev.json",
+      "artifact_sha256": "21ffab2ce90ce005be554a2d674485cddab50a781a170430782e9fc305f16ce7"
+    },
+    "routing-held-out": {
+      "artifact_path": "v3.5.0-routing-holdout.json",
+      "artifact_sha256": "d339de1cfffe499091fa7a6075e6c48c0387a4572b6ba47fb01f7c6057c8e93e"
+    }
+  }
+}
