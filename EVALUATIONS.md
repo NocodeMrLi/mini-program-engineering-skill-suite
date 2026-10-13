@@ -10,15 +10,34 @@
 
 随后补强质量优先与用户可验收反馈合同，对支付接入和无界面工程两种原创场景作定向只读审查，未发现质量门削弱或强加 UI/文档的问题。先前 317 项全量回归通过；最新文本补强另做 15 项合同/分发/评测器回归及 22 项 Tier 1，不重复未受影响的全部模型场景。以上为前期合同验证；完整候选评测另见下方 3.3.0 摘要，未量化证明真实工程效率改善。
 
-## v3.5.0：升级04（候选，正式配对验收进行中）
+## v3.5.0：升级04
 
-五项技术与协作合同已实施，补强草稿/实体分层、历史归属原位保留、完整载荷身份及确认版本后的不同载荷提交。最终代码两轴审查的重要缺陷已关闭，本地339/339测试、结构及敏感内容检查通过；这些检查不替代成品验收。
+两轮适配审查后，在既有合同中补强历史归属与恢复前态、持久中间断点、前台尝试退出与业务未知、独立目录生命周期、同轮多入口保存及确认副作用。协作规则同时覆盖可见反馈、最少重复配合、及时交接和保留用户现有流程。本次不更新全局安装，main合并等待负责人决定。
 
-ZCode CLI 0.16.9 / GLM-5.3 的8项定向技术/协作场景最终8/8。旧闭卷报告、原失败和被撤回的签名完整留存；当前正式成品采用两臂相同的受限匿名源码读取与内存方法trace、独立闭卷复核和一次可选实质修正，只有套件上下文不同。旧上下文首份修正成品的两个独立实审均为0重要错误，第二份一次修正后仍有确认基态推进、微任务时序和已完成确认复用三项重要问题；其原FAIL保留。公共合同仅补强这层保存状态区别，重新生成受影响的升级B两份；C与baseline实际输入哈希不变，继续保留，原评分门槛不变。实际调用/重派次数和失败耗时均由原始账本单独核验，有响应不等于通过；工具会话一次可能有多次provider派发，不将会话数混写成请求数。
+基础六阶段沿用输入哈希相同的 ZCode runtime0.16.9 / GLM-5.3 证据；受影响成品、定向回归、盲评和最终独立判定重新使用 ZCode CLI3.11.2-21/runtime0.16.5 / GLM-5.3-Flash，九阶段全部 PASS；8 个新增技术/协作场景最终 8/8。两个匿名模块、每组各两次独立生成，共 8 份最终成品的平均增益 1.44，按原 rubric 判定升级版关键错误及相对基线的关键维度退化为 0，平均增益门槛仍为 1.0。声明见 `.github/release-evidence/v3.5.0.json`；可信 RSA 签名、最终提交 CI、tag 和不可变 [Release](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0) 分别验收，发布状态以 Release 为准。
 
-首个修正请求被明确限流且没有生成结果，按显式共同恢复封套完整原输入重派一次；原失败、原封套及阶段控制保持可追溯，实际重试计1，SDK自动重试及生成重抽均为0。评分、逐案例关键维度非退化与平均增益1.0门槛保持不变，成品必须先完成SHA绑定实质复核。未使用DeepSeek，未手改模型成品。
+本轮累计 139 次会话启动：119 次完成响应，20 次工具/引擎失败（含未派发请求的启动失败）。这些计数表示传输结果，不表示内容全部通过；工具 agent 一个会话可能有多次实际 GLM 请求，实际派发另有账本；hard派发计数仅覆盖真实网关账本，不用历史客户端usage代替；一份没有网关账本的早期诊断工具会话明确排除最终配对。原失败、实质复核不合格成品、被撤回的旧 PASS/签名与诊断 pilot 全部保留，未纳入本轮最终通过。基础六阶段只在实际语义输入逐文件一致时复用；新Flash两臂全部重新生成，未混用原Bigmodel成品；未降低原评分、放宽条件或手改模型回答。DeepSeek 请求为 0，自动重试为 0。
 
-完整成品门、最终CI、可信签名及发布仍待验；当前无v3.5.0 tag或Release，未推送本轮修复、未合并main、未改全局安装和业务项目，参考目录保持只读。受控适配器、模型判断和本地测试不证明真实设备、云端、生产、用户验收或实际工程提速。
+原封闭文字报告曾误算连续保存版本、混淆归属与来源、提出清空历史归属、限制获准草稿保存，或遗漏旧返回保护新草稿。补强公共合同后，最终完整成品采用实际受限工具 agent：两臂均使用同一终端Flash入口，只能读取同一匿名快照和执行原适配器的内存方法，禁止任意代码、文件和业务写入；模型、工具、900 秒/5 次 provider 请求及 12 次工具调用硬上限相同；新上下文复核1200秒/1次与可选实质修正1200秒/1次也相同；此前600秒内完整完成的严格样本仅凭不可变原始链及全部消费槽复用，旧B第二组两臂修正超时完整保留并整对重做，两臂均只允许一次满足严格条件的同输入、无生成内容限流恢复，原失败回执完整保留，真实调用及耗时均计入4500秒/8次共同上限，只有适用套件上下文不同。工具回执绑定源码、初态、调用顺序与逐步真实状态；盲评匿名随机顺序，人工复核核实反例和修复建议，4份升级版最终成品须两轴重要问题为0；基线保留同等一次修正后的真实残余问题，不作为已修好的升级成品。传输层禁止重定向、收束线程后冻结账本，状态摘要保留布尔/数字差异并逐事件重放核对。旧文字协议及诊断 pilot 分数不与新环境混用。
+
+最终成品的生成、独立复核及实质修正合计执行平均耗时 baseline 958.01 秒、升级版 1207.59 秒，仅衡量这些受控报告的模型执行时间，不含排队或人工复核，不证明实际工程提速，精确费用未测。匿名适配器、模型判断和成品审计不证明真实设备、云进程终止、物理输入法、真实交易或用户验收。
+
+| 门禁 | 结论 | 关键指标 | 审计元数据 |
+| --- | --- | --- | --- |
+| tier1 结构、预算与资源引用 | PASS | checks 22; skills 10 | generated_at_utc=2026-10-13T12:08:13Z; engine=local |
+| tier2 路由评测（development） | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-10-13T02:29:03Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=aafa5f7d5655; schema_sha256=270ad09d74ce |
+| tier2 路由评测（held-out） | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-10-13T02:29:03Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=d1c39a79eba9; schema_sha256=e09c2427d29e |
+| tier3 行为评测（development） | PASS | skill 1.00; baseline 1.00; non-regression true; judgments 6 (PASS 6) | generated_at_utc=2026-10-13T02:29:48Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=863312c0f2f0; schema_sha256=720380e2c911 |
+| tier3 行为评测（held-out） | PASS | skill 1.00; baseline 1.00; non-regression true; judgments 6 (PASS 6) | generated_at_utc=2026-10-13T02:35:21Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=b0a4aa568192; schema_sha256=c2b570af60c3 |
+| tier3 方法论评测（development） | PASS | skill 1.00; baseline 0.67; non-regression true; judgments 6 (FAIL 1, PASS 5) | generated_at_utc=2026-10-13T02:32:25Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=a8fbea4a7936; schema_sha256=69f3202da950 |
+| tier3 方法论评测（held-out） | PASS | skill 1.00; baseline 0.00; non-regression true; judgments 6 (FAIL 3, PASS 3) | generated_at_utc=2026-10-13T02:38:00Z; engine=agent; model=zcode:GLM-5.3; prompt_sha256=12154014ccc9; schema_sha256=beb9a608d15d |
+| tier4 匿名代表项目产物非退化 | PASS | cases 2; runs 8; mean-target-gain 1.44; critical-errors 0; critical-regressions 0 | generated_at_utc=2026-10-13T18:32:45Z; engine=ZCode CLI 3.11.2-21 / runtime 0.16.5; model=glm-5.3-flash; model_version=glm-5.3-flash via ZCode CLI 3.11.2-21 / runtime 0.16.5; provider label, weights revision unavailable |
+| 结构校验 | PASS | skills 9 | n/a |
+| 敏感信息扫描 | PASS | findings 0; scanned 166/166 | n/a |
+| 公共包清单复验 | PASS | files 129 | n/a |
+| 独立判定 | PASS | n/a | generated_at_utc=2026-10-13T18:52:52Z; engine=agent; model=zcode:glm-5.3-flash; prompt_sha256=e9732bff72c0; schema_sha256=d2bbfb65afef |
+| 独立终审签署 | PASS | n/a | generated_at_utc=2026-10-13T18:54:57Z; engine=agent; model=zcode:glm-5.3-flash; prompt_sha256=e9732bff72c0; schema_sha256=d2bbfb65afef |
+
 
 ## 评测分层
 

@@ -1,0 +1,19 @@
+{
+  "candidate_commit": "1beb4af3f075b11d0906483838cedf276b968df1",
+  "candidate_tag": "v3.5.0",
+  "case_count": 2,
+  "engine": "ZCode CLI 3.11.2-21 / runtime 0.16.5",
+  "evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "generated_at_utc": "2026-10-13T18:55:10Z",
+  "mean_target_gain": 1.4350000000000023,
+  "minimum_mean_target_gain": 1.0,
+  "model": "glm-5.3-flash",
+  "problems": [],
+  "run_count": 8,
+  "schema_version": 1,
+  "skill_behavior_sha256": "ae88ec4fa1bd431d9aa557fd50d3bea897865c040a67055f57a62e9563d5d199",
+  "source_generated_at_utc": "2026-10-13T18:32:45Z",
+  "source_report_sha256": "fe293e4342082ccdaf27bdce1bf6bd1cdd34a73acadff640fe3aa78eae765f8b",
+  "stage": "artifact-nondegradation",
+  "verdict": "PASS"
+}
