@@ -8,6 +8,11 @@
   "mode": "fresh",
   "model": "GLM-5.3",
   "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "C971tysHAtFbuJgCiPR+YfIktbpbVvpnAdlC6iMilvUosA//GaBkBeASavKUXdG4rB+gQIElFvN+M7SQ+NmOruOsbemnpHamAONmo9zL7V6o+/wTI5IdYTy9LZcr4/Kf7KfeibgWMDts8wH5ghDtkqAbe2Ufj+qGSgcScrr42CEn+TRDD1JRovt/2tuwIacSJMXUqqepGDLcK1pLK5YFBRiRfjmOGegrZvz8SVUmPSe9NOHw+hYP1lpxIrET4EeHnwK2G7LhjSTlboxo8PViGa0/PFpeTJMtpP4uzBfuzpCQ76c3Hv4e5ZAwISqVqsRj4EO0I8oAHChRx4xK+HyIBP8YNoBj/NW1YKmTI4bxjaR1fJyUdz3BMUjppNgFNmBTL10j/nian3maEqi8V8kGi6uRTM3+Cu8PXjq+f3Mo07Ixkn3xzCpHPRGOLOkWIk4tabXii2AcDZJexcmul4Ju/iNwP/4UtJRWMoNYT5mI/gvzxJiDE+b518aQgpGuFWzm"
+  },
   "stages": {
     "artifact-nondegradation": {
       "artifact_path": "v3.5.0-artifact-nondegradation.json",
