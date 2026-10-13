@@ -342,7 +342,8 @@ def waiting_adapter_lineage(base: Path, record: dict[str, Any], reference: Any) 
             attempt = json.loads(raw)
             audit = json.loads(waiting_bound_bytes(original_base, previous["audit"]))
             expected_status = "failed" if audit["status"] == "failed" else "completed"
-            allowed = {expected_status, "completed-awaiting-factual-review"} if role == "recovery" else {expected_status}
+            allowed = {expected_status, "completed-awaiting-factual-review",
+                       "completed-awaiting-independent-factual-review"} if role == "recovery" else {expected_status}
             if (attempt.get("session") != audit["id"] or attempt.get("status") not in allowed
                     or attempt.get("audit_sha256", previous["audit"]["sha256"]) != previous["audit"]["sha256"]
                     or attempt.get("actual_provider_calls", audit["actual_upstream_calls"]) != audit["actual_upstream_calls"]):

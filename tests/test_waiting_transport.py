@@ -39,6 +39,10 @@ class WaitingEvidence(unittest.TestCase):
   r['controls']['time_budget_seconds']=4500
   return r,lineage
  def check(self,r,lineage):return g.validate_transport_recovery(self.root,r,g.WAITING_TRANSPORT_POLICY,lineage)
+ def test_legacy_recovery_review_pending_status_is_not_a_retry_or_pass(self):
+  for status,accepted in [('completed-awaiting-independent-factual-review',True),('reserved-before-dispatch',False),('failed',False)]:
+   r,lineage=self.waiting(True,recovery=True);ref=r['prior_waiting_attempts']['recovery'];raw=json.loads(g.waiting_bound_bytes(self.root,ref));raw['status']=status;blob=json.dumps(raw).encode();(self.root/ref['path']).write_bytes(blob);ref['sha256']=g.sha256_bytes(blob)
+   self.assertEqual(not self.check(r,lineage),accepted,status)
  def test_actual_extended_closed_wait_is_accepted(self):
   r,lineage=self.waiting();self.change_audit(r,1,'elapsed_seconds',900.0);r['elapsed_seconds']=901.0;self.assertEqual(self.check(r,lineage),[])
  def test_completed_stricter_stage_retains_original_budget(self):
