@@ -30,7 +30,7 @@
 
 Nama Tionghoa: **小程序开发工程技能套件**.
 
-3.5.0 memperkuat pemeriksaan penyegaran, keluar dan pembatalan, penyimpanan asinkron, identitas cloud, serta antrean pemulihan. Persiapan wajib, pembagian kerja pilihan pengguna, dan serah terima tepat waktu diperjelas untuk menjaga kualitas, menghindari pemeriksaan tanpa manfaat, dan memperlihatkan kemajuan nyata proyek.
+3.5.0 memperkuat pemulihan berdasarkan riwayat, koleksi kosong dan hubungan historis, hasil penyimpanan bersama untuk Selesai dan Kembali, pemisahan akhir percobaan di layar dari bisnis yang belum pasti, serta pemeriksaan titik pemulihan di tengah proses. Tindakan cepat yang normal ditangani program; umpan balik singkat menjelaskan tujuan pemulihan, hasil simpan dan langkah berikutnya tanpa mengurangi kualitas atau perlindungan izin.
 
 > Catatan: lapisan fakta platform kini mencakup WeChat, Alipay, dan Douyin (kemampuan deteksi dilabeli jujur — lihat "Kesegaran Aturan Platform" di bawah). Untuk LINE MINI App, Telegram Mini Apps, atau ekosistem mini app lain, prinsip suite ini dapat dijadikan referensi, tetapi aturan platform tetap perlu diadaptasi secara terpisah.
 

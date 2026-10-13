@@ -30,7 +30,7 @@
 
 中文名：**小程序开发工程技能套件**。
 
-3.5.0 strengthens checks for refresh intent, exit and cancellation, asynchronous saves, cloud identity, and recovery queues. It also makes necessary preparation, the user's chosen division of work, and timely handoff explicit, preserving quality while avoiding checks that add no value and keeping real project progress visible.
+3.5.0 strengthens history-aware restoration, empty collections and historical membership, shared saves for Finish and Back, front-attempt exit with persistent business unknowns, and intermediate recovery checkpoints. Normal quick actions are handled by the program; concise feedback explains restoration, save results and next steps while preserving quality and authorization boundaries.
 
 ---
 
