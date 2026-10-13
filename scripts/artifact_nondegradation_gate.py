@@ -180,6 +180,177 @@ def validate_controls(controls: Any, label: str) -> list[str]:
     return problems
 
 
+# Opt-in transport accounting. Default trials retain exact controls equality.
+# This permits one proved no-output quota refusal, never a semantic reroll.
+TRANSPORT_RECOVERY_POLICY = {
+    "id": "one-no-output-rate-refusal-exact-input-v1",
+    "maximum_recoveries_per_run": 1,
+    "automatic_retries": 0,
+    "actor_call_cap": 5,
+    "closed_stage_call_cap": 1,
+}
+
+
+def bound_bytes(base: Path, reference: Any) -> bytes:
+    if not isinstance(reference, dict) or set(reference) != {"path", "sha256"}:
+        raise ValueError("reference-invalid")
+    name = safe_relative_name(reference["path"])
+    path = bound_path(base, name) if name else None
+    if path is None or not valid_sha256(reference["sha256"]):
+        raise ValueError("reference-invalid")
+    raw = path.read_bytes()
+    if len(raw) > MAX_INPUT_BYTES or sha256_bytes(raw) != reference["sha256"]:
+        raise ValueError("reference-sha-or-size-invalid")
+    return raw
+
+
+def validate_transport_recovery(base: Path, record: dict[str, Any], policy: Any) -> list[str]:
+    """Verify real dispatch/time counts and exact-input no-output denial recovery."""
+    try:
+        if canonical_sha256(policy) != canonical_sha256(TRANSPORT_RECOVERY_POLICY):
+            raise ValueError("policy-invalid")
+        controls = record["controls"]
+        if (type(controls["retry_budget"]) is not int or controls["retry_budget"] != 1
+                or type(controls["retry_count"]) is not int or controls["retry_count"] not in (0, 1)
+                or controls["call_budget"] != 8 or controls["time_budget_seconds"] != 2700):
+            raise ValueError("recovery-count-invalid")
+        stages = record["transport_stages"]
+        if not isinstance(stages, list):
+            raise ValueError("stages-invalid")
+        roles = [stage["role"] for stage in stages]
+        if roles not in (["actor", "peer"], ["actor", "peer", "repair"],
+                         ["actor", "peer", "repair", "recovery"]):
+            raise ValueError("stage-order-invalid")
+        if controls["retry_count"] != int("recovery" in roles):
+            raise ValueError("recovery-count-mismatch")
+        calls, elapsed, decoded, ids = 0, 0.0, [], set()
+        for stage in stages:
+            audit = json.loads(bound_bytes(base, stage["audit"]))
+            if (not valid_sha256(audit.get("provider_config_sha256"))
+                    or not valid_sha256(audit.get("adapter_sha256"))
+                    or not nonempty(audit.get("engine"))
+                    or not nonempty(audit.get("execution_mode"))):
+                raise ValueError("actual-transport-profile-invalid")
+            prompt = bound_bytes(base, stage["prompt"])
+            ledger_raw = bound_bytes(base, stage["ledger"])
+            ledger = [json.loads(line) for line in ledger_raw.splitlines()]
+            dispatches = [row for row in ledger if row.get("event") == "upstream-dispatch"]
+            cap = 5 if stage["role"] == "actor" else 1
+            count = audit["actual_upstream_calls"]
+            if (not isinstance(count, int) or isinstance(count, bool) or not 1 <= count <= cap
+                    or len(dispatches) != count
+                    or audit["maximum_provider_calls"] != cap
+                    or audit["automatic_retries"] != 0
+                    or audit["provider_request_ledger_sha256"] != sha256_bytes(ledger_raw)
+                    or audit["prompt_sha256"] != sha256_bytes(prompt)
+                    or audit["model"] != controls["model"]
+                    or audit["global_provider_config_unchanged"] is not True
+                    or audit["temporary_credentials_removed"] is not True
+                    or audit.get("fresh_context") is not True
+                    or audit["id"] in ids
+                    or not finite_number(audit["elapsed_seconds"])
+                    or not 0 <= audit["elapsed_seconds"] <= (900 if stage["role"] == "actor" else 600)):
+                raise ValueError("stage-audit-invalid")
+            if [row["ordinal"] for row in dispatches] != list(range(1, count + 1)):
+                raise ValueError("dispatch-order-invalid")
+            if any(row["model"] != controls["model"] for row in dispatches):
+                raise ValueError("dispatch-model-invalid")
+            if stage["role"] == "actor" and (audit.get("enabled_plugin_count") != 0
+                    or audit.get("mcp_server_names") != ["audit_probe"]
+                    or not set(audit.get("observed_tool_names", [])).issubset({
+                        "mcp__audit_probe__read_snapshot", "mcp__audit_probe__trace"})):
+                raise ValueError("actor-tools-or-plugins-invalid")
+            if decoded and audit["provider_config_sha256"] != decoded[0][1]["provider_config_sha256"]:
+                raise ValueError("stage-provider-configuration-changed")
+            if audit.get("status") == "completed" and audit.get("observed_models") != [controls["model"]]:
+                raise ValueError("stage-observed-model-invalid")
+            ids.add(audit["id"])
+            calls += count
+            elapsed += audit["elapsed_seconds"]
+            if stage["role"] != "actor" and audit.get("status") == "completed":
+                if (audit.get("tool_execution_events") != 0
+                        or audit.get("observed_tool_names") != []
+                        or audit.get("enabled_plugin_count") != 0
+                        or audit.get("mcp_server_connections") != 0
+                        or audit.get("observed_models") != [controls["model"]]):
+                    raise ValueError("closed-stage-tools-or-model-invalid")
+            if audit.get("status") == "completed":
+                stdout = bound_bytes(base, stage["stdout"])
+                response = json.loads(stdout)
+                if (audit.get("response_sha256") != sha256_bytes(stdout)
+                        or not nonempty(audit.get("sessionId"))
+                        or response.get("sessionId") != audit["sessionId"]):
+                    raise ValueError("completed-stage-session-or-response-unbound")
+            decoded.append((stage, audit, prompt, ledger))
+        if any(audit["status"] != "completed" for stage, audit, _, _ in decoded
+               if not (stage["role"] == "repair" and "recovery" in roles)):
+            raise ValueError("stage-not-completed")
+        if "recovery" in roles:
+            original, recovered = decoded[-2:]
+            stage, audit, prompt, ledger = original
+            execution = json.loads(bound_bytes(base, stage["execution_events"]))
+            if (not isinstance(execution, list)
+                    or any(event.get("event", "").startswith(("tool.", "mcp.tool.", "mcp.server.connect.")) for event in execution)
+                    or [event.get("context", {}).get("enabledPluginCount") for event in execution
+                        if event.get("event") == "bootstrap.app.startup.plugins.completed"] != [0]):
+                raise ValueError("refusal-stage-tools-or-plugins-invalid")
+            raw = bound_bytes(base, stage["refusal_sse"])
+            completed = [row for row in ledger if row.get("event") == "upstream-completed"]
+            if len(completed) != 1 or completed[0]["response_sha256"] != sha256_bytes(raw):
+                raise ValueError("refusal-not-bound-to-dispatch")
+            # SSE data permits no space after ':' and multiple data lines per frame.
+            # Parse every frame; never skip a generated, malformed, or unknown event.
+            frames, data = [], []
+            for line in raw.decode("utf-8").splitlines() + [""]:
+                if line == "":
+                    if data:
+                        frames.append("\n".join(data))
+                        data = []
+                elif line.startswith(":") or line.startswith(("event:", "id:", "retry:")):
+                    continue
+                elif line.startswith("data:"):
+                    value = line[5:]
+                    data.append(value[1:] if value.startswith(" ") else value)
+                else:
+                    raise ValueError("refusal-sse-invalid")
+            if not frames or frames[-1] != "[DONE]" or frames.count("[DONE]") != 1:
+                raise ValueError("refusal-sse-incomplete")
+            events = [json.loads(frame) for frame in frames[:-1]]
+            if (len(events) != 2 or events[0]["type"] != "response.failed"
+                    or events[0]["response"]["error"]["code"] != "rate_limit_exceeded"
+                    or events[0]["response"]["output"] != []
+                    or events[0]["response"]["status"] != "failed"
+                    or events[0]["response"]["usage"] is not None
+                    or events[0]["response"]["model"] != controls["model"]
+                    or events[1]["type"] != "error"
+                    or events[1]["code"] != "rate_limit_exceeded"
+                    or audit["status"] != "failed"
+                    or bound_bytes(base, stage["stdout"]).strip()
+                    or recovered[2] != prompt):
+                raise ValueError("refusal-or-exact-input-invalid")
+            for field in ("provider_config_sha256", "adapter_sha256", "maximum_provider_calls"):
+                if audit[field] != recovered[1][field]:
+                    raise ValueError("recovery-configuration-changed")
+        final_stage, final_audit, _, _ = decoded[-1]
+        stdout = bound_bytes(base, final_stage["stdout"])
+        if final_audit["response_sha256"] != sha256_bytes(stdout):
+            raise ValueError("final-response-unbound")
+        output = json.loads(stdout)["response"]
+        artifact = bound_bytes(base, {"path": record["artifact_path"], "sha256": record["artifact_sha256"]})
+        if not isinstance(output, str) or artifact.decode("utf-8") != output + "\n":
+            raise ValueError("final-artifact-not-model-output")
+        if (record["actual_provider_calls"] != calls or calls > controls["call_budget"]
+                or not finite_number(record["elapsed_seconds"])
+                or abs(record["elapsed_seconds"] - elapsed) > 0.002
+                or elapsed > controls["time_budget_seconds"]):
+            raise ValueError("dispatch-or-time-budget-invalid")
+    except (ValueError, TypeError, KeyError, OSError, UnicodeError, AttributeError, IndexError, OverflowError) as exc:
+        # Raw parser/I/O errors can contain private paths or source fragments.
+        code = str(exc) if type(exc) is ValueError and re.fullmatch(r"[a-z][a-z-]+", str(exc)) else type(exc).__name__
+        return ["transport-recovery:" + code]
+    return []
+
+
 def validate_judgment(
     judgment: dict[str, Any],
     case_id: str,
@@ -329,6 +500,11 @@ def validate_bundle(bundle_path: Path) -> dict[str, Any]:
     gains: list[float] = []
     run_count = 0
     base = bundle_path.parent
+    transport_audits_seen: set[str] = set()
+    transport_sessions_seen: set[str] = set()
+    refusal_responses_seen: set[str] = set()
+    engine_sessions_seen: set[str] = set()
+    transport_profiles: dict[str, str] = {}
     for index, case in enumerate(cases):
         prefix = f"case:{index}"
         if not isinstance(case, dict):
@@ -393,7 +569,37 @@ def validate_bundle(bundle_path: Path) -> dict[str, Any]:
             controls = record.get("controls")
             problems.extend(validate_controls(controls, run_label))
             if isinstance(controls, dict):
-                controls_digests.add(canonical_sha256(controls))
+                if "transport_recovery_policy" in bundle:
+                    transport_problems = validate_transport_recovery(base, record, bundle["transport_recovery_policy"])
+                    problems.extend(f"{run_label}:{problem}" for problem in transport_problems)
+                    if not transport_problems:
+                        for stage in record["transport_stages"]:
+                            digest = stage["audit"]["sha256"]
+                            audit = json.loads(bound_bytes(base, stage["audit"]))
+                            session = audit["id"]
+                            actual_session = audit.get("sessionId") if audit["status"] == "completed" else None
+                            group = "actor" if stage["role"] == "actor" else "closed"
+                            profile = canonical_sha256({key: audit.get(key) for key in (
+                                "provider_config_sha256", "adapter_sha256", "engine", "execution_mode")})
+                            if group in transport_profiles and transport_profiles[group] != profile:
+                                problems.append(f"{run_label}:actual-transport-profile-not-equivalent")
+                            transport_profiles[group] = profile
+                            if actual_session is not None:
+                                if actual_session in engine_sessions_seen:
+                                    problems.append(f"{run_label}:actual-engine-session-reused")
+                                engine_sessions_seen.add(actual_session)
+                            refusal = stage["refusal_sse"]["sha256"] if stage["role"] == "repair" and controls["retry_count"] == 1 else None
+                            if (digest in transport_audits_seen or session in transport_sessions_seen
+                                    or refusal is not None and refusal in refusal_responses_seen):
+                                problems.append(f"{run_label}:transport-session-reused")
+                            transport_audits_seen.add(digest)
+                            transport_sessions_seen.add(session)
+                            if refusal is not None:
+                                refusal_responses_seen.add(refusal)
+                    configured = {key: value for key, value in controls.items() if key != "retry_count"}
+                    controls_digests.add(canonical_sha256(configured))
+                else:
+                    controls_digests.add(canonical_sha256(controls))
                 if controls.get("model") != bundle.get("model"):
                     problems.append(f"{run_label}:model-mismatch")
                 if controls.get("model_version") != bundle.get("model_version"):
