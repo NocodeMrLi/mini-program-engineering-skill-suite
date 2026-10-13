@@ -8,6 +8,11 @@
   "mode": "fresh",
   "model": "GLM-5.3 core / glm-5.3-flash paired and final",
   "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "eO46dMDv7sP+c04V2TtXfVq9n2t2vkjAGz58dMo6CCg1CJ7Dgs2kB6XY8g6ElxbWo/AbTu+iVriajgE2TgkabwMzzOh6Ny+oalTZA92fBJt+yokaZ5KQsFmrxbIfAclCNJJ7IVsmeMJvdK+aQfcA8HNEuqy3WFB+TLaSeXmE/+YGJaCZBONA6v4Jmbn4PuFqbTfkv3U0Ay9ftiABX1o5y0ap6ogxKUphGEDeJ9ENHQqt48H1qZfRlzgAU89Z2JX8fWRdaoPdZt0Lmpxo9cfnJD2Odn+A/Ft7V34VtFph0rGjG2s1M0fUJwSj84Z4o2rHDrc+LtPS5JZafERHGqkIAGOW+lWbBIYu4INhd3pRmzx2C4GqgGqilhOTewO3Ol5J+/w0XDSvnWI9Bv0lrqnbxCxxIvPdoVrYcvjBp2GtqirRn8bROfg6l1VvpQnGG9uILQTsxu2NjyX4Erj7W+rK4CDk6F9c3Ysy2Z9SglWu5wA0ORUEekB8V8gjCTc8uzhf"
+  },
   "stages": {
     "artifact-nondegradation": {
       "artifact_path": "v3.5.0-artifact-nondegradation.json",
