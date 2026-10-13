@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.4.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.5.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.4.0-0EA5E9.svg" alt="Version: 3.4.0">
+  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 
 中国語名：**小程序开发工程技能套件**。
 
-3.4.0 は再読み込み、終了とキャンセル、非同期保存、クラウドの呼び出しごとの識別と復旧キューの境界確認を強化します。必要な準備、利用者が選んだ役割分担、適時の引き継ぎを明確にし、品質を保ちながら無益な再確認を減らし、実際の進捗を見えるようにします。
+3.5.0 は再読み込み、終了とキャンセル、非同期保存、クラウドの呼び出しごとの識別と復旧キューの境界確認を強化します。必要な準備、利用者が選んだ役割分担、適時の引き継ぎを明確にし、品質を保ちながら無益な再確認を減らし、実際の進捗を見えるようにします。
 
 > 注意：プラットフォームファクト層は現在 WeChat・Alipay・Douyin の 3 プラットフォームをカバーしています（検出能力は正直に区分、下記「プラットフォーム規則の鮮度保持」参照）。LINE MINI App、Telegram Mini Apps などのその他のエコシステムにも考え方を転用できますが、各プラットフォームの規則に合わせた追加適配は必要です。
 
@@ -40,7 +40,7 @@
 
 - **3プラットフォームのファクト層**：WeChat / Alipay / Douyin のプラットフォーム規則の単一の事実ソース。capability doctor がプロジェクトの技術スタックと対象プラットフォームを自動判定します。検出能力は正直に区分——WeChat は決定論的フィンガープリント監視に対応し、Alipay / Douyin は実行時の公式確認とユーザー報告に依存するもので、自動検出できるとは偽りません（[プラットフォーム規則の鮮度保持](#プラットフォーム規則の鮮度保持)参照）。
 - **プラットフォーム規則の鮮度保持パイプライン**：実行層は現行の公式ドキュメントを確認し、内容層は週次でドリフトを検出します。監査で一致した `facts.md` 更新のみ PR を自動作成し、CI 通過後に自動マージします。それ以外の結果は issue に残します（[プラットフォーム規則の鮮度保持](#プラットフォーム規則の鮮度保持)参照）。
-- **実 Agent セッションと成果物検証**：tier1 はローカル静的検査です。tier2/3 と独立したモデル判定は実 Agent セッションで行い、振る舞い変更版には tier4 の匿名プロジェクト比較も必要です。3.4.0 は ZCode / GLM-5.3 を使用しました。エンジン対応は全エンジンの実測を意味しません。範囲は [EVALUATIONS.md](EVALUATIONS.md) を参照してください。
+- **実 Agent セッションと成果物検証**：tier1 はローカル静的検査です。tier2/3 と独立したモデル判定は実 Agent セッションで行い、振る舞い変更版には tier4 の匿名プロジェクト比較も必要です。3.5.0 は ZCode / GLM-5.3 を使用しました。エンジン対応は全エンジンの実測を意味しません。範囲は [EVALUATIONS.md](EVALUATIONS.md) を参照してください。
 - **日常操作の境界を詳しく確認**：戻った際の更新、ダイアログの閉じ直し、入力継続と自動保存、クラウド障害からの復旧を確認し、古い状態が新しい操作を妨げないよう導きます。結果は対象プロジェクトで検証します。
 - **品質を優先し進捗を見える形に**：主な利用経路を進め、確認できる成果を示します。変更・実際の失敗・証拠不足に応じて再検証し、利用者が選んだ手動操作を適時に引き継ぎます。
 - **証拠優先のエンジニアリング規律**：ステータスには必ず対応する証拠が必要で、なければ unknown と正直に記録します。3.0 からはこの規律がドメイン非依存の基礎スキル層 `foundation/` として整理され、任意の Agent エンジニアリングスイートで再利用可能です（[設計原則](#設計原則)参照）。
@@ -178,7 +178,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 リポジトリのマージや tag の公開はローカルのスキルを更新しません。Releases の公開パッケージを取得・検証し、展開したディレクトリで実行します：
 
 ```bash
-cd mini-program-engineering-suite-v3.4.0
+cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
@@ -221,19 +221,19 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-v3.4.0 の例（Release からダウンロード後）：
+v3.5.0 の例（Release からダウンロード後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.4.0.tar.gz
-python3 mini-program-engineering-suite-v3.4.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.4.0
+tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
+python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.5.0
 ```
 
 ---
 
 ## バージョン
 
-現在のソース版：**3.4.0**。評価と署名の記録は [EVALUATIONS.md](EVALUATIONS.md)、公開版とダウンロードは [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) を確認してください。
+現在のソース版：**3.5.0**。評価と署名の記録は [EVALUATIONS.md](EVALUATIONS.md)、公開版とダウンロードは [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) を確認してください。
 
 3.3.0 はクラウド復旧、署名、プライバシーの版管理、クライアントとバックエンドの互換性、段階条件に関する14の条件付き契約を追加します。品質を優先し、各作業単位で確認可能な成果を示し、安全に主プロジェクトの通常入口へ接続します。隔離の終了条件を明示し、再テストは新しい変更・リスク・証拠不足に基づきます。[引き継ぎフロー](skills/mini-program-project-intake-skill/references/intake-workflow.md) と [CHANGELOG.md](CHANGELOG.md) を参照してください。
 

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.4.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.5.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.4.0-0EA5E9.svg" alt="Version: 3.4.0">
+  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 
 ชื่อภาษาจีน: **小程序开发工程技能套件**.
 
-3.4.0 เพิ่มการตรวจสอบการรีเฟรช การออกและยกเลิก การบันทึกแบบอะซิงโครนัส ตัวตนในคลาวด์ และคิวกู้คืน พร้อมระบุงานเตรียมที่จำเป็น การแบ่งงานที่ผู้ใช้เลือก และการส่งต่องานอย่างทันท่วงที เพื่อรักษาคุณภาพ ลดการตรวจซ้ำที่ไม่เกิดประโยชน์ และแสดงความคืบหน้าจริงของโครงการ
+3.5.0 เพิ่มการตรวจสอบการรีเฟรช การออกและยกเลิก การบันทึกแบบอะซิงโครนัส ตัวตนในคลาวด์ และคิวกู้คืน พร้อมระบุงานเตรียมที่จำเป็น การแบ่งงานที่ผู้ใช้เลือก และการส่งต่องานอย่างทันท่วงที เพื่อรักษาคุณภาพ ลดการตรวจซ้ำที่ไม่เกิดประโยชน์ และแสดงความคืบหน้าจริงของโครงการ
 
 > หมายเหตุ: ชั้นข้อเท็จจริงของแพลตฟอร์มครอบคลุม WeChat, Alipay และ Douyin แล้ว (ความสามารถในการตรวจจับระบุอย่างตรงไปตรงมา ดู "ความสดของกฎแพลตฟอร์ม" ด้านล่าง) สำหรับ LINE MINI App, Telegram Mini Apps หรือระบบอื่น ๆ สามารถนำแนวคิดไปปรับใช้ได้ แต่ยังต้องปรับกฎแพลตฟอร์มแยกต่างหาก
 
@@ -40,7 +40,7 @@
 
 - **ชั้นข้อเท็จจริง 3 แพลตฟอร์ม**: แหล่งความจริงเดียวของกฎแพลตฟอร์ม WeChat / Alipay / Douyin โดย capability doctor ตรวจจับเทคโนโลยีและแพลตฟอร์มเป้าหมายของโปรเจกต์โดยอัตโนมัติ ความสามารถตรวจจับระบุอย่างตรงไปตรงมา — WeChat รองรับการเฝ้าระวังลายนิ้วมือแบบ deterministic ส่วน Alipay / Douyin อาศัยการเช็คเอกสารทางการขณะรันและการรายงานจากผู้ใช้ ไม่แอบอ้างว่าตรวจจับอัตโนมัติได้ (ดู [ความสดของกฎแพลตฟอร์ม](#ความสดของกฎแพลตฟอร์ม))
 - **ไปป์ไลน์ความสดของกฎแพลตฟอร์ม**: ฝั่ง execution ตรวจสอบเอกสารทางการฉบับปัจจุบัน และฝั่งเนื้อหาตรวจจับ drift ทุกสัปดาห์ เฉพาะการอัปเดต `facts.md` ที่ผ่านการตรวจสอบอย่างสอดคล้องเท่านั้นที่จะสร้าง PR และรวมอัตโนมัติหลัง CI ผ่าน ส่วนผลลัพธ์อื่นคงอยู่ใน issue (ดู [ความสดของกฎแพลตฟอร์ม](#ความสดของกฎแพลตฟอร์ม))
-- **Agent session จริงและการตรวจอาร์ติแฟกต์**: tier1 เป็นการตรวจแบบ static ในเครื่อง ส่วน tier2/3 และการตัดสินอิสระใช้ Agent session จริง รุ่นที่เปลี่ยนพฤติกรรมต้องผ่าน tier4 แบบเปรียบเทียบโปรเจกต์ไม่ระบุตัวตนด้วย รุ่น 3.4.0 ใช้ ZCode / GLM-5.3 การรองรับ engine ไม่ได้หมายความว่าทดสอบแล้วทุก engine ดูขอบเขตจริงใน [EVALUATIONS.md](EVALUATIONS.md)
+- **Agent session จริงและการตรวจอาร์ติแฟกต์**: tier1 เป็นการตรวจแบบ static ในเครื่อง ส่วน tier2/3 และการตัดสินอิสระใช้ Agent session จริง รุ่นที่เปลี่ยนพฤติกรรมต้องผ่าน tier4 แบบเปรียบเทียบโปรเจกต์ไม่ระบุตัวตนด้วย รุ่น 3.5.0 ใช้ ZCode / GLM-5.3 การรองรับ engine ไม่ได้หมายความว่าทดสอบแล้วทุก engine ดูขอบเขตจริงใน [EVALUATIONS.md](EVALUATIONS.md)
 - **ตรวจขอบเขตการใช้งานประจำวันครบขึ้น**: ช่วย Agent ตรวจการรีเฟรชเมื่อกลับหน้า การปิดและเปิด dialog การพิมพ์ต่อระหว่างบันทึกอัตโนมัติ และการกู้คืนเมื่อ cloud ล้มเหลว เพื่อไม่ให้สถานะเก่ารบกวนงานใหม่ ต้องตรวจผลในโปรเจกต์เป้าหมาย
 - **คุณภาพมาก่อนและเห็นความคืบหน้า**: เดินหน้าขั้นตอนหลัก ส่งมอบผลที่ตรวจดูได้ ทดสอบซ้ำตามการเปลี่ยนแปลง ความล้มเหลวจริงหรือหลักฐานที่ขาด และส่งต่องานที่ผู้ใช้เลือกทำเองอย่างทันเวลา
 - **วินัยวิศวกรรมที่ให้หลักฐานมาก่อน**: ทุกสถานะต้องมีหลักฐานตรงกันรองรับ ไม่งั้นระบุ unknown อย่างตรงไปตรงมา ตั้งแต่ 3.0 วินัยนี้แยกเป็นชั้นพื้นฐาน `foundation/` ที่ไม่ผูกโดเมน ชุด engineering ของ Agent ใดก็นำกลับไปใช้ได้ (ดู [หลักการออกแบบ](#หลักการออกแบบ))
@@ -178,7 +178,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 การ merge repository หรือเผยแพร่ tag ไม่ได้แทนที่ไฟล์ skill ในเครื่อง ดาวน์โหลดและตรวจ package จาก Releases แล้วรันใน directory ที่แตกไฟล์:
 
 ```bash
-cd mini-program-engineering-suite-v3.4.0
+cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
@@ -221,19 +221,19 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-ตัวอย่าง v3.4.0 (หลังดาวน์โหลดจาก Release):
+ตัวอย่าง v3.5.0 (หลังดาวน์โหลดจาก Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.4.0.tar.gz
-python3 mini-program-engineering-suite-v3.4.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.4.0
+tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
+python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.5.0
 ```
 
 ---
 
 ## เวอร์ชัน
 
-เวอร์ชันซอร์สปัจจุบัน: **3.4.0**. ดูบันทึกการประเมินและการลงลายมือชื่อที่ [EVALUATIONS.md](EVALUATIONS.md) และดูรุ่นที่เผยแพร่พร้อมไฟล์ดาวน์โหลดที่ [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)
+เวอร์ชันซอร์สปัจจุบัน: **3.5.0**. ดูบันทึกการประเมินและการลงลายมือชื่อที่ [EVALUATIONS.md](EVALUATIONS.md) และดูรุ่นที่เผยแพร่พร้อมไฟล์ดาวน์โหลดที่ [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)
 
 3.3.0 เพิ่มข้อกำหนดตามเงื่อนไข 14 รายการ ครอบคลุมการกู้คืนคลาวด์ การลงลายมือชื่อ เวอร์ชันความเป็นส่วนตัว ความเข้ากันได้ของไคลเอนต์/แบ็กเอนด์ และเงื่อนไขแต่ละขั้น คุณภาพมาก่อน: แต่ละชุดงานต้องมีผลที่ตรวจรับได้ เชื่อมเข้าสู่ทางเข้าปกติของโครงการหลักอย่างปลอดภัย ระบุเงื่อนไขสิ้นสุดการแยกทดสอบ และทดสอบซ้ำเมื่อมีการเปลี่ยนแปลง ความเสี่ยง หรือช่องว่างหลักฐานใหม่ ดู [ขั้นตอนรับช่วงโครงการ](skills/mini-program-project-intake-skill/references/intake-workflow.md) และ [CHANGELOG.md](CHANGELOG.md)
 

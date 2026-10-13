@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.4.0" alt="小程式開發工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.5.0" alt="小程式開發工程技能套件 封面" width="100%">
 </p>
 
 # 小程式開發工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.4.0-0EA5E9.svg" alt="Version: 3.4.0">
+  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 
 英文名：**Mini Program Engineering Skill Suite**。
 
-3.4.0 補強頁面刷新、退出與取消、非同步儲存、雲端身分與恢復佇列的邊界檢查，並明確必要前置、使用者選定的分工與及時交接。品質優先，同時減少沒有收益的重複檢查，讓使用者及時看到主專案的實際進展。
+3.5.0 補強頁面刷新、退出與取消、非同步儲存、雲端身分與恢復佇列的邊界檢查，並明確必要前置、使用者選定的分工與及時交接。品質優先，同時減少沒有收益的重複檢查，讓使用者及時看到主專案的實際進展。
 
 > 說明：平台事實層現已覆蓋微信、支付寶、抖音三個平台（檢測能力如實分級，見下文「平台規則保鮮」）。LINE MINI App、Telegram Mini Apps 等其他生態可借鑑本套件方法，但仍需針對平台規則另行適配。
 
@@ -40,7 +40,7 @@
 
 - **三平台事實層**：微信 / 支付寶 / 抖音的平台規則單一事實源，capability doctor 自動識別專案技術棧與目標平台；檢測能力如實分級——微信支援確定性指紋監測，支付寶 / 抖音依賴執行時查官方與用戶上報，不假裝能自動檢測（見[平台規則保鮮](#平台規則保鮮)）。
 - **平台規則保鮮流水線**：執行層即時對齊官方現行文件，內容層每週檢測漂移；僅審計一致的 `facts.md` 更新自動提交 PR，CI 通過後自動合併，其餘結果保留為 issue（見[平台規則保鮮](#平台規則保鮮)）。
-- **真實 Agent 會話與產物級驗證**：tier1 是本地靜態檢查；tier2/3 與獨立模型判定使用真實 Agent 會話，行為版本另需 tier4 匿名專案配對門禁。3.4.0 使用 ZCode / GLM-5.3；可插拔引擎不代表每個引擎均已實測，範圍見 [EVALUATIONS.md](EVALUATIONS.md)。
+- **真實 Agent 會話與產物級驗證**：tier1 是本地靜態檢查；tier2/3 與獨立模型判定使用真實 Agent 會話，行為版本另需 tier4 匿名專案配對門禁。3.5.0 使用 ZCode / GLM-5.3；可插拔引擎不代表每個引擎均已實測，範圍見 [EVALUATIONS.md](EVALUATIONS.md)。
 - **日常操作邊界更完整**：引導 Agent 核對返回刷新、彈窗關閉重開、連續輸入與自動儲存、雲端失敗恢復，防止舊狀態干擾新操作；實際效果須在目標專案驗證。
 - **品質優先、進度可見**：推進主流程並交付可查看成果，依新改動、實際失敗或證據缺口補測，及時交接使用者選定的人工操作，減少重複確認與配合負擔。
 - **證據優先工程紀律**：狀態必須由匹配證據支撐，沒有證據就如實標註 unknown；3.0 起這套紀律沉澱為領域無關的基礎技能層 `foundation/`，可被任何 Agent 工程套件復用（見[設計原則](#設計原則)）。
@@ -174,7 +174,7 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 幫我安
 倉庫合併或發布 tag 不會自動替換本機技能檔案。從 Releases 下載並驗證公開包後，在解壓目錄執行：
 
 ```bash
-cd mini-program-engineering-suite-v3.4.0
+cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
@@ -217,19 +217,19 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 ```
 
-以 v3.4.0 為例（從 Release 下載後）：
+以 v3.5.0 為例（從 Release 下載後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.4.0.tar.gz
-python3 mini-program-engineering-suite-v3.4.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.4.0
+tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
+python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.5.0
 ```
 
 ---
 
 ## 目前版本
 
-目前原始碼版本：**3.4.0**。評測與簽署紀錄見 [EVALUATIONS.md](EVALUATIONS.md)；正式發布狀態與下載檔案見 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
+目前原始碼版本：**3.5.0**。評測與簽署紀錄見 [EVALUATIONS.md](EVALUATIONS.md)；正式發布狀態與下載檔案見 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
 
 3.3.0 新增14項按條件觸發的工程契約，涵蓋雲端恢復、簽章傳輸、隱私版本、端雲相容與階段門檻。品質優先：每批明確使用者可驗收增量，安全接入主專案正常入口，隔離須有接回條件，重複測試須對應新增改動、風險或證據缺口。詳見[接管工作流程](skills/mini-program-project-intake-skill/references/intake-workflow.md)與 [CHANGELOG.md](CHANGELOG.md)。
 

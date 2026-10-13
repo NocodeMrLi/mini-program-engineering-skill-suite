@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.4.0" alt="小程序开发工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.5.0" alt="小程序开发工程技能套件 封面" width="100%">
 </p>
 
 # 小程序开发工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.4.0-0EA5E9.svg" alt="Version: 3.4.0">
+  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 
 英文名：**Mini Program Engineering Skill Suite**。
 
-3.4.0 补强页面刷新、退出与取消、异步保存、云端身份和恢复队列的边界检查，并把必要前置、用户选定的操作分工与及时交接纳入工作流。目标是保住质量，同时减少无收益的重复检查，让用户及时看到主项目中的实际进展。
+3.5.0 补强页面刷新、退出与取消、异步保存、云端身份和恢复队列的边界检查，并把必要前置、用户选定的操作分工与及时交接纳入工作流。目标是保住质量，同时减少无收益的重复检查，让用户及时看到主项目中的实际进展。
 
 ---
 
@@ -38,7 +38,7 @@
 
 - **三平台事实层**：微信 / 支付宝 / 抖音的平台规则单一事实源，capability doctor 自动识别项目技术栈与目标平台；检测能力如实分级——微信支持确定性指纹监测，支付宝 / 抖音依赖执行时查官方与用户上报，不假装能自动检测（见[平台规则保鲜](#平台规则保鲜)）。
 - **平台规则保鲜流水线**：执行层即时对齐官方现行文档，内容层每周检测漂移；仅审核一致的 `facts.md` 更新自动提 PR，CI 通过后自动合并，其余结果留在 issue（见[平台规则保鲜](#平台规则保鲜)）。
-- **真实 Agent CLI 与产物级验证**：tier1 是本地静态检查；tier2/3 和独立模型判定使用真实 Agent 会话，行为版本另需 tier4 匿名项目配对门禁。3.4.0 使用 ZCode / GLM-5.3；支持可插拔引擎不代表每个引擎均已实测，具体范围见 [EVALUATIONS.md](EVALUATIONS.md)。
+- **真实 Agent CLI 与产物级验证**：tier1 是本地静态检查；tier2/3 和独立模型判定使用真实 Agent 会话，行为版本另需 tier4 匿名项目配对门禁。3.5.0 使用 ZCode / GLM-5.3；支持可插拔引擎不代表每个引擎均已实测，具体范围见 [EVALUATIONS.md](EVALUATIONS.md)。
 - **日常操作边界更完整**：引导 Agent 检查返回刷新、弹窗关闭重开、连续输入与自动保存、云端失败恢复，防止旧状态干扰新操作；实际效果须在目标项目验证。
 - **质量优先、进度可见**：推进主链路并交付可查看成果，按新改动、真实失败或证据缺口补测，及时交接用户选定的人工操作，减少重复确认与配合负担。
 - **证据优先工程纪律**：状态必须由匹配证据支撑，没有证据就如实标注 unknown；3.0 起这套纪律沉淀为领域无关的基础技能层 `foundation/`，可被任何 Agent 工程套件复用（见[设计原则](#设计原则)）。
@@ -258,7 +258,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 仓库合并或发布 tag 不会自动替换本机技能文件。从 Releases 下载并验证公开包后，在解压目录执行：
 
 ```bash
-cd mini-program-engineering-suite-v3.4.0
+cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
@@ -322,9 +322,9 @@ shasum -a 256 -c SHA256SUMS
 然后解压并复验包内清单：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.4.0.tar.gz
-python3 mini-program-engineering-suite-v3.4.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.4.0
+tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
+python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.5.0
 ```
 
 如果你拿到的是其他渠道提供的包，也可以通过包内 `package-manifest.json` 重新计算每个文件的大小和 SHA-256 摘要：
@@ -339,7 +339,7 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前源码版本：**3.4.0**。评测与签署记录见 [EVALUATIONS.md](EVALUATIONS.md)；正式发布状态与下载文件见 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
+当前源码版本：**3.5.0**。评测与签署记录见 [EVALUATIONS.md](EVALUATIONS.md)；正式发布状态与下载文件见 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
 
 3.3.0 补充14项条件触发的工程合同，覆盖云端恢复、签名传输、隐私版本、端云兼容及阶段门禁。质量始终优先；每批明确用户可验收增量，安全可接入的效果及时进入主项目正常入口，隔离写明接回条件，重复测试须有新的改动、风险或证据缺口。具体要求见[接管工作流](skills/mini-program-project-intake-skill/references/intake-workflow.md)，完整变更见 [CHANGELOG.md](CHANGELOG.md)。
 

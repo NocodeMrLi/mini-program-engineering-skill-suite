@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.4.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.5.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.4.0-0EA5E9.svg" alt="Version: 3.4.0">
+  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 
 Nama Tionghoa: **小程序开发工程技能套件**.
 
-3.4.0 memperkuat pemeriksaan penyegaran, keluar dan pembatalan, penyimpanan asinkron, identitas cloud, serta antrean pemulihan. Persiapan wajib, pembagian kerja pilihan pengguna, dan serah terima tepat waktu diperjelas untuk menjaga kualitas, menghindari pemeriksaan tanpa manfaat, dan memperlihatkan kemajuan nyata proyek.
+3.5.0 memperkuat pemeriksaan penyegaran, keluar dan pembatalan, penyimpanan asinkron, identitas cloud, serta antrean pemulihan. Persiapan wajib, pembagian kerja pilihan pengguna, dan serah terima tepat waktu diperjelas untuk menjaga kualitas, menghindari pemeriksaan tanpa manfaat, dan memperlihatkan kemajuan nyata proyek.
 
 > Catatan: lapisan fakta platform kini mencakup WeChat, Alipay, dan Douyin (kemampuan deteksi dilabeli jujur — lihat "Kesegaran Aturan Platform" di bawah). Untuk LINE MINI App, Telegram Mini Apps, atau ekosistem mini app lain, prinsip suite ini dapat dijadikan referensi, tetapi aturan platform tetap perlu diadaptasi secara terpisah.
 
@@ -40,7 +40,7 @@ Nama Tionghoa: **小程序开发工程技能套件**.
 
 - **Lapisan fakta tiga platform**: satu sumber kebenaran aturan platform WeChat / Alipay / Douyin, dengan capability doctor yang mendeteksi stack dan platform target secara otomatis. Kemampuan deteksi dilabeli jujur: WeChat mendukung pemantauan fingerprint deterministik, sementara Alipay / Douyin mengandalkan pemeriksaan dokumen resmi saat runtime dan laporan pengguna, bukan berpura-pura deteksi otomatis (lihat [Kesegaran Aturan Platform](#kesegaran-aturan-platform)).
 - **Pipeline kesegaran aturan platform**: eksekusi memeriksa dokumen resmi terkini, sementara lapisan konten memeriksa drift setiap minggu. Hanya pembaruan `facts.md` yang konsisten menurut audit dibuatkan PR dengan auto-merge setelah CI lulus; hasil lain tetap menjadi issue (lihat [Kesegaran Aturan Platform](#kesegaran-aturan-platform)).
-- **Sesi Agent nyata dan verifikasi artefak**: tier1 adalah pemeriksaan statis lokal; tier2/3 dan penilaian model independen memakai sesi Agent nyata, sementara rilis perubahan perilaku juga memerlukan tier4 artefak proyek anonim berpasangan. Versi 3.4.0 memakai ZCode / GLM-5.3. Dukungan engine tidak berarti semua engine telah diuji; lihat cakupan nyata di [EVALUATIONS.md](EVALUATIONS.md).
+- **Sesi Agent nyata dan verifikasi artefak**: tier1 adalah pemeriksaan statis lokal; tier2/3 dan penilaian model independen memakai sesi Agent nyata, sementara rilis perubahan perilaku juga memerlukan tier4 artefak proyek anonim berpasangan. Versi 3.5.0 memakai ZCode / GLM-5.3. Dukungan engine tidak berarti semua engine telah diuji; lihat cakupan nyata di [EVALUATIONS.md](EVALUATIONS.md).
 - **Pemeriksaan operasi sehari-hari lebih lengkap**: memandu Agent memeriksa penyegaran saat kembali, penutupan dan pembukaan dialog, pengetikan lanjutan dengan autosave, serta pemulihan kegagalan cloud agar status lama tidak mengganggu pekerjaan baru. Hasil harus diverifikasi pada proyek tujuan.
 - **Kualitas utama, kemajuan terlihat**: lanjutkan alur utama, berikan hasil yang dapat diperiksa, uji ulang sesuai perubahan, kegagalan nyata atau kekurangan bukti, dan segera serahkan langkah manual pilihan pengguna agar konfirmasi dan koordinasi tidak berulang.
 - **Disiplin rekayasa berbasis bukti**: setiap klaim status harus didukung bukti yang cocok, jika tidak maka dilabeli unknown secara jujur. Sejak 3.0 disiplin ini dirapikan menjadi lapisan skill fondasi `foundation/` yang netral domain dan dapat digunakan ulang oleh suite rekayasa Agent mana pun (lihat [Prinsip Desain](#prinsip-desain)).
@@ -178,7 +178,7 @@ Setelah instalasi, buka sesi Agent baru dan jalankan:
 Merge repository atau penerbitan tag tidak mengganti file skill lokal. Unduh dan verifikasi paket publik dari Releases, lalu jalankan di direktori hasil ekstraksi:
 
 ```bash
-cd mini-program-engineering-suite-v3.4.0
+cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
@@ -221,19 +221,19 @@ Untuk memeriksa package yang diterima:
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-Contoh v3.4.0 (setelah mengunduh dari Release):
+Contoh v3.5.0 (setelah mengunduh dari Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.4.0.tar.gz
-python3 mini-program-engineering-suite-v3.4.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.4.0
+tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
+python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.5.0
 ```
 
 ---
 
 ## Versi
 
-Versi sumber saat ini: **3.4.0**. Catatan evaluasi dan penandatanganan tersedia di [EVALUATIONS.md](EVALUATIONS.md); versi yang telah dirilis dan unduhan tersedia di [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
+Versi sumber saat ini: **3.5.0**. Catatan evaluasi dan penandatanganan tersedia di [EVALUATIONS.md](EVALUATIONS.md); versi yang telah dirilis dan unduhan tersedia di [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
 
 3.3.0 menambahkan 14 kontrak bersyarat untuk pemulihan cloud, tanda tangan, versi privasi, kompatibilitas klien/backend, dan syarat tahap yang dapat dicapai. Kualitas tetap utama: setiap batch menghasilkan kemajuan yang bisa diperiksa, masuk dengan aman ke jalur utama proyek, menetapkan kapan isolasi berakhir, dan mengulang tes hanya untuk perubahan, risiko, atau kekurangan bukti baru. Lihat [alur pengambilalihan](skills/mini-program-project-intake-skill/references/intake-workflow.md) dan [CHANGELOG.md](CHANGELOG.md).
 

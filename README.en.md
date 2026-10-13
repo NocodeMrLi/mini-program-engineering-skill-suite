@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.4.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.5.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.4.0-0EA5E9.svg" alt="Version: 3.4.0">
+  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 
 中文名：**小程序开发工程技能套件**。
 
-3.4.0 strengthens checks for refresh intent, exit and cancellation, asynchronous saves, cloud identity, and recovery queues. It also makes necessary preparation, the user's chosen division of work, and timely handoff explicit, preserving quality while avoiding checks that add no value and keeping real project progress visible.
+3.5.0 strengthens checks for refresh intent, exit and cancellation, asynchronous saves, cloud identity, and recovery queues. It also makes necessary preparation, the user's chosen division of work, and timely handoff explicit, preserving quality while avoiding checks that add no value and keeping real project progress visible.
 
 ---
 
@@ -38,7 +38,7 @@
 
 - **Three-platform fact layer**: a single source of truth for WeChat / Alipay / Douyin platform rules, with capability doctor auto-detecting the project stack and target platform. Detection capability is labeled honestly: WeChat supports deterministic fingerprint monitoring, while Alipay / Douyin rely on runtime checks against official docs and user reports instead of pretending to auto-detect (see [Platform Rule Freshness](#platform-rule-freshness)).
 - **Platform rule freshness pipeline**: execution checks current official docs at run time, while the content layer checks drift weekly. Only audit-consistent `facts.md` updates become PRs with CI-gated auto-merge; other outcomes remain issues (see [Platform Rule Freshness](#platform-rule-freshness)).
-- **Real agent sessions and artifact-level verification**: tier1 is a local static check; tier2/3 and independent model judgments use real agent sessions, while behavior releases also require tier4 paired anonymous-project artifacts. Version 3.4.0 used ZCode / GLM-5.3. Pluggable engine support does not mean every engine has been tested; see [EVALUATIONS.md](EVALUATIONS.md) for the actual scope.
+- **Real agent sessions and artifact-level verification**: tier1 is a local static check; tier2/3 and independent model judgments use real agent sessions, while behavior releases also require tier4 paired anonymous-project artifacts. Version 3.5.0 used ZCode / GLM-5.3. Pluggable engine support does not mean every engine has been tested; see [EVALUATIONS.md](EVALUATIONS.md) for the actual scope.
 - **More complete everyday-operation checks**: guide the agent through return refreshes, dialog close/reopen, continued typing and autosave, and cloud failure recovery so stale state does not interfere with new work. Verify the outcome in the target project.
 - **Quality first, visible progress**: advance the main flow, deliver inspectable results, retest for changed behavior, actual failures or evidence gaps, and promptly hand off the manual steps the user chose, reducing repeated confirmation and coordination.
 - **Evidence-first engineering discipline**: every status claim must be backed by matching evidence, otherwise it is honestly labeled unknown. Since 3.0 this discipline ships as a domain-neutral foundation skill layer (`foundation/`) that any agent engineering suite can reuse (see [Design Principles](#design-principles)).
@@ -245,7 +245,7 @@ For existing projects, start with read-only project intake before changing anyth
 Merging the repository or publishing a tag does not replace local skill files. Download and verify a public package from Releases, then run this inside the extracted directory:
 
 ```bash
-cd mini-program-engineering-suite-v3.4.0
+cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
@@ -309,9 +309,9 @@ shasum -a 256 -c SHA256SUMS
 Then extract the archive and verify the package manifest:
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.4.0.tar.gz
-python3 mini-program-engineering-suite-v3.4.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.4.0
+tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
+python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.5.0
 ```
 
 If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
@@ -326,7 +326,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current source version: **3.4.0**. See [EVALUATIONS.md](EVALUATIONS.md) for evaluation and signing records, and [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) for published versions and downloads.
+Current source version: **3.5.0**. See [EVALUATIONS.md](EVALUATIONS.md) for evaluation and signing records, and [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) for published versions and downloads.
 
 3.3.0 added 14 conditional engineering contracts for cloud recovery, signing, privacy versions, client/backend compatibility, and reachable phase gates. Quality comes first: each batch delivers an inspectable increment, safely integrates into the main project entry, defines when isolation ends, and repeats tests only for new changes, risks, or evidence gaps. See the [intake workflow](skills/mini-program-project-intake-skill/references/intake-workflow.md) and [CHANGELOG.md](CHANGELOG.md).
 
