@@ -30,7 +30,7 @@
 
 英文名：**Mini Program Engineering Skill Suite**。
 
-3.5.0 补强历史来源与恢复去向、空目录及历史归属、同轮完成与返回的保存协作、前台退出与业务未知，以及持久中间断点验证。用户正常快速操作由程序处理；短反馈说明恢复去向、保存结果与下一步，保留必要质量和权限保护，减少重复配合。
+3.5.0 把恢复与保存边界说得更清楚：不猜历史来源、不丢原归属，保留产品允许的草稿和空目录；同一轮、内容未变的完成与返回共享一次保存，迟到结果不覆盖新编辑。前台结束等待时保留未核实的业务状态，跨重进恢复须验证持久确认与重建读取。质量优先，也要求及时交付可验收成果，用短反馈说明结果和下一步，减少重复确认与无变化复测。
 
 ---
 
@@ -262,7 +262,7 @@ cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
-旧目录会保留为回退备份；备份应放在运行器不会发现技能的目录。检查每个实际安装位置的 VERSION；若单独安装过子技能，也要同步其副本或入口，避免新旧混用。更新内容可在下一轮对话或新会话中读取。
+安装器会先把旧目录移到原目录旁的时间戳备份；请按安装器输出的本次备份路径，将它移到技能发现目录之外。检查每个实际安装位置的 VERSION；若单独安装过子技能，也要同步其副本或入口，避免新旧混用。更新内容可在下一轮对话或新会话中读取。
 
 ---
 
@@ -339,9 +339,9 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前源码版本：**3.5.0**。评测与签署记录见 [EVALUATIONS.md](EVALUATIONS.md)；正式发布状态与下载文件见 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
+当前源码版本：**3.5.0**；[v3.5.0 已正式发布，可下载公开包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。评测、签名和复用范围见 [EVALUATIONS.md](EVALUATIONS.md)，版本历史见 [CHANGELOG.md](CHANGELOG.md)。
 
-3.3.0 补充14项条件触发的工程合同，覆盖云端恢复、签名传输、隐私版本、端云兼容及阶段门禁。质量始终优先；每批明确用户可验收增量，安全可接入的效果及时进入主项目正常入口，隔离写明接回条件，重复测试须有新的改动、风险或证据缺口。具体要求见[接管工作流](skills/mini-program-project-intake-skill/references/intake-workflow.md)，完整变更见 [CHANGELOG.md](CHANGELOG.md)。
+v3.5.0 发布验证：386/386 项确定性测试、最终提交 CI 9/9、8/8 个技术及协作场景通过；4 份升级成品经全文复查，重要问题为 0。发布资产下载、校验和及 129 个公开文件已核验。这些受控验证不替代目标项目的真机、云端或真实交易验收，也未量化证明工程提速。
 
 ---
 

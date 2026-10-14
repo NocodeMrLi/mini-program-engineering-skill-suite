@@ -30,7 +30,7 @@
 
 中文名：**小程序开发工程技能套件**。
 
-3.5.0 strengthens history-aware restoration, empty collections and historical membership, shared saves for Finish and Back, front-attempt exit with persistent business unknowns, and intermediate recovery checkpoints. Normal quick actions are handled by the program; concise feedback explains restoration, save results and next steps while preserving quality and authorization boundaries.
+3.5.0 clarifies restoration and save boundaries: do not guess historical origins or lose prior membership; preserve drafts and empty collections allowed by the product. Finish and Back for unchanged content in the same editing cycle share one save, and late results must not overwrite newer edits. Ending a foreground wait preserves unresolved business state; restoration across re-entry requires confirmed persistence and reconstruction readback. Quality comes first, with inspectable results, concise feedback and clear next steps, reducing repeated confirmation and retesting without new changes.
 
 ---
 
@@ -249,7 +249,7 @@ cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
-Keep rollback backups outside the runner’s skill-discovery directories. Check VERSION at each actual installation location. If components were installed separately, update their copies or entry points too, so versions stay aligned. Updated content can be read on the next turn or in a new session.
+The installer first moves the old directory to a timestamped backup beside it. Use the backup path printed by this installation to move that backup outside the runner's skill-discovery directories. Check VERSION at each actual installation location. If components were installed separately, update their copies or entry points too, so versions stay aligned. Updated content can be read on the next turn or in a new session.
 
 ---
 
@@ -326,9 +326,9 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current source version: **3.5.0**. See [EVALUATIONS.md](EVALUATIONS.md) for evaluation and signing records, and [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases) for published versions and downloads.
+Current source version: **3.5.0**. [v3.5.0 is published and its public package is available](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). See [EVALUATIONS.md](EVALUATIONS.md) for evaluation, signing and reuse scope, and [CHANGELOG.md](CHANGELOG.md) for version history.
 
-3.3.0 added 14 conditional engineering contracts for cloud recovery, signing, privacy versions, client/backend compatibility, and reachable phase gates. Quality comes first: each batch delivers an inspectable increment, safely integrates into the main project entry, defines when isolation ends, and repeats tests only for new changes, risks, or evidence gaps. See the [intake workflow](skills/mini-program-project-intake-skill/references/intake-workflow.md) and [CHANGELOG.md](CHANGELOG.md).
+v3.5.0 release verification passed 386/386 deterministic tests, 9/9 final-commit CI checks and 8/8 technical and collaboration scenarios. Full reviews of four upgraded artifacts found zero important issues. Downloaded release assets, checksums and 129 public files were verified. These controlled checks do not replace device, cloud or real-transaction acceptance in the target project, and do not quantify engineering speed gains.
 
 ---
 

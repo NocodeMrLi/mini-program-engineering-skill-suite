@@ -30,7 +30,7 @@
 
 Nama Tionghoa: **小程序开发工程技能套件**.
 
-3.5.0 memperkuat pemulihan berdasarkan riwayat, koleksi kosong dan hubungan historis, hasil penyimpanan bersama untuk Selesai dan Kembali, pemisahan akhir percobaan di layar dari bisnis yang belum pasti, serta pemeriksaan titik pemulihan di tengah proses. Tindakan cepat yang normal ditangani program; umpan balik singkat menjelaskan tujuan pemulihan, hasil simpan dan langkah berikutnya tanpa mengurangi kualitas atau perlindungan izin.
+3.5.0 memperjelas batas pemulihan dan penyimpanan: jangan menebak asal historis atau menghilangkan keanggotaan sebelumnya; pertahankan draf dan koleksi kosong yang diizinkan produk. Selesai dan Kembali dengan isi yang tidak berubah dalam siklus edit yang sama berbagi satu penyimpanan, dan hasil terlambat tidak boleh menimpa edit baru. Mengakhiri penantian di layar tetap mempertahankan status bisnis yang belum pasti; pemulihan setelah masuk kembali memerlukan konfirmasi penyimpanan persisten dan pembacaan setelah rekonstruksi. Kualitas diutamakan, dengan hasil yang bisa diperiksa, umpan balik singkat dan langkah berikutnya yang jelas untuk mengurangi konfirmasi berulang dan tes tanpa perubahan baru.
 
 > Catatan: lapisan fakta platform kini mencakup WeChat, Alipay, dan Douyin (kemampuan deteksi dilabeli jujur — lihat "Kesegaran Aturan Platform" di bawah). Untuk LINE MINI App, Telegram Mini Apps, atau ekosistem mini app lain, prinsip suite ini dapat dijadikan referensi, tetapi aturan platform tetap perlu diadaptasi secara terpisah.
 
@@ -182,7 +182,7 @@ cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
-Simpan cadangan versi lama di luar direktori penemuan skill runner dan periksa VERSION pada setiap lokasi instalasi. Jika komponen dipasang terpisah, perbarui salinan atau pintu masuknya juga agar versi tidak bercampur. Konten baru dapat dibaca pada giliran berikutnya atau sesi baru.
+Installer terlebih dahulu memindahkan direktori lama ke backup bertimestamp di sampingnya. Gunakan path backup yang ditampilkan pada instalasi ini untuk memindahkannya ke luar direktori penemuan skill. Periksa VERSION pada setiap lokasi instalasi. Jika komponen dipasang terpisah, perbarui salinan atau pintu masuknya agar tidak mencampur versi. Konten baru dapat dibaca pada giliran berikutnya atau sesi baru.
 
 ---
 
@@ -233,9 +233,9 @@ python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
 
 ## Versi
 
-Versi sumber saat ini: **3.5.0**. Catatan evaluasi dan penandatanganan tersedia di [EVALUATIONS.md](EVALUATIONS.md); versi yang telah dirilis dan unduhan tersedia di [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases).
+Versi sumber saat ini: **3.5.0**. [v3.5.0 sudah dirilis dan paket publik dapat diunduh](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). Lihat [EVALUATIONS.md](EVALUATIONS.md) untuk cakupan evaluasi, penandatanganan dan penggunaan ulang, serta [CHANGELOG.md](CHANGELOG.md) untuk riwayat versi.
 
-3.3.0 menambahkan 14 kontrak bersyarat untuk pemulihan cloud, tanda tangan, versi privasi, kompatibilitas klien/backend, dan syarat tahap yang dapat dicapai. Kualitas tetap utama: setiap batch menghasilkan kemajuan yang bisa diperiksa, masuk dengan aman ke jalur utama proyek, menetapkan kapan isolasi berakhir, dan mengulang tes hanya untuk perubahan, risiko, atau kekurangan bukti baru. Lihat [alur pengambilalihan](skills/mini-program-project-intake-skill/references/intake-workflow.md) dan [CHANGELOG.md](CHANGELOG.md).
+Verifikasi rilis v3.5.0 lulus 386/386 tes deterministik, 9/9 pemeriksaan CI pada commit akhir, dan 8/8 skenario teknis serta kolaborasi. Ulasan lengkap empat artefak versi baru menemukan nol masalah penting. Aset rilis yang diunduh, checksum dan 129 file publik telah diverifikasi. Pemeriksaan terkontrol ini tidak menggantikan penerimaan perangkat nyata, cloud atau transaksi nyata pada proyek tujuan, dan tidak mengukur peningkatan kecepatan rekayasa.
 
 ---
 

@@ -30,7 +30,7 @@
 
 英文名：**Mini Program Engineering Skill Suite**。
 
-3.5.0 補強歷史來源與恢復去向、空目錄及歷史歸屬、同輪完成與返回的儲存協作、前台退出與業務未知，以及持久中間斷點驗證。正常快速操作由程式處理；簡短回饋說明恢復去向、儲存結果與下一步，保留品質與權限保護，減少重複配合。
+3.5.0 把恢復與儲存邊界說得更清楚：不猜歷史來源、不丟原歸屬，保留產品允許的草稿和空目錄；同一輪、內容未變的完成與返回共用一次儲存，遲到結果不覆蓋新編輯。前台結束等待時保留未核實的業務狀態，重新進入後的恢復須驗證持久確認與重建讀取。品質優先，也要求及時交付可驗收成果，用簡短回饋說明結果和下一步，減少重複確認與無變更重測。
 
 > 說明：平台事實層現已覆蓋微信、支付寶、抖音三個平台（檢測能力如實分級，見下文「平台規則保鮮」）。LINE MINI App、Telegram Mini Apps 等其他生態可借鑑本套件方法，但仍需針對平台規則另行適配。
 
@@ -178,7 +178,7 @@ cd mini-program-engineering-suite-v3.5.0
 bash install.sh --target auto --force
 ```
 
-舊目錄保留為回退備份，備份應放在執行器不會發現技能的目錄。核對每個實際安裝位置的 VERSION；另行安裝的子技能也要同步副本或入口，避免新舊混用。下一輪對話或新會話可讀取更新內容。
+安裝器會先把舊目錄移到原目錄旁的時間戳備份；請依安裝器輸出的本次備份路徑，將它移到技能探索目錄之外。檢查每個實際安裝位置的 VERSION；若單獨安裝過子技能，也要同步其副本或入口，避免新舊混用。更新內容可在下一輪對話或新會話中讀取。
 
 ---
 
@@ -229,9 +229,9 @@ python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
 
 ## 目前版本
 
-目前原始碼版本：**3.5.0**。評測與簽署紀錄見 [EVALUATIONS.md](EVALUATIONS.md)；正式發布狀態與下載檔案見 [Releases](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases)。
+目前原始碼版本：**3.5.0**；[v3.5.0 已正式發布，可下載公開包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。評測、簽章及重用範圍見 [EVALUATIONS.md](EVALUATIONS.md)，版本歷史見 [CHANGELOG.md](CHANGELOG.md)。
 
-3.3.0 新增14項按條件觸發的工程契約，涵蓋雲端恢復、簽章傳輸、隱私版本、端雲相容與階段門檻。品質優先：每批明確使用者可驗收增量，安全接入主專案正常入口，隔離須有接回條件，重複測試須對應新增改動、風險或證據缺口。詳見[接管工作流程](skills/mini-program-project-intake-skill/references/intake-workflow.md)與 [CHANGELOG.md](CHANGELOG.md)。
+v3.5.0 發布驗證：386/386 項確定性測試、最終提交 CI 9/9、8/8 個技術及協作場景通過；4 份升級成果經全文複查，重要問題為 0。發布資產下載、校驗和及 129 個公開檔案已核驗。這些受控驗證不替代目標專案的真機、雲端或真實交易驗收，也未量化證明工程提速。
 
 ---
 
