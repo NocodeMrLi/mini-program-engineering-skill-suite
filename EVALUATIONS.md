@@ -12,7 +12,7 @@
 
 ## v3.5.0：升级04
 
-两轮适配审查后，在既有合同中补强历史归属与恢复前态、持久中间断点、前台尝试退出与业务未知、独立目录生命周期、同轮多入口保存及确认副作用。协作规则同时覆盖可见反馈、最少重复配合、及时交接和保留用户现有流程。本次不更新全局安装，main合并等待负责人决定。
+两轮适配审查后，在既有合同中补强历史归属与恢复前态、持久中间断点、前台尝试退出与业务未知、独立目录生命周期、同轮多入口保存及确认副作用。协作规则同时覆盖可见反馈、最少重复配合、及时交接和保留用户现有流程。v3.5.0 从升级分支发布后，已获负责人授权合并到 main（[PR #49](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/pull/49)）。合并或发布不会自动替换使用者的本机安装，请按 README 同步。
 
 基础六阶段沿用输入哈希相同的 ZCode runtime0.16.9 / GLM-5.3 证据；受影响成品、定向回归、盲评和最终独立判定重新使用 ZCode CLI3.11.2-21/runtime0.16.5 / GLM-5.3-Flash，九阶段全部 PASS；8 个新增技术/协作场景最终 8/8。两个匿名模块、每组各两次独立生成，共 8 份最终成品的平均增益 1.44，按原 rubric 判定升级版关键错误及相对基线的关键维度退化为 0，平均增益门槛仍为 1.0。声明见 `.github/release-evidence/v3.5.0.json`；可信 RSA 签名、最终提交 CI、tag 和不可变 [Release](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0) 分别验收，发布状态以 Release 为准。
 
