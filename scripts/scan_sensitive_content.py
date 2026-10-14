@@ -20,6 +20,9 @@ SKIP_NAMES = {".DS_Store"}
 # skipping content (audit finding: unbounded read_bytes). Current repo max is
 # ~4.4 MB, so 32 MB leaves generous headroom for legitimate media.
 MAX_SCAN_FILE_BYTES = 32_000_000
+# A decimal run inside a complete SHA-256 token is an identifier fragment,
+# not a standalone phone number. Other credential rules still scan it.
+SHA256_TOKEN = re.compile(r"(?<!\w)[a-fA-F0-9]{64}(?!\w)")
 
 
 @dataclass(frozen=True)
@@ -222,8 +225,13 @@ def scan_files_with_summary(paths: Iterable[Path], root: Path) -> tuple[list[Fin
         display_rule_prefix = "binary-file:" if source_kind == "binary-like" else ""
         scanned_count += 1
         for line_number, line in enumerate(content.splitlines(), start=1):
+            digest_spans = [token.span() for token in SHA256_TOKEN.finditer(line)]
             for rule in RULES:
                 for match in rule.pattern.finditer(line):
+                    if rule.rule_id == "mainland-phone-number" and any(
+                        start <= match.start() and match.end() <= end for start, end in digest_spans
+                    ):
+                        continue
                     fingerprint = hashlib.sha256(match.group(0).encode("utf-8")).hexdigest()[:12]
                     findings.append(
                         Finding(

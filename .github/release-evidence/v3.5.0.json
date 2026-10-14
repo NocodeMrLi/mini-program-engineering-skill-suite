@@ -1,0 +1,54 @@
+{
+  "candidate_commit": "1beb4af3f075b11d0906483838cedf276b968df1",
+  "candidate_evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "candidate_skill_behavior_sha256": "ae88ec4fa1bd431d9aa557fd50d3bea897865c040a67055f57a62e9563d5d199",
+  "candidate_tag": "v3.5.0",
+  "engine": "ZCode 0.16.9 core / ZCode CLI 3.11.2-21 runtime0.16.5 paired and final",
+  "generated_at_utc": "2026-10-13T18:55:10Z",
+  "mode": "fresh",
+  "model": "GLM-5.3 core / glm-5.3-flash paired and final",
+  "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "eO46dMDv7sP+c04V2TtXfVq9n2t2vkjAGz58dMo6CCg1CJ7Dgs2kB6XY8g6ElxbWo/AbTu+iVriajgE2TgkabwMzzOh6Ny+oalTZA92fBJt+yokaZ5KQsFmrxbIfAclCNJJ7IVsmeMJvdK+aQfcA8HNEuqy3WFB+TLaSeXmE/+YGJaCZBONA6v4Jmbn4PuFqbTfkv3U0Ay9ftiABX1o5y0ap6ogxKUphGEDeJ9ENHQqt48H1qZfRlzgAU89Z2JX8fWRdaoPdZt0Lmpxo9cfnJD2Odn+A/Ft7V34VtFph0rGjG2s1M0fUJwSj84Z4o2rHDrc+LtPS5JZafERHGqkIAGOW+lWbBIYu4INhd3pRmzx2C4GqgGqilhOTewO3Ol5J+/w0XDSvnWI9Bv0lrqnbxCxxIvPdoVrYcvjBp2GtqirRn8bROfg6l1VvpQnGG9uILQTsxu2NjyX4Erj7W+rK4CDk6F9c3Ysy2Z9SglWu5wA0ORUEekB8V8gjCTc8uzhf"
+  },
+  "stages": {
+    "artifact-nondegradation": {
+      "artifact_path": "v3.5.0-artifact-nondegradation.json",
+      "artifact_sha256": "276c74c5c34396769eb378bf35cbaba16e09b318f8498e3634f04830ebf8d8b6"
+    },
+    "behavior-development": {
+      "artifact_path": "v3.5.0-behavior-dev.json",
+      "artifact_sha256": "3271c02e48a0f7bad9eb6b7ca96f8ac160927098c5abbb18e09763a93d058de5"
+    },
+    "behavior-held-out": {
+      "artifact_path": "v3.5.0-behavior-holdout.json",
+      "artifact_sha256": "8cf5b3ec04bcf68fcad8c34345a8919ba1945474c719239c8568f0e514084e6f"
+    },
+    "final-signature": {
+      "artifact_path": "v3.5.0-final-signature.json",
+      "artifact_sha256": "2b24b7381274dad2d3aed9996b7cc458651e5a0a82ac8810a4246ba0d1d61d24"
+    },
+    "independent-judgment": {
+      "artifact_path": "v3.5.0-independent-judgment.json",
+      "artifact_sha256": "a1ff6722e1bcfdeff7e397ec05968fe18403f1cc6c5ee99d60821c62b5e6cdc4"
+    },
+    "methodology-development": {
+      "artifact_path": "v3.5.0-methodology-dev.json",
+      "artifact_sha256": "4ccc3116a0158e4014a700179907872c937536d57b37db33b18cb2fef3f0e157"
+    },
+    "methodology-held-out": {
+      "artifact_path": "v3.5.0-methodology-holdout.json",
+      "artifact_sha256": "df1f7d9e093902ef78576005e8f3ed736f3cb6a00a5f9b6c28c430328ed7ae72"
+    },
+    "routing-development": {
+      "artifact_path": "v3.5.0-routing-dev.json",
+      "artifact_sha256": "a3c979ffdb9a06a65162721027ae094c9c270e44779dbd9be791aaf564ab4df7"
+    },
+    "routing-held-out": {
+      "artifact_path": "v3.5.0-routing-holdout.json",
+      "artifact_sha256": "7588f6a6f48d817a9a56dcbae59252fbb01d795e727c95b8baa3ee5776acf9be"
+    }
+  }
+}

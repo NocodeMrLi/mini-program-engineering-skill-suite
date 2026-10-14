@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import hashlib
 import json
 import math
@@ -180,6 +181,389 @@ def validate_controls(controls: Any, label: str) -> list[str]:
     return problems
 
 
+# Opt-in transport accounting. Default trials retain exact controls equality.
+# This permits one proved no-output quota refusal, never a semantic reroll.
+TRANSPORT_RECOVERY_POLICY = {
+    "id": "one-no-output-rate-refusal-exact-input-v1",
+    "maximum_recoveries_per_run": 1,
+    "automatic_retries": 0,
+    "actor_call_cap": 5,
+    "closed_stage_call_cap": 1,
+}
+
+
+# An explicitly declared longer waiting experiment; scoring and default trials stay unchanged.
+WAITING_TRANSPORT_POLICY = {
+    **TRANSPORT_RECOVERY_POLICY,
+    "id": "bounded-long-wait-exact-input-v2",
+    "actor_deadline_seconds": 900,
+    "closed_deadline_seconds": 1200,
+    "total_deadline_seconds": 4500,
+}
+
+
+def waiting_bound_path(base: Path, name: Any) -> Path | None:
+    """Permit only contained nonsymlink components for opt-in immutable lineage."""
+    if not isinstance(name, str) or "\\" in name:
+        return None
+    parts = name.split("/")
+    if not parts or any(safe_relative_name(part) is None for part in parts):
+        return None
+    try:
+        path = base
+        for part in parts:
+            path = path / part
+            if path.is_symlink():
+                return None
+        if not path.resolve(strict=False).is_relative_to(base.resolve()) or path.resolve(strict=False) == base.resolve():
+            return None
+    except (OSError, RuntimeError, ValueError):
+        return None
+    return path
+
+
+def bound_bytes(base: Path, reference: Any, *, allow_subdirectories: bool = False) -> bytes:
+    if not isinstance(reference, dict) or set(reference) != {"path", "sha256"}:
+        raise ValueError("reference-invalid")
+    name = safe_relative_name(reference["path"])
+    path = waiting_bound_path(base, reference["path"]) if allow_subdirectories else bound_path(base, name) if name else None
+    if path is None or not valid_sha256(reference["sha256"]):
+        raise ValueError("reference-invalid")
+    raw = path.read_bytes()
+    if len(raw) > MAX_INPUT_BYTES or sha256_bytes(raw) != reference["sha256"]:
+        raise ValueError("reference-sha-or-size-invalid")
+    return raw
+
+
+def waiting_bound_bytes(base: Path, reference: Any) -> bytes:
+    return bound_bytes(base, reference, allow_subdirectories=True)
+
+
+def waiting_adapter_lineage(base: Path, record: dict[str, Any], reference: Any) -> tuple[str, str]:
+    """Accept only an exact timeout/audit-field change and immutable stricter-stage ancestry."""
+    if not isinstance(reference, dict) or set(reference) != {"prior_adapter", "current_adapter"}:
+        raise ValueError("waiting-adapter-lineage-invalid")
+    prior_raw = waiting_bound_bytes(base, reference["prior_adapter"])
+    current_raw = waiting_bound_bytes(base, reference["current_adapter"])
+    old = b"deadline=900 if fixture else 600"
+    new = b"deadline=900 if fixture else 1200"
+    field = b"'maximum_provider_calls':maximum,"
+    if prior_raw.count(old) != 1 or prior_raw.count(field) != 1:
+        raise ValueError("waiting-adapter-deadline-unbound")
+    tree = ast.parse(prior_raw.decode("utf-8"))
+    functions = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == "call"]
+    if len(functions) != 1:
+        raise ValueError("waiting-adapter-call-unbound")
+    nodes = list(ast.walk(functions[0]))
+    assignments = [node for node in nodes if isinstance(node, ast.Assign)
+                   and any(isinstance(target, ast.Name) and target.id == "deadline" for target in node.targets)]
+    gateways = [node for node in nodes if isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name) and node.func.id == "BudgetGateway"]
+    waits = [node for node in nodes if isinstance(node, ast.Call)
+             and isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name)
+             and node.func.value.id == "p" and node.func.attr == "wait" and node.keywords]
+    def named(value: Any, name: str) -> bool:
+        return isinstance(value, ast.Name) and value.id == name
+    if (len(assignments) != 1 or len(gateways) != 1 or len(gateways[0].args) != 3
+            or gateways[0].keywords or not named(gateways[0].args[1], "maximum")
+            or not named(gateways[0].args[2], "deadline")
+            or sum(len(node.keywords) == 1 and node.keywords[0].arg == "timeout"
+                   and named(node.keywords[0].value, "deadline") for node in waits) != 1
+            or any(len(node.keywords) != 1 or node.keywords[0].arg != "timeout"
+                   or not (named(node.keywords[0].value, "deadline")
+                           or isinstance(node.keywords[0].value, ast.Constant)
+                           and type(node.keywords[0].value.value) is int and node.keywords[0].value.value == 5)
+                   for node in waits)):
+        raise ValueError("waiting-adapter-effective-deadline-unbound")
+    if b"stage_deadline_seconds" in prior_raw:
+        raise ValueError("waiting-prior-audit-deadline-already-present")
+    expected = prior_raw.replace(old, new).replace(field, field + b"'stage_deadline_seconds':deadline,")
+    if current_raw != expected:
+        raise ValueError("waiting-adapter-nonwaiting-change")
+    prior_sha, current_sha = sha256_bytes(prior_raw), sha256_bytes(current_raw)
+    inherited = [stage for stage in record["transport_stages"]
+                 if json.loads(waiting_bound_bytes(base, stage["audit"])).get("adapter_sha256") == prior_sha]
+    if inherited:
+        original_reference = record.get("prior_waiting_record")
+        original = json.loads(waiting_bound_bytes(base, original_reference))
+        original_path = waiting_bound_path(base, original_reference["path"])
+        if validate_transport_recovery(original_path.parent, original, TRANSPORT_RECOVERY_POLICY):
+            raise ValueError("waiting-prior-record-not-qualified-transport")
+        identity = ("case_id", "arm", "run_id", "repetition", "treatment",
+                    "generation_session", "independent_review_session")
+        if (any(key not in original or key not in record or original[key] != record[key] for key in identity)
+                or not isinstance(original["run_id"], str)
+                or re.fullmatch(r"[a-z0-9-]+", original["run_id"]) is None
+                or original["arm"] not in ARMS
+                or type(original["repetition"]) is not int or original["repetition"] < 1):
+            raise ValueError("waiting-prior-trial-identity-changed")
+        original_base = original_path.parent
+        original_stages = original["transport_stages"]
+        if len(record["transport_stages"]) < len(original_stages):
+            raise ValueError("waiting-prior-stage-chain-shortened")
+        for index, previous in enumerate(original_stages):
+            current = record["transport_stages"][index]
+            if set(current) != set(previous):
+                raise ValueError("waiting-prior-stage-not-identical")
+            for key, value in previous.items():
+                if isinstance(value, dict):
+                    if waiting_bound_bytes(original_base, value) != waiting_bound_bytes(base, current[key]):
+                        raise ValueError("waiting-prior-stage-not-identical")
+                elif current[key] != value:
+                    raise ValueError("waiting-prior-stage-not-identical")
+        actor_id = json.loads(waiting_bound_bytes(original_base, original_stages[0]["audit"]))["id"]
+        peer_id = json.loads(waiting_bound_bytes(original_base, original_stages[1]["audit"]))["id"]
+        if original["generation_session"] != actor_id or original["independent_review_session"] != peer_id:
+            raise ValueError("waiting-prior-generation-identity-unbound")
+        reservations = record.get("prior_waiting_attempts")
+        if not isinstance(reservations, dict):
+            raise ValueError("waiting-prior-reservations-unbound")
+        names = {"actor": "actor", "peer": "peer", "repair": "repair", "recovery": "quota-recovery"}
+        actual_slots = {role: original_base / (original["run_id"] + "-" + suffix + "-attempt.json")
+                        for role, suffix in names.items()}
+        safe_slots = {}
+        for role, file in actual_slots.items():
+            if file.is_symlink():
+                raise ValueError("waiting-prior-reservation-symlink")
+            if file.exists():
+                safe = waiting_bound_path(original_base, file.name)
+                if safe is None or not safe.is_file() or safe.stat().st_size > MAX_INPUT_BYTES:
+                    raise ValueError("waiting-prior-reservation-path-invalid")
+                safe_slots[role] = safe
+        actual_slots = safe_slots
+        if set(reservations) != set(actual_slots) or set(actual_slots) != {row["role"] for row in original_stages}:
+            raise ValueError("waiting-prior-slots-not-fully-accounted")
+        for previous in original_stages:
+            role = previous["role"]
+            raw = waiting_bound_bytes(base, reservations[role])
+            actual_reference = {"path": actual_slots[role].name, "sha256": reservations[role]["sha256"]}
+            if raw != waiting_bound_bytes(original_base, actual_reference):
+                raise ValueError("waiting-prior-reservation-not-identical")
+            attempt = json.loads(raw)
+            audit = json.loads(waiting_bound_bytes(original_base, previous["audit"]))
+            expected_status = "failed" if audit["status"] == "failed" else "completed"
+            allowed = {expected_status, "completed-awaiting-factual-review",
+                       "completed-awaiting-independent-factual-review"} if role == "recovery" else {expected_status}
+            if (attempt.get("session") != audit["id"] or attempt.get("status") not in allowed
+                    or attempt.get("audit_sha256", previous["audit"]["sha256"]) != previous["audit"]["sha256"]
+                    or attempt.get("actual_provider_calls", audit["actual_upstream_calls"]) != audit["actual_upstream_calls"]):
+                raise ValueError("waiting-prior-reservation-not-completed")
+        if len(record["transport_stages"]) == len(original_stages):
+            if (record["artifact_sha256"] != original["artifact_sha256"]
+                    or waiting_bound_bytes(base, {"path": record["artifact_path"], "sha256": record["artifact_sha256"]})
+                    != waiting_bound_bytes(original_base, {"path": original["artifact_path"], "sha256": original["artifact_sha256"]})):
+                raise ValueError("waiting-prior-final-output-changed")
+        for key in ("prompt_sha256", "snapshot_sha256", "model", "model_version",
+                    "permissions_sha256", "tools_sha256"):
+            if original["controls"].get(key) != record["controls"].get(key):
+                raise ValueError("waiting-prior-semantic-controls-changed")
+        if original["controls"]["retry_count"] > record["controls"]["retry_count"]:
+            raise ValueError("waiting-prior-recovery-count-reset")
+    elif record.get("prior_waiting_record") is not None or record.get("prior_waiting_attempts") is not None:
+        raise ValueError("waiting-prior-record-unused")
+    return prior_sha, current_sha
+
+
+def validate_transport_recovery(base: Path, record: dict[str, Any], policy: Any, waiting_lineage: Any = None) -> list[str]:
+    """Verify real dispatch/time counts and exact-input no-output denial recovery."""
+    try:
+        long_wait = canonical_sha256(policy) == canonical_sha256(WAITING_TRANSPORT_POLICY)
+        if not long_wait and canonical_sha256(policy) != canonical_sha256(TRANSPORT_RECOVERY_POLICY):
+            raise ValueError("policy-invalid")
+        if not long_wait and waiting_lineage is not None:
+            raise ValueError("waiting-lineage-with-default-policy")
+        adapters = waiting_adapter_lineage(base, record, waiting_lineage) if long_wait else None
+        read_bound = waiting_bound_bytes if long_wait else bound_bytes
+        controls = record["controls"]
+        if (type(controls["retry_budget"]) is not int or controls["retry_budget"] != 1
+                or type(controls["retry_count"]) is not int or controls["retry_count"] not in (0, 1)
+                or controls["call_budget"] != 8 or controls["time_budget_seconds"] != (4500 if long_wait else 2700)):
+            raise ValueError("recovery-count-invalid")
+        stages = record["transport_stages"]
+        if not isinstance(stages, list):
+            raise ValueError("stages-invalid")
+        roles = [stage["role"] for stage in stages]
+        if roles not in (["actor", "peer"], ["actor", "peer", "repair"],
+                         ["actor", "peer", "repair", "recovery"]):
+            raise ValueError("stage-order-invalid")
+        if controls["retry_count"] != int("recovery" in roles):
+            raise ValueError("recovery-count-mismatch")
+        calls, elapsed, decoded, ids = 0, 0.0, [], set()
+        for stage in stages:
+            audit = json.loads(read_bound(base, stage["audit"]))
+            if (not valid_sha256(audit.get("provider_config_sha256"))
+                    or not valid_sha256(audit.get("adapter_sha256"))
+                    or not nonempty(audit.get("engine"))
+                    or not nonempty(audit.get("execution_mode"))):
+                raise ValueError("actual-transport-profile-invalid")
+            deadline = 900 if stage["role"] == "actor" else 600
+            if long_wait:
+                if audit.get("error") in ("engine-timeout", "transport-timeout"):
+                    raise ValueError("waiting-timeout-not-recoverable")
+                if audit["adapter_sha256"] not in adapters:
+                    raise ValueError("waiting-actual-adapter-not-bound")
+                if audit["adapter_sha256"] == adapters[1]:
+                    deadline = 900 if stage["role"] == "actor" else 1200
+                    if type(audit.get("stage_deadline_seconds")) is not int or audit["stage_deadline_seconds"] != deadline:
+                        raise ValueError("waiting-actual-stage-deadline-invalid")
+                elif audit.get("stage_deadline_seconds") not in (None, deadline):
+                    raise ValueError("waiting-prior-deadline-changed")
+            prompt = read_bound(base, stage["prompt"])
+            ledger_raw = read_bound(base, stage["ledger"])
+            ledger = [json.loads(line) for line in ledger_raw.splitlines()]
+            dispatches = [row for row in ledger if row.get("event") == "upstream-dispatch"]
+            cap = 5 if stage["role"] == "actor" else 1
+            count = audit["actual_upstream_calls"]
+            if (not isinstance(count, int) or isinstance(count, bool) or not 1 <= count <= cap
+                    or len(dispatches) != count
+                    or audit["maximum_provider_calls"] != cap
+                    or audit["automatic_retries"] != 0
+                    or audit["provider_request_ledger_sha256"] != sha256_bytes(ledger_raw)
+                    or audit["prompt_sha256"] != sha256_bytes(prompt)
+                    or audit["model"] != controls["model"]
+                    or audit["global_provider_config_unchanged"] is not True
+                    or audit["temporary_credentials_removed"] is not True
+                    or audit.get("fresh_context") is not True
+                    or audit["id"] in ids
+                    or not finite_number(audit["elapsed_seconds"])
+                    or not 0 <= audit["elapsed_seconds"] <= deadline):
+                raise ValueError("stage-audit-invalid")
+            if [row["ordinal"] for row in dispatches] != list(range(1, count + 1)):
+                raise ValueError("dispatch-order-invalid")
+            if any(row["model"] != controls["model"] for row in dispatches):
+                raise ValueError("dispatch-model-invalid")
+            if stage["role"] == "actor" and (audit.get("enabled_plugin_count") != 0
+                    or audit.get("mcp_server_names") != ["audit_probe"]
+                    or not set(audit.get("observed_tool_names", [])).issubset({
+                        "mcp__audit_probe__read_snapshot", "mcp__audit_probe__trace"})):
+                raise ValueError("actor-tools-or-plugins-invalid")
+            if decoded and audit["provider_config_sha256"] != decoded[0][1]["provider_config_sha256"]:
+                raise ValueError("stage-provider-configuration-changed")
+            if audit.get("status") == "completed" and audit.get("observed_models") != [controls["model"]]:
+                raise ValueError("stage-observed-model-invalid")
+            ids.add(audit["id"])
+            calls += count
+            elapsed += audit["elapsed_seconds"]
+            if stage["role"] != "actor" and audit.get("status") == "completed":
+                if (audit.get("tool_execution_events") != 0
+                        or audit.get("observed_tool_names") != []
+                        or audit.get("enabled_plugin_count") != 0
+                        or audit.get("mcp_server_connections") != 0
+                        or audit.get("observed_models") != [controls["model"]]):
+                    raise ValueError("closed-stage-tools-or-model-invalid")
+            if audit.get("status") == "completed":
+                stdout = read_bound(base, stage["stdout"])
+                response = json.loads(stdout)
+                if (audit.get("response_sha256") != sha256_bytes(stdout)
+                        or not nonempty(audit.get("sessionId"))
+                        or response.get("sessionId") != audit["sessionId"]):
+                    raise ValueError("completed-stage-session-or-response-unbound")
+            decoded.append((stage, audit, prompt, ledger))
+        if any(audit["status"] != "completed" for stage, audit, _, _ in decoded
+               if not (stage["role"] == "repair" and "recovery" in roles)):
+            raise ValueError("stage-not-completed")
+        if "recovery" in roles:
+            original, recovered = decoded[-2:]
+            stage, audit, prompt, ledger = original
+            execution = json.loads(read_bound(base, stage["execution_events"]))
+            if (not isinstance(execution, list)
+                    or any(event.get("event", "").startswith(("tool.", "mcp.tool.", "mcp.server.connect.")) for event in execution)
+                    or [event.get("context", {}).get("enabledPluginCount") for event in execution
+                        if event.get("event") == "bootstrap.app.startup.plugins.completed"] != [0]):
+                raise ValueError("refusal-stage-tools-or-plugins-invalid")
+            if (audit["status"] != "failed"
+                    or read_bound(base, stage["stdout"]).strip()
+                    or recovered[2] != prompt):
+                raise ValueError("refusal-or-exact-input-invalid")
+            has_json = stage.get("refusal_json") is not None
+            if has_json and stage.get("refusal_sse") is not None:
+                raise ValueError("ambiguous-refusal-format")
+            if has_json:
+                raw = read_bound(base, stage["refusal_json"])
+                errors = [row for row in ledger if row.get("event") == "upstream-http-error"]
+                denial_dispatches = [row for row in ledger if row.get("event") == "upstream-dispatch"]
+                if (len(errors) != 1 or errors[0].get("ordinal") != 1
+                        or errors[0].get("status") != 429
+                        or errors[0].get("response_sha256") != sha256_bytes(raw)
+                        or errors[0].get("content_type", "").split(";", 1)[0].strip().lower() != "application/json"
+                        or errors[0].get("content_encoding") not in (None, "identity")
+                        or len(denial_dispatches) != 1 or denial_dispatches[0].get("upstream") != "api.z.ai"
+                        or audit.get("provider") != "zai"
+                        or any(row.get("event") == "upstream-completed" for row in ledger)):
+                    raise ValueError("json-refusal-not-bound-to-dispatch")
+                def unique_fields(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+                    result: dict[str, Any] = {}
+                    for key, value in pairs:
+                        if key in result:
+                            raise ValueError("json-refusal-duplicate-field")
+                        result[key] = value
+                    return result
+                denial = json.loads(raw, object_pairs_hook=unique_fields)
+                error = denial.get("error") if isinstance(denial, dict) else None
+                if (not isinstance(denial, dict) or set(denial) != {"type", "error", "request_id"}
+                        or denial.get("type") != "error" or not nonempty(denial.get("request_id"))
+                        or not isinstance(error, dict) or set(error) != {"type", "code", "message"}
+                        or error.get("type") != "rate_limit_error" or error.get("code") != "1302"
+                        or not nonempty(error.get("message"))):
+                    raise ValueError("json-refusal-has-output-or-unknown-shape")
+            else:
+                raw = read_bound(base, stage["refusal_sse"])
+                completed = [row for row in ledger if row.get("event") == "upstream-completed"]
+                if len(completed) != 1 or completed[0]["response_sha256"] != sha256_bytes(raw):
+                    raise ValueError("refusal-not-bound-to-dispatch")
+                # SSE data permits no space after ':' and multiple data lines per frame.
+                # Parse every frame; never skip a generated, malformed, or unknown event.
+                frames, data = [], []
+                for line in raw.decode("utf-8").splitlines() + [""]:
+                    if line == "":
+                        if data:
+                            frames.append("\n".join(data))
+                            data = []
+                    elif line.startswith(":") or line.startswith(("event:", "id:", "retry:")):
+                        continue
+                    elif line.startswith("data:"):
+                        value = line[5:]
+                        data.append(value[1:] if value.startswith(" ") else value)
+                    else:
+                        raise ValueError("refusal-sse-invalid")
+                if not frames or frames[-1] != "[DONE]" or frames.count("[DONE]") != 1:
+                    raise ValueError("refusal-sse-incomplete")
+                events = [json.loads(frame) for frame in frames[:-1]]
+                if (len(events) != 2 or events[0]["type"] != "response.failed"
+                        or events[0]["response"]["error"]["code"] != "rate_limit_exceeded"
+                        or events[0]["response"]["output"] != []
+                        or events[0]["response"]["status"] != "failed"
+                        or events[0]["response"]["usage"] is not None
+                        or events[0]["response"]["model"] != controls["model"]
+                        or events[1]["type"] != "error"
+                        or events[1]["code"] != "rate_limit_exceeded"
+                        or audit["status"] != "failed"
+                        or read_bound(base, stage["stdout"]).strip()
+                        or recovered[2] != prompt):
+                    raise ValueError("refusal-or-exact-input-invalid")
+            for field in ("provider_config_sha256", "adapter_sha256", "maximum_provider_calls"):
+                if audit[field] != recovered[1][field]:
+                    raise ValueError("recovery-configuration-changed")
+        final_stage, final_audit, _, _ = decoded[-1]
+        stdout = read_bound(base, final_stage["stdout"])
+        if final_audit["response_sha256"] != sha256_bytes(stdout):
+            raise ValueError("final-response-unbound")
+        output = json.loads(stdout)["response"]
+        artifact = read_bound(base, {"path": record["artifact_path"], "sha256": record["artifact_sha256"]})
+        if not isinstance(output, str) or artifact.decode("utf-8") != output + "\n":
+            raise ValueError("final-artifact-not-model-output")
+        if (record["actual_provider_calls"] != calls or calls > controls["call_budget"]
+                or not finite_number(record["elapsed_seconds"])
+                or abs(record["elapsed_seconds"] - elapsed) > 0.002
+                or elapsed > controls["time_budget_seconds"]):
+            raise ValueError("dispatch-or-time-budget-invalid")
+    except (ValueError, TypeError, KeyError, OSError, UnicodeError, AttributeError, IndexError, OverflowError, SyntaxError) as exc:
+        # Raw parser/I/O errors can contain private paths or source fragments.
+        code = str(exc) if type(exc) is ValueError and re.fullmatch(r"[a-z][a-z-]+", str(exc)) else type(exc).__name__
+        return ["transport-recovery:" + code]
+    return []
+
+
 def validate_judgment(
     judgment: dict[str, Any],
     case_id: str,
@@ -329,6 +713,11 @@ def validate_bundle(bundle_path: Path) -> dict[str, Any]:
     gains: list[float] = []
     run_count = 0
     base = bundle_path.parent
+    transport_audits_seen: set[str] = set()
+    transport_sessions_seen: set[str] = set()
+    refusal_responses_seen: set[str] = set()
+    engine_sessions_seen: set[str] = set()
+    transport_profiles: dict[str, str] = {}
     for index, case in enumerate(cases):
         prefix = f"case:{index}"
         if not isinstance(case, dict):
@@ -393,7 +782,43 @@ def validate_bundle(bundle_path: Path) -> dict[str, Any]:
             controls = record.get("controls")
             problems.extend(validate_controls(controls, run_label))
             if isinstance(controls, dict):
-                controls_digests.add(canonical_sha256(controls))
+                if "transport_recovery_policy" in bundle:
+                    transport_problems = validate_transport_recovery(base, record, bundle["transport_recovery_policy"], bundle.get("waiting_adapter_lineage"))
+                    problems.extend(f"{run_label}:{problem}" for problem in transport_problems)
+                    if not transport_problems:
+                        for stage in record["transport_stages"]:
+                            digest = stage["audit"]["sha256"]
+                            reader = waiting_bound_bytes if canonical_sha256(bundle["transport_recovery_policy"]) == canonical_sha256(WAITING_TRANSPORT_POLICY) else bound_bytes
+                            audit = json.loads(reader(base, stage["audit"]))
+                            session = audit["id"]
+                            actual_session = audit.get("sessionId") if audit["status"] == "completed" else None
+                            group = "actor" if stage["role"] == "actor" else "closed"
+                            profile_fields = {key: audit.get(key) for key in (
+                                "provider_config_sha256", "adapter_sha256", "engine", "execution_mode")}
+                            if canonical_sha256(bundle["transport_recovery_policy"]) == canonical_sha256(WAITING_TRANSPORT_POLICY):
+                                _, current_adapter = waiting_adapter_lineage(base, record, bundle["waiting_adapter_lineage"])
+                                profile_fields["adapter_sha256"] = current_adapter
+                            profile = canonical_sha256(profile_fields)
+                            if group in transport_profiles and transport_profiles[group] != profile:
+                                problems.append(f"{run_label}:actual-transport-profile-not-equivalent")
+                            transport_profiles[group] = profile
+                            if actual_session is not None:
+                                if actual_session in engine_sessions_seen:
+                                    problems.append(f"{run_label}:actual-engine-session-reused")
+                                engine_sessions_seen.add(actual_session)
+                            refusal = ((stage.get("refusal_json") or stage.get("refusal_sse"))["sha256"]
+                                       if stage["role"] == "repair" and controls["retry_count"] == 1 else None)
+                            if (digest in transport_audits_seen or session in transport_sessions_seen
+                                    or refusal is not None and refusal in refusal_responses_seen):
+                                problems.append(f"{run_label}:transport-session-reused")
+                            transport_audits_seen.add(digest)
+                            transport_sessions_seen.add(session)
+                            if refusal is not None:
+                                refusal_responses_seen.add(refusal)
+                    configured = {key: value for key, value in controls.items() if key != "retry_count"}
+                    controls_digests.add(canonical_sha256(configured))
+                else:
+                    controls_digests.add(canonical_sha256(controls))
                 if controls.get("model") != bundle.get("model"):
                     problems.append(f"{run_label}:model-mismatch")
                 if controls.get("model_version") != bundle.get("model_version"):

@@ -58,6 +58,12 @@
 
 ## 验证交接
 
+新增来源/恢复或独立目录行为时，依[规格](../../mini-program-product-spec-skill/references/specification-workflow.md)及[架构](../../mini-program-architecture-skill/references/architecture-workflow.md)核真实前态、最小原子记录、旧值读取与全量关系/草稿，当前入口不改变恢复去向。分别测试有来源/未知来源、保留/获准迁移、空目录/派生筛选、移除选项/真正删除，不强加一种产品政策。
+
+多入口同轮保存、确认副作用、前台退出与原业务未知按[运行时合同](../../mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)执行真实调用方及持久边界；既有版本/权限/幂等/恢复保护不因体验修复放宽。普通完成后立即返回由程序处理，不能把Promise/锁/冲突变成用户等待、清缓存或重复点的步骤。
+
+连续保存的正例也逐步核字段来源：写入前的持久值、提交载荷、整对象复制/覆盖、后续增量及调用方读回分别记录。`++`、写入次数或一次成功不能证明版本持续递增；旧对象被重新复制后，增量可能反复作用在同一旧值上。只报告实际算出或读回的状态序列，不能把成功路径当默认正确。 最小覆盖反证：旧快照 `stale={revision:4}`，每次 `current={...stale}; current.revision++`，连续两次读回都为5，而不是5、6；保留未知初值时可写“两次写入但计数重新从旧快照起算”，不要另补未经核实的数值。该示例只核表达式；业务并发判断仍逐次代入实际参数和调用顺序。
+
 涉及刷新、展示、取消和编辑保存时执行[运行时状态合同](../../mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)，核新查询发生、完整界面复位、跨await归属、成功清理代次和显式空值隔离。共享交互列全入口；动作菜单与含输入表单分别守退出/内容保护。使用实际Page/Component调用方及可控持久/事件边界，不以孤立守卫或源码词命中替代行为。
 
 交给验证阶段的内容只包括目标、差异、保护项、执行证据、未覆盖层级、残余风险和回滚方式。实现报告不得使用 `accepted`、`device-verified`、`uploaded` 或 `released`，除非另有对应独立证据。
