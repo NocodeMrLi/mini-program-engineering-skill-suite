@@ -1,0 +1,19 @@
+{
+  "baseline_pass_rate": 1.0,
+  "candidate_commit": "2e48745403aa091aec227960131dece4f5a07651",
+  "candidate_tag": "v3.6.0",
+  "case_count_per_mode": 3,
+  "engine": "ZCode actual installed CLI; original exact-input evidence and native TUI Flash stages",
+  "evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "generated_at_utc": "2026-10-15T17:32:22Z",
+  "model": "GLM-5.3 (exact preserved inputs)",
+  "non_regression": true,
+  "not_proven": 0,
+  "schema_version": 1,
+  "skill_behavior_sha256": "235756f5d393d5f35c205091b582347a208f0fb7b34508192338ede663378fe5",
+  "skill_pass_rate": 1.0,
+  "source_generated_at_utc": "2026-10-15T01:46:33Z",
+  "source_report_sha256": "265863681dfd31c7f8a10abe3e04d43b4547b28159048c3c957c3ddcabaab2c1",
+  "stage": "behavior-held-out",
+  "verdict": "PASS"
+}

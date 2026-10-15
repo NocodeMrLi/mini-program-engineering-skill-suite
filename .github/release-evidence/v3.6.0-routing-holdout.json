@@ -1,0 +1,18 @@
+{
+  "accuracy": 1.0,
+  "candidate_commit": "2e48745403aa091aec227960131dece4f5a07651",
+  "candidate_tag": "v3.6.0",
+  "case_count": 32,
+  "correct": 32,
+  "engine": "ZCode actual installed CLI; original exact-input evidence and native TUI Flash stages",
+  "evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "generated_at_utc": "2026-10-15T17:32:22Z",
+  "minimum": 0.9,
+  "model": "GLM-5.3 (exact preserved inputs)",
+  "schema_version": 1,
+  "skill_behavior_sha256": "235756f5d393d5f35c205091b582347a208f0fb7b34508192338ede663378fe5",
+  "source_generated_at_utc": "2026-10-15T01:46:33Z",
+  "source_report_sha256": "0de9e4adcdc8955efe725a5ef14606008d40376220db0452f22279ce08719327",
+  "stage": "routing-held-out",
+  "verdict": "PASS"
+}
