@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.5.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.6.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
+  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
 </p>
 
 <p align="center">
@@ -245,7 +245,7 @@ For existing projects, start with read-only project intake before changing anyth
 Merging the repository or publishing a tag does not replace local skill files. Download and verify a public package from Releases, then run this inside the extracted directory:
 
 ```bash
-cd mini-program-engineering-suite-v3.5.0
+cd mini-program-engineering-suite-v3.6.0
 bash install.sh --target auto --force
 ```
 
@@ -309,9 +309,9 @@ shasum -a 256 -c SHA256SUMS
 Then extract the archive and verify the package manifest:
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
-python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.5.0
+tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
+python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.6.0
 ```
 
 If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
@@ -326,7 +326,9 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Current source version: **3.5.0**. [v3.5.0 is published and its public package is available](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). See [EVALUATIONS.md](EVALUATIONS.md) for evaluation, signing and reuse scope, and [CHANGELOG.md](CHANGELOG.md) for version history.
+Candidate 3.6.0 strengthens multi-time-point reconciliation, independent status and identity checks, and the binding between destructive previews and atomic writes. It preserves existing workflows and avoids unnecessary confirmations, uploads and repeated tests. GLM evaluation and release gates are in progress; see [EVALUATIONS.md](EVALUATIONS.md) and Release for the actual outcome.
+
+Current source version: **3.5.0 (previous release)**. [v3.5.0 is published and its public package is available](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). See [EVALUATIONS.md](EVALUATIONS.md) for evaluation, signing and reuse scope, and [CHANGELOG.md](CHANGELOG.md) for version history.
 
 v3.5.0 release verification passed 386/386 deterministic tests, 9/9 final-commit CI checks and 8/8 technical and collaboration scenarios. Full reviews of four upgraded artifacts found zero important issues. Downloaded release assets, checksums and 129 public files were verified. These controlled checks do not replace device, cloud or real-transaction acceptance in the target project, and do not quantify engineering speed gains.
 

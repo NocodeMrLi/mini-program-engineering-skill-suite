@@ -5,12 +5,12 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.9+ for bundled scripts; framework adapters are optional and discovered read-only.
 metadata:
-  version: "3.5.0"
+  version: "3.6.0"
   author: "Mini Program Engineering Suite contributors"
   maintainers: "Mini Program Engineering Suite contributors"
   language: "zh-CN"
   created: "2026-08-12"
-  last_reviewed: "2026-10-11"
+  last_reviewed: "2026-10-15"
   review_interval_days: "90"
 ---
 

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.5.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.6.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
+  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
 </p>
 
 <p align="center">
@@ -178,7 +178,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 การ merge repository หรือเผยแพร่ tag ไม่ได้แทนที่ไฟล์ skill ในเครื่อง ดาวน์โหลดและตรวจ package จาก Releases แล้วรันใน directory ที่แตกไฟล์:
 
 ```bash
-cd mini-program-engineering-suite-v3.5.0
+cd mini-program-engineering-suite-v3.6.0
 bash install.sh --target auto --force
 ```
 
@@ -224,16 +224,18 @@ python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ตัวอย่าง v3.5.0 (หลังดาวน์โหลดจาก Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
-python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.5.0
+tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
+python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.6.0
 ```
 
 ---
 
 ## เวอร์ชัน
 
-เวอร์ชันซอร์สปัจจุบัน: **3.5.0** [v3.5.0 เผยแพร่อย่างเป็นทางการแล้วและดาวน์โหลด package สาธารณะได้](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0) ดูขอบเขตการประเมิน ลายมือชื่อ และการใช้หลักฐานเดิมที่ [EVALUATIONS.md](EVALUATIONS.md) และประวัติรุ่นที่ [CHANGELOG.md](CHANGELOG.md)
+รุ่นผู้สมัคร 3.6.0 เพิ่มความชัดเจนในการตรวจข้อมูลต่างเวลา การแยกสถานะออกจากตัวตน และการผูกขอบเขตที่ยืนยันก่อนลบเข้ากับการเขียนแบบอะตอมมิก โดยคงขั้นตอนเดิมและลดการยืนยัน อัปโหลด และทดสอบซ้ำที่ไม่จำเป็น การประเมิน GLM และด่านเผยแพร่ยังดำเนินอยู่ ดูผลจริงที่ [EVALUATIONS.md](EVALUATIONS.md) และ Release。
+
+เวอร์ชันซอร์สปัจจุบัน: **3.5.0 (previous release)** [v3.5.0 เผยแพร่อย่างเป็นทางการแล้วและดาวน์โหลด package สาธารณะได้](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0) ดูขอบเขตการประเมิน ลายมือชื่อ และการใช้หลักฐานเดิมที่ [EVALUATIONS.md](EVALUATIONS.md) และประวัติรุ่นที่ [CHANGELOG.md](CHANGELOG.md)
 
 การตรวจรับรุ่น v3.5.0 ผ่านการทดสอบแบบกำหนดแน่นอน 386/386 รายการ CI ของ commit สุดท้าย 9/9 และสถานการณ์ด้านเทคนิคกับการทำงานร่วมกัน 8/8 การตรวจเนื้อหาทั้งหมดของผลงานรุ่นใหม่ 4 ชิ้นพบปัญหาสำคัญ 0 รายการ ตรวจแล้วทั้งไฟล์ดาวน์โหลด checksum และไฟล์สาธารณะ 129 ไฟล์ การตรวจแบบควบคุมนี้ไม่แทนการตรวจรับบนอุปกรณ์จริง คลาวด์ หรือธุรกรรมจริงของโครงการเป้าหมาย และไม่ได้วัดว่าการพัฒนาเร็วขึ้นเท่าใด
 
