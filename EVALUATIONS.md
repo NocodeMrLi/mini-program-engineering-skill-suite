@@ -28,7 +28,7 @@
 
 实际GLM请求195次，含明确限流拒绝32次；原生标题辅助40次已含在总数，采集器中断主请求1次另标明。只用GLM系列和现有CodingPlan，未购买、重置或扩充额度，未改预算。历史限流队列与测试原件保留；原生路径按实际回执有界等待，外层串行不控制其他客户端。准确货币费用、权重修订、工程提速和所有未来项目收益未测，不编造。
 
-这批证据证明Skill合同及匿名模块审查，不代替真实设备、生产数据库事务、云进程中断、自然调度、真实交易或用户验收；未操作来源业务项目或更新全局Skill安装。分支`codex/upgrade-05-reviewed`保留，main合并由负责人决定。可信声明见`.github/release-evidence/v3.6.0.json`；密码学签名、最终提交CI、tag、不可变Release和工件接收分别验收。
+这批证据证明Skill合同及匿名模块审查，不代替真实设备、生产数据库事务、云进程中断、自然调度、真实交易或用户验收；未操作来源业务项目。[v3.6.0](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.6.0)已不可变发布，可信RSA签名、最终签名提交CI9/9、四资产及129文件接收分别验证通过。随后通过[PR #51](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/pull/51)合并到main，升级分支保留；发布不自动替换其他使用者的本机安装，更新及验证按README执行。可信声明见`.github/release-evidence/v3.6.0.json`。
 
 | 门禁 | 结论 | 关键指标 | 审计元数据 |
 | --- | --- | --- | --- |

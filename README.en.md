@@ -30,7 +30,7 @@
 
 中文名：**小程序开发工程技能套件**。
 
-3.5.0 clarifies restoration and save boundaries: do not guess historical origins or lose prior membership; preserve drafts and empty collections allowed by the product. Finish and Back for unchanged content in the same editing cycle share one save, and late results must not overwrite newer edits. Ending a foreground wait preserves unresolved business state; restoration across re-entry requires confirmed persistence and reconstruction readback. Quality comes first, with inspectable results, concise feedback and clear next steps, reducing repeated confirmation and retesting without new changes.
+3.6.0 strengthens three decisions: distinguish update delays from real inconsistencies; verify identity, environment and complete scope alongside status; and keep destructive previews, confirmation and actual execution aligned. Preserve existing product workflows and user input on failure, investigate unknown outcomes before retrying, and avoid repeated user actions or unchanged retests.
 
 ---
 
@@ -38,10 +38,10 @@
 
 - **Three-platform fact layer**: a single source of truth for WeChat / Alipay / Douyin platform rules, with capability doctor auto-detecting the project stack and target platform. Detection capability is labeled honestly: WeChat supports deterministic fingerprint monitoring, while Alipay / Douyin rely on runtime checks against official docs and user reports instead of pretending to auto-detect (see [Platform Rule Freshness](#platform-rule-freshness)).
 - **Platform rule freshness pipeline**: execution checks current official docs at run time, while the content layer checks drift weekly. Only audit-consistent `facts.md` updates become PRs with CI-gated auto-merge; other outcomes remain issues (see [Platform Rule Freshness](#platform-rule-freshness)).
-- **Real agent sessions and artifact-level verification**: tier1 is a local static check; tier2/3 and independent model judgments use real agent sessions, while behavior releases also require tier4 paired anonymous-project artifacts. Version 3.5.0 used ZCode / GLM-5.3 + GLM-5.3-Flash. Pluggable engine support does not mean every engine has been tested; see [EVALUATIONS.md](EVALUATIONS.md) for the actual scope.
+- **Real agent sessions and artifact-level verification**: tier1 is a local static check; tier2/3 and independent judgments use real agent sessions, and behavior releases require tier4 paired anonymous-project artifacts. 3.6.0 has completed layered ZCode / GLM evaluations, with GLM-5.3-Flash for artifact comparison and final independent quality judgments. See [EVALUATIONS.md](EVALUATIONS.md) for models, coverage and evidence.
 - **More complete everyday-operation checks**: guide the agent through return refreshes, dialog close/reopen, continued typing and autosave, and cloud failure recovery so stale state does not interfere with new work. Verify the outcome in the target project.
 - **Quality first, visible progress**: advance the main flow, deliver inspectable results, retest for changed behavior, actual failures or evidence gaps, and promptly hand off the manual steps the user chose, reducing repeated confirmation and coordination.
-- **Evidence-first engineering discipline**: every status claim must be backed by matching evidence, otherwise it is honestly labeled unknown. Since 3.0 this discipline ships as a domain-neutral foundation skill layer (`foundation/`) that any agent engineering suite can reuse (see [Design Principles](#design-principles)).
+- **Evidence-first engineering discipline**: every status claim must be backed by matching evidence, otherwise it is honestly labeled unknown. This discipline ships as a domain-neutral foundation skill layer (`foundation/`) that any agent engineering suite can reuse (see [Design Principles](#design-principles)).
 - **Tiered evaluation with independent signing**: tier1 structure / tier2 routing / tier3 behavior / tier4 anonymous synthetic-project artifact non-regression, independent with-skill vs. baseline judgment, and held-out batches that stay frozen until release — every gate must PASS before shipping (see [EVALUATIONS.md](EVALUATIONS.md)).
 - **Supply-chain-grade release governance**: SHA256 checksums, dual manifests, fail-closed packaging, receiver-side re-verification, and a sensitive-content scan with zero findings; six-language README structure consistency is enforced by script (see [Package Integrity](#package-integrity)).
 
@@ -115,13 +115,13 @@ This Skill suite was not written from an abstract tutorial. It was distilled fro
 - Authorization is explicit: external writes such as upload, review submission, release, cloud changes, and repository publishing require separate approval.
 - Private information stays out: public packages must pass redaction and sensitive-content checks.
 - Real devices still matter: local, static, and simulated checks cannot replace device, cloud, experience-version, or production evidence.
-- Platform-rule freshness (new in 2.0): execution follows the current official rules; bundled rules are a cache, never the authority.
+- Platform-rule freshness: execution follows the current official rules; bundled rules are a cache, never the authority.
 
 ---
 
 ## Platform Rule Freshness
 
-Platform rules keep changing, so any rule hardcoded into a skill goes stale. Since 2.0 the suite follows "fresh at execution, controlled in evolution":
+Platform rules keep changing, so any rule hardcoded into a skill goes stale. The suite follows "fresh at execution, controlled in evolution":
 
 - **Check official evidence before execution.** For uploads, review submissions, releases, privacy declarations and quotas, require the agent to check the date, source and scope of recorded facts, and consult current official documentation for stale or high-risk matters. If a fact cannot be confirmed, keep it unknown and stop actions that depend on it. This process does not guarantee correctness on an older version; keep the local suite updated.
 - **Suite content evolves under control.** The maintainer detects rule changes with drift tooling (fingerprint comparison against official pages) and lands updates through multi-round independent audits; you can report a rule change you spotted via the **Platform rule drift** issue template (voluntary, pre-filled).
@@ -328,9 +328,9 @@ The command confirms package integrity only; it does not prove publisher identit
 
 3.6.0 strengthens multi-time-point reconciliation, independent status and identity checks, and the binding between destructive previews and atomic writes. It preserves existing workflows and avoids unnecessary confirmations, uploads and repeated tests. For GLM evaluation scope and the actual release outcome, see [EVALUATIONS.md](EVALUATIONS.md) and Release for the actual outcome.
 
-Current source version: **3.6.0**. [v3.5.0 is published and its public package is available](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). See [EVALUATIONS.md](EVALUATIONS.md) for evaluation, signing and reuse scope, and [CHANGELOG.md](CHANGELOG.md) for version history.
+Current version: **3.6.0**. [v3.6.0 is published with its public package](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.6.0). This page describes current capabilities; see [CHANGELOG.md](CHANGELOG.md) for history and [EVALUATIONS.md](EVALUATIONS.md) for evaluation scope and evidence limits.
 
-v3.5.0 release verification passed 386/386 deterministic tests, 9/9 final-commit CI checks and 8/8 technical and collaboration scenarios. Full reviews of four upgraded artifacts found zero important issues. Downloaded release assets, checksums and 129 public files were verified. These controlled checks do not replace device, cloud or real-transaction acceptance in the target project, and do not quantify engineering speed gains.
+v3.6.0 release verification passed 386/386 deterministic tests, 9/9 final signed-commit CI checks and 12/12 technical and collaboration scenarios. Two cases with eight final reports achieved a mean artifact-score gain of 2.7375, with zero candidate critical errors or critical-dimension regressions. Two final independent quality judgments and trusted RSA signature verification passed. Checksums for all four release assets and all 129 public files match the tag export byte for byte. These controlled checks do not replace device, cloud or real-transaction acceptance in the target project, and do not quantify engineering speed gains.
 
 ---
 
