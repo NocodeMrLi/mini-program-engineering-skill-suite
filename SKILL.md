@@ -72,6 +72,8 @@ metadata:
 
 ## 中途问题与连续执行
 
+已有多来源异步核验或外部状态接入时，按[云状态合同](skills/mini-program-architecture-skill/references/cloud-state-and-write-contracts.md)区分观测时点、结果状态与可信身份，并核[证据集合及回执适用性](skills/mini-program-verification-skill/references/evidence-admissibility.md)。已有获准删除/清除/不可逆迁移时，按同一云合同绑定预览、确认与原子写入范围；只读、单一原子来源或无相关功能的子项标N/A，不新增服务或用户步骤。
+
 用户提出中途问题时，先回答问题，再判断它是否改变原目标。若没有改变，恢复原计划与未完成步骤；若改变，更新计划并说明受影响阶段。不得把中途问题当成默默终止原任务的理由。
 
 ## 输出契约
