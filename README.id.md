@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.5.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.6.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
+  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
 </p>
 
 <p align="center">
@@ -178,7 +178,7 @@ Setelah instalasi, buka sesi Agent baru dan jalankan:
 Merge repository atau penerbitan tag tidak mengganti file skill lokal. Unduh dan verifikasi paket publik dari Releases, lalu jalankan di direktori hasil ekstraksi:
 
 ```bash
-cd mini-program-engineering-suite-v3.5.0
+cd mini-program-engineering-suite-v3.6.0
 bash install.sh --target auto --force
 ```
 
@@ -221,19 +221,21 @@ Untuk memeriksa package yang diterima:
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-Contoh v3.5.0 (setelah mengunduh dari Release):
+Contoh v3.6.0 (setelah mengunduh dari Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
-python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.5.0
+tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
+python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.6.0
 ```
 
 ---
 
 ## Versi
 
-Versi sumber saat ini: **3.5.0**. [v3.5.0 sudah dirilis dan paket publik dapat diunduh](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). Lihat [EVALUATIONS.md](EVALUATIONS.md) untuk cakupan evaluasi, penandatanganan dan penggunaan ulang, serta [CHANGELOG.md](CHANGELOG.md) untuk riwayat versi.
+3.6.0 memperkuat rekonsiliasi lintas waktu, pemeriksaan status dan identitas secara terpisah, serta pengikatan cakupan pratinjau tindakan destruktif dengan penulisan atomik. Alur kerja lama dipertahankan tanpa konfirmasi, unggahan atau tes ulang yang tidak perlu. Untuk cakupan evaluasi GLM dan hasil rilis aktual, lihat [EVALUATIONS.md](EVALUATIONS.md) dan Release.
+
+Versi sumber saat ini: **3.6.0**. [v3.5.0 sudah dirilis dan paket publik dapat diunduh](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). Lihat [EVALUATIONS.md](EVALUATIONS.md) untuk cakupan evaluasi, penandatanganan dan penggunaan ulang, serta [CHANGELOG.md](CHANGELOG.md) untuk riwayat versi.
 
 Verifikasi rilis v3.5.0 lulus 386/386 tes deterministik, 9/9 pemeriksaan CI pada commit akhir, dan 8/8 skenario teknis serta kolaborasi. Ulasan lengkap empat artefak versi baru menemukan nol masalah penting. Aset rilis yang diunduh, checksum dan 129 file publik telah diverifikasi. Pemeriksaan terkontrol ini tidak menggantikan penerimaan perangkat nyata, cloud atau transaksi nyata pada proyek tujuan, dan tidak mengukur peningkatan kecepatan rekayasa.
 

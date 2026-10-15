@@ -1,0 +1,54 @@
+{
+  "candidate_commit": "2e48745403aa091aec227960131dece4f5a07651",
+  "candidate_evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "candidate_skill_behavior_sha256": "235756f5d393d5f35c205091b582347a208f0fb7b34508192338ede663378fe5",
+  "candidate_tag": "v3.6.0",
+  "engine": "ZCode original exact-input core evidence / installed CLI3.11.2-21 runtime0.16.5 native TUI Flash affected and paired stages",
+  "generated_at_utc": "2026-10-15T17:32:22Z",
+  "mode": "fresh",
+  "model": "Actual models recorded per stage and per paired case: exact unaffected GLM5.3 evidence, whole artifact group actual-native-TUI/session-transient-zai-glm5.3flash/3completefiles/symmetriccoveragepeer, no isolatedCLI/gateway; native background-context limitation disclosed; core original53/Flash and finalnativeTUIFlash labels retained; native auxiliary title requests counted; Flash source review and all failed trials retained separately",
+  "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "RG/VKoTMRScjhYV+UjAzClF1qZDaZQaZzCbdJ0LGO4yBs4DYfXHsAUZtgT9RL9ny6E4yjUMI6qnGQyo/wg0nKmXnrWEh+DfJoEkt4qM/2jruuHai/QanE7myGQBvyKZnh6p1GE5BrDqG4b6OdNY6oKFnVgoMhdvv5SwajL/V/TpufYwAzYz9872+N4Qap24/ZCOxOijgIOFeQaWEV1mVk/mlnEvpZADCEnkol/s+kNLo+aqRTASgc7APukRUuNuBWn/g93lKm1o0LpH494D+CnLWXaQONrQFDshrzebiqML9dcCbu9ruw3DEWeCE8sQYin0K4dlhPJSSCNKKE2ySxR+WG/+D761XvDS+59g8XtbDta/5OlLHAYLBrJHgClBJYKYGnjxbJE6k6/zNVfPkmQhW8bH3v5TcAqg4Rf90yW1yRGnpmHdkNCR+VtfECPxIuFRVMHbJg5+KmMPdvNWnLoyH5tMScE94kV9wFcgAHliwOyY9hvxEjRDCL71nmzcB"
+  },
+  "stages": {
+    "artifact-nondegradation": {
+      "artifact_path": "v3.6.0-artifact-nondegradation.json",
+      "artifact_sha256": "2cd36d1caf33776a73fa7cd1ca42dcd58d22105a505874e1227a42f698b9d102"
+    },
+    "behavior-development": {
+      "artifact_path": "v3.6.0-behavior-dev.json",
+      "artifact_sha256": "d16775ffd4bbc11db022ae574b3d91ae97349a521bc8b2cb5267fd244106e547"
+    },
+    "behavior-held-out": {
+      "artifact_path": "v3.6.0-behavior-holdout.json",
+      "artifact_sha256": "34236b773672c758f48feeda148ebb2a254bea55e95ef649eaaa19dcc9a96748"
+    },
+    "final-signature": {
+      "artifact_path": "v3.6.0-final-signature.json",
+      "artifact_sha256": "8ab0c666d036e721ccc64d9b126283677e50edd3ee204846333210092e0655f4"
+    },
+    "independent-judgment": {
+      "artifact_path": "v3.6.0-independent-judgment.json",
+      "artifact_sha256": "fa232904f081018de5dee027b7b0329b1aeac406e7f77ca556af3378e6a25a95"
+    },
+    "methodology-development": {
+      "artifact_path": "v3.6.0-methodology-dev.json",
+      "artifact_sha256": "fb331fb75b52a318f82c51e21b50f0a14eedab1b48ef31ab111dcb4b9e76fd3e"
+    },
+    "methodology-held-out": {
+      "artifact_path": "v3.6.0-methodology-holdout.json",
+      "artifact_sha256": "4022b0790590a4842bf31aed83d3b4b5be083e4b29a16d488efb16bdac78e937"
+    },
+    "routing-development": {
+      "artifact_path": "v3.6.0-routing-dev.json",
+      "artifact_sha256": "9f393f84f0d453d2974248e0d6298efee6fd12678db728900298ad70a4d94d74"
+    },
+    "routing-held-out": {
+      "artifact_path": "v3.6.0-routing-holdout.json",
+      "artifact_sha256": "8ed6d762a5de12a3349b40f53423de31b68c8e8764811ba1d9cafe8523a84c1b"
+    }
+  }
+}

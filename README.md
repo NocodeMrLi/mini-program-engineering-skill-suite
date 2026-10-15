@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.5.0" alt="小程序开发工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.6.0" alt="小程序开发工程技能套件 封面" width="100%">
 </p>
 
 # 小程序开发工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
+  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
 </p>
 
 <p align="center">
@@ -258,7 +258,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 仓库合并或发布 tag 不会自动替换本机技能文件。从 Releases 下载并验证公开包后，在解压目录执行：
 
 ```bash
-cd mini-program-engineering-suite-v3.5.0
+cd mini-program-engineering-suite-v3.6.0
 bash install.sh --target auto --force
 ```
 
@@ -322,9 +322,9 @@ shasum -a 256 -c SHA256SUMS
 然后解压并复验包内清单：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
-python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.5.0
+tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
+python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.6.0
 ```
 
 如果你拿到的是其他渠道提供的包，也可以通过包内 `package-manifest.json` 重新计算每个文件的大小和 SHA-256 摘要：
@@ -339,7 +339,9 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-当前源码版本：**3.5.0**；[v3.5.0 已正式发布，可下载公开包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。评测、签名和复用范围见 [EVALUATIONS.md](EVALUATIONS.md)，版本历史见 [CHANGELOG.md](CHANGELOG.md)。
+3.6.0 补强多时点外部核验、状态与身份分离，以及破坏性操作从预览到原子执行的范围绑定；沿用用户已有流程，减少无必要确认、重传和重复测试。GLM 测评范围与实际发布结果见 [EVALUATIONS.md](EVALUATIONS.md) 和 Release。
+
+当前源码版本：**3.6.0**；[v3.5.0 已正式发布，可下载公开包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。评测、签名和复用范围见 [EVALUATIONS.md](EVALUATIONS.md)，版本历史见 [CHANGELOG.md](CHANGELOG.md)。
 
 v3.5.0 发布验证：386/386 项确定性测试、最终提交 CI 9/9、8/8 个技术及协作场景通过；4 份升级成品经全文复查，重要问题为 0。发布资产下载、校验和及 129 个公开文件已核验。这些受控验证不替代目标项目的真机、云端或真实交易验收，也未量化证明工程提速。
 

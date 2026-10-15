@@ -10,6 +10,42 @@
 
 随后补强质量优先与用户可验收反馈合同，对支付接入和无界面工程两种原创场景作定向只读审查，未发现质量门削弱或强加 UI/文档的问题。先前 317 项全量回归通过；最新文本补强另做 15 项合同/分发/评测器回归及 22 项 Tier 1，不重复未受影响的全部模型场景。以上为前期合同验证；完整候选评测另见下方 3.3.0 摘要，未量化证明真实工程效率改善。
 
+## v3.6.0：升级05
+
+两轮项目适配审查后，三项增量进入7份既有合同：多时点观测分类、完整重取和持久预算；状态与可信身份、判断集合分别绑定；破坏性操作的完整可信预览、对象及相关版本确认和原子执行。按项目已有且获准的能力触发，不适用项N/A。12项技术及协作专项同时核反例、正常使用、避免重复确认和无必要的上传、复测或负责人配合。
+
+本地386项、129公共文件/9子Skill结构、六语言README、敏感0及双份公共包接收通过；Tier1原4000/1800预算未放宽。核心四组升级版均1.0且无退化。输入未变的合格结果按完整提示词、夹具和schema指纹复用，受影响场景按同模型匹配重建；原撤回和失败保留。核心原GLM-5.3证据、受影响开发ZAI Flash、留出与12专项智谱Flash分别按实际记录追溯。
+
+两次实际成品失败保留：首次平均增益0.275且预览案例关键证据维度退化，补强两份既有合同的身份/相关版本/写入原子闭合与证据分层，源码独立GLM审查和7项Node谓词探针通过；后续两参考文件组核验候选89.55低于基线93.925，漏明确数量/守恒义务。停止该组，补齐已有验证工作流作为第三份完整参考，并对新旧两臂同等要求逐PRODUCT义务覆盖。原模块、任务、16条实际Node内存观察、rubric、权重、关键零错误/非退化及平均增益1.0门槛保持；未重抽原报告分数或手工补答。
+
+最终整组使用电脑已安装的原生zcode终端TUI，以`/model zai/glm-5.3-flash`仅切换会话，保留原HOME、登录、配置、存储和原生上下文；无隔离配置、密钥复制或转发网关。8份最终报告在同一Flash/入口/TUI和原生max设置下匹配验收，均读取同路径/顺序的3份完整云、证据和验证参考。已有同组初稿/同行/首次修订/终审的完整输入与原件逐字核验后复用，旧12次阶段失败保留；仅对新增实质问题定向修订并完整独立复核，两臂规则相同，合格报告不重跑、不重抽未改动报告分数。每份最多3次内容修订、8次主阶段、8次原生标题辅助及4次严格零输出传输余量（失败阶段主请求及标题均计入），共20次实际调用封套，原4800秒实际执行预算保持；原生SDK自动重试0，CLI会话串行。客户端标题请求可能在内部与主请求重叠，全部实际调用单独计数，不宣称单个实际上游连接。
+
+原生初稿中出现PRODUCT虚构行号，部分模型同行复核也漏检。保留原件后，给两臂同时补充确定性文件行号边界校验，原定一次修订的实际失败结果完整保留；随后两臂采用相同的有界实质问题闭环，最多三次有内容变化的修订及独立完整复核，已合格报告直接复用；未重生初稿或重抽原报告评分。最终候选的源坐标边界和独立语义复核分别通过；坐标存在不代表内容解释正确。校验同时区分当前证据与报告明确撤回并纠正的旧错引用：旧引用保留为诊断，不能把正确的勘误说明误判为继续引用错误。旧口径曾误判明确撤回的引用；修正口径在盲评分前同等应用于两臂，按最早真实合格的原生前缀收口。误判后多出的阶段保留为诊断并计入总调用，旧控制记录不改标，后续模型判定不作为选择依据。
+
+原生终端、实际SQLite主请求/整轮结束/报告文本、完整输入逐字核对（仅终端末尾单个换行规范化有独立证明）、模型/工具事件与SHA分别核验；标题完成不能冒充主报告完成。曾有一次采集器过早结束主请求，2次实际调用和未完成原件保留并排除质量证据；修正后等待整轮，未重跑合格成品或评分。另一次原生主轮已完整完成，采集器因终端删除末尾单个换行符误判输入差异；保留原采集失败记录并从原生SQLite恢复同一回答，逐字证明仅该单LF差异，其余字符及模型结论未变，零新增调用。后续提交预先规范化该单LF并保留原意图/实际输入双指纹。此前GLM-5.3、不同上下文和限流试验均保留且不混入最终组。原生插件/记忆上下文属于已披露的环境边界；案例已用于排错，这是迭代验证，不称全新未见留出或纯隔离因果证明。
+
+最终成品门PASS：2案例8报告，平均增益2.7375≥1.0，候选关键错误0、关键维度无退化。原生Flash两个新上下文的最终独立质量判断均通过；它们分别追溯实际输入和原件，不代替后续密码学签名或远端发布验收。
+
+实际GLM请求195次，含明确限流拒绝32次；原生标题辅助40次已含在总数，采集器中断主请求1次另标明。只用GLM系列和现有CodingPlan，未购买、重置或扩充额度，未改预算。历史限流队列与测试原件保留；原生路径按实际回执有界等待，外层串行不控制其他客户端。准确货币费用、权重修订、工程提速和所有未来项目收益未测，不编造。
+
+这批证据证明Skill合同及匿名模块审查，不代替真实设备、生产数据库事务、云进程中断、自然调度、真实交易或用户验收；未操作来源业务项目或更新全局Skill安装。分支`codex/upgrade-05-reviewed`保留，main合并由负责人决定。可信声明见`.github/release-evidence/v3.6.0.json`；密码学签名、最终提交CI、tag、不可变Release和工件接收分别验收。
+
+| 门禁 | 结论 | 关键指标 | 审计元数据 |
+| --- | --- | --- | --- |
+| tier1 | PASS | checks 22; skills 10 | generated_at_utc=2026-10-15T05:49:19Z; engine=local |
+| routing development | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-10-15T01:46:33Z; engine=agent; model=GLM-5.3 (exact preserved inputs); prompt_sha256=aafa5f7d5655; schema_sha256=270ad09d74ce |
+| routing held-out | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-10-15T01:46:33Z; engine=agent; model=GLM-5.3 (exact preserved inputs); prompt_sha256=d1c39a79eba9; schema_sha256=e09c2427d29e |
+| behavior-development | PASS | skill 1.00; baseline 1.00; non-regression true; judgments 6 (PASS 6) | generated_at_utc=2026-10-15T01:46:33Z; engine=agent; model=GLM-5.3 (exact preserved inputs); prompt_sha256=863312c0f2f0; schema_sha256=720380e2c911 |
+| behavior-held-out | PASS | skill 1.00; baseline 1.00; non-regression true; judgments 6 (PASS 6) | generated_at_utc=2026-10-15T01:46:33Z; engine=agent; model=GLM-5.3 (exact preserved inputs); prompt_sha256=b0a4aa568192; schema_sha256=c2b570af60c3 |
+| methodology-development | PASS | skill 1.00; baseline 0.67; non-regression true; judgments 6 (FAIL 1, PASS 5) | generated_at_utc=2026-10-15T07:43:05Z; engine=agent; model=zcode:glm-5.3-flash; prompt_sha256=5487d45e4b2c; schema_sha256=69f3202da950 |
+| methodology-held-out | PASS | skill 1.00; baseline 0.00; non-regression true; judgments 6 (FAIL 3, PASS 3) | generated_at_utc=2026-10-15T08:46:50Z; engine=agent; model=zcode:bigmodel/glm-5.3-flash; prompt_sha256=ce20f45090ea; schema_sha256=beb9a608d15d |
+| tier4 | PASS | cases 2; runs 8; mean-target-gain 2.74; critical-errors 0; critical-regressions 0 | generated_at_utc=2026-10-15T17:22:16Z; engine=ZCode CLI3.11.2-21/runtime0.16.5; model=glm-5.3-flash; model_version=glm-5.3-flash via actual installed native TUI /model session-only selection, ZAI CodingPlan, native max reasoning; weights revision unavailable |
+| validation | PASS | skills 9 | n/a |
+| sensitive | PASS | findings 0; scanned 176/176 | n/a |
+| package verification | PASS | files 129 | n/a |
+| independent judgment | PASS | n/a | generated_at_utc=2026-10-15T17:27:38Z; engine=agent; model=zcode:zai/glm-5.3-flash; prompt_sha256=b6616a8f0c54; schema_sha256=d2bbfb65afef |
+| final signature | PASS | n/a | generated_at_utc=2026-10-15T17:31:01Z; engine=agent; model=zcode:zai/glm-5.3-flash; prompt_sha256=b6616a8f0c54; schema_sha256=d2bbfb65afef |
+
 ## v3.5.0：升级04
 
 两轮适配审查后，在既有合同中补强历史归属与恢复前态、持久中间断点、前台尝试退出与业务未知、独立目录生命周期、同轮多入口保存及确认副作用。协作规则同时覆盖可见反馈、最少重复配合、及时交接和保留用户现有流程。v3.5.0 从升级分支发布后，已获负责人授权合并到 main（[PR #49](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/pull/49)）。合并或发布不会自动替换使用者的本机安装，请按 README 同步。

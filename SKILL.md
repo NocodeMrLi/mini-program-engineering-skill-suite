@@ -5,12 +5,12 @@ description: >-
 license: MIT
 compatibility: Requires Python 3.9+ for bundled scripts; framework adapters are optional and discovered read-only.
 metadata:
-  version: "3.5.0"
+  version: "3.6.0"
   author: "Mini Program Engineering Suite contributors"
   maintainers: "Mini Program Engineering Suite contributors"
   language: "zh-CN"
   created: "2026-08-12"
-  last_reviewed: "2026-10-11"
+  last_reviewed: "2026-10-15"
   review_interval_days: "90"
 ---
 
@@ -137,4 +137,4 @@ metadata:
 - [资产谱系记录](skills/mini-program-ui-device-skill/assets/asset-lineage-record.md)：追踪原始/衍生资产、处理、目标槽位、文件指纹、批准和替换关系。
 - [证据可采信规则](skills/mini-program-verification-skill/references/evidence-admissibility.md)：判断证据来源、版本、完整性、适用结论和不能证明的内容。
 - [质量证据矩阵](skills/mini-program-verification-skill/assets/quality-evidence-matrix.md)：记录包体/分包、启动/首屏、运行错误和发布后观察窗。
-- 增强合同：[重定位与转向](skills/mini-program-project-intake-skill/references/relocation-and-pivot-audit.md)、[云状态与写入](skills/mini-program-architecture-skill/references/cloud-state-and-write-contracts.md)、[云资产交付](skills/mini-program-implementation-skill/references/cloud-asset-delivery-workflow.md)、[运行时状态与布局](skills/mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)、[分维度质量](skills/mini-program-verification-skill/references/dimensional-quality-contract.md)、[云发布与运维](skills/mini-program-release-skill/references/cloud-release-operations.md)。
+- 增强合同：[重定位与转向](skills/mini-program-project-intake-skill/references/relocation-and-pivot-audit.md)、[观测、身份与确认写入](skills/mini-program-architecture-skill/references/cloud-state-and-write-contracts.md)、[云资产交付](skills/mini-program-implementation-skill/references/cloud-asset-delivery-workflow.md)、[运行时状态与布局](skills/mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)、[分维度质量](skills/mini-program-verification-skill/references/dimensional-quality-contract.md)、[云发布与运维](skills/mini-program-release-skill/references/cloud-release-operations.md)。

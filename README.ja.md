@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.5.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.6.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.5.0-0EA5E9.svg" alt="Version: 3.5.0">
+  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
 </p>
 
 <p align="center">
@@ -178,7 +178,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 リポジトリのマージや tag の公開はローカルのスキルを更新しません。Releases の公開パッケージを取得・検証し、展開したディレクトリで実行します：
 
 ```bash
-cd mini-program-engineering-suite-v3.5.0
+cd mini-program-engineering-suite-v3.6.0
 bash install.sh --target auto --force
 ```
 
@@ -221,19 +221,21 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-v3.5.0 の例（Release からダウンロード後）：
+v3.6.0 の例（Release からダウンロード後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.5.0.tar.gz
-python3 mini-program-engineering-suite-v3.5.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.5.0
+tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
+python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.6.0
 ```
 
 ---
 
 ## バージョン
 
-現在のソース版：**3.5.0**。[v3.5.0 は正式公開済みで、公開パッケージをダウンロードできます](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。評価・署名・再利用の範囲は [EVALUATIONS.md](EVALUATIONS.md)、版の履歴は [CHANGELOG.md](CHANGELOG.md) を参照してください。
+3.6.0 では、複数時点の照合、状態と本人性の独立検証、破壊的操作のプレビューとアトミック実行の範囲一致を補強します。既存の操作を尊重し、不要な再確認・アップロード・再テストを減らします。GLM 評価範囲と実際の公開結果は [EVALUATIONS.md](EVALUATIONS.md) と Release を参照してください。
+
+現在のソース版：**3.6.0**。[v3.5.0 は正式公開済みで、公開パッケージをダウンロードできます](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。評価・署名・再利用の範囲は [EVALUATIONS.md](EVALUATIONS.md)、版の履歴は [CHANGELOG.md](CHANGELOG.md) を参照してください。
 
 v3.5.0 の公開検証では確定的テスト386/386、最終コミットのCI9/9、技術・協業シナリオ8/8が合格しました。更新版の成果物4件を全文レビューし、重要な問題は0件でした。公開資産のダウンロード、チェックサム、公開ファイル129件も検証済みです。この管理された検証は対象プロジェクトの実機・クラウド・実取引の受入検証を代替せず、開発速度の向上を定量的に証明するものでもありません。
 

@@ -1,0 +1,19 @@
+{
+  "candidate_commit": "2e48745403aa091aec227960131dece4f5a07651",
+  "candidate_tag": "v3.6.0",
+  "case_count": 2,
+  "engine": "ZCode actual installed CLI; original exact-input evidence and native TUI Flash stages",
+  "evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "generated_at_utc": "2026-10-15T17:32:22Z",
+  "mean_target_gain": 2.737499999999997,
+  "minimum_mean_target_gain": 1.0,
+  "model": "glm-5.3-flash; whole8artifactrecords native-installed-zcode/transient-zai-glm5.3flash/3completeguidances/coveragepeer; inherited-user-context limitations disclosed",
+  "problems": [],
+  "run_count": 8,
+  "schema_version": 1,
+  "skill_behavior_sha256": "235756f5d393d5f35c205091b582347a208f0fb7b34508192338ede663378fe5",
+  "source_generated_at_utc": "2026-10-15T17:22:16Z",
+  "source_report_sha256": "2a71f8722682aeae25b76baa833413c108fe860e42e5e4f9aab8a82cbc24244b",
+  "stage": "artifact-nondegradation",
+  "verdict": "PASS"
+}
