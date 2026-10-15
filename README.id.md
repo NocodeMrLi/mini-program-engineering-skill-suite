@@ -221,7 +221,7 @@ Untuk memeriksa package yang diterima:
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-Contoh v3.5.0 (setelah mengunduh dari Release):
+Contoh v3.6.0 (setelah mengunduh dari Release):
 
 ```bash
 tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
@@ -233,9 +233,9 @@ python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
 
 ## Versi
 
-Kandidat 3.6.0 memperkuat rekonsiliasi lintas waktu, pemeriksaan status dan identitas secara terpisah, serta pengikatan cakupan pratinjau tindakan destruktif dengan penulisan atomik. Alur kerja lama dipertahankan tanpa konfirmasi, unggahan atau tes ulang yang tidak perlu. Evaluasi GLM dan gerbang rilis masih berlangsung; lihat [EVALUATIONS.md](EVALUATIONS.md) dan Release.
+3.6.0 memperkuat rekonsiliasi lintas waktu, pemeriksaan status dan identitas secara terpisah, serta pengikatan cakupan pratinjau tindakan destruktif dengan penulisan atomik. Alur kerja lama dipertahankan tanpa konfirmasi, unggahan atau tes ulang yang tidak perlu. Untuk cakupan evaluasi GLM dan hasil rilis aktual, lihat [EVALUATIONS.md](EVALUATIONS.md) dan Release.
 
-Versi sumber saat ini: **3.5.0 (previous release)**. [v3.5.0 sudah dirilis dan paket publik dapat diunduh](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). Lihat [EVALUATIONS.md](EVALUATIONS.md) untuk cakupan evaluasi, penandatanganan dan penggunaan ulang, serta [CHANGELOG.md](CHANGELOG.md) untuk riwayat versi.
+Versi sumber saat ini: **3.6.0**. [v3.5.0 sudah dirilis dan paket publik dapat diunduh](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). Lihat [EVALUATIONS.md](EVALUATIONS.md) untuk cakupan evaluasi, penandatanganan dan penggunaan ulang, serta [CHANGELOG.md](CHANGELOG.md) untuk riwayat versi.
 
 Verifikasi rilis v3.5.0 lulus 386/386 tes deterministik, 9/9 pemeriksaan CI pada commit akhir, dan 8/8 skenario teknis serta kolaborasi. Ulasan lengkap empat artefak versi baru menemukan nol masalah penting. Aset rilis yang diunduh, checksum dan 129 file publik telah diverifikasi. Pemeriksaan terkontrol ini tidak menggantikan penerimaan perangkat nyata, cloud atau transaksi nyata pada proyek tujuan, dan tidak mengukur peningkatan kecepatan rekayasa.
 

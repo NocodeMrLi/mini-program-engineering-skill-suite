@@ -221,7 +221,7 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-v3.5.0 の例（Release からダウンロード後）：
+v3.6.0 の例（Release からダウンロード後）：
 
 ```bash
 tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
@@ -233,9 +233,9 @@ python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
 
 ## バージョン
 
-3.6.0 候補では、複数時点の照合、状態と本人性の独立検証、破壊的操作のプレビューとアトミック実行の範囲一致を補強します。既存の操作を尊重し、不要な再確認・アップロード・再テストを減らします。GLM 評価とリリース判定は進行中です。結果は [EVALUATIONS.md](EVALUATIONS.md) と Release を参照してください。
+3.6.0 では、複数時点の照合、状態と本人性の独立検証、破壊的操作のプレビューとアトミック実行の範囲一致を補強します。既存の操作を尊重し、不要な再確認・アップロード・再テストを減らします。GLM 評価範囲と実際の公開結果は [EVALUATIONS.md](EVALUATIONS.md) と Release を参照してください。
 
-現在のソース版：**3.5.0 (previous release)**。[v3.5.0 は正式公開済みで、公開パッケージをダウンロードできます](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。評価・署名・再利用の範囲は [EVALUATIONS.md](EVALUATIONS.md)、版の履歴は [CHANGELOG.md](CHANGELOG.md) を参照してください。
+現在のソース版：**3.6.0**。[v3.5.0 は正式公開済みで、公開パッケージをダウンロードできます](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。評価・署名・再利用の範囲は [EVALUATIONS.md](EVALUATIONS.md)、版の履歴は [CHANGELOG.md](CHANGELOG.md) を参照してください。
 
 v3.5.0 の公開検証では確定的テスト386/386、最終コミットのCI9/9、技術・協業シナリオ8/8が合格しました。更新版の成果物4件を全文レビューし、重要な問題は0件でした。公開資産のダウンロード、チェックサム、公開ファイル129件も検証済みです。この管理された検証は対象プロジェクトの実機・クラウド・実取引の受入検証を代替せず、開発速度の向上を定量的に証明するものでもありません。
 

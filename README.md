@@ -339,9 +339,9 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 ## 当前版本
 
-3.6.0 候选补强多时点外部核验、状态与身份分离，以及破坏性操作从预览到原子执行的范围绑定；沿用用户已有流程，减少无必要确认、重传和重复测试。GLM 测评与发布门禁进行中，当前发布结果见 [EVALUATIONS.md](EVALUATIONS.md) 和 Release。
+3.6.0 补强多时点外部核验、状态与身份分离，以及破坏性操作从预览到原子执行的范围绑定；沿用用户已有流程，减少无必要确认、重传和重复测试。GLM 测评范围与实际发布结果见 [EVALUATIONS.md](EVALUATIONS.md) 和 Release。
 
-当前源码版本：**3.5.0 (previous release)**；[v3.5.0 已正式发布，可下载公开包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。评测、签名和复用范围见 [EVALUATIONS.md](EVALUATIONS.md)，版本历史见 [CHANGELOG.md](CHANGELOG.md)。
+当前源码版本：**3.6.0**；[v3.5.0 已正式发布，可下载公开包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。评测、签名和复用范围见 [EVALUATIONS.md](EVALUATIONS.md)，版本历史见 [CHANGELOG.md](CHANGELOG.md)。
 
 v3.5.0 发布验证：386/386 项确定性测试、最终提交 CI 9/9、8/8 个技术及协作场景通过；4 份升级成品经全文复查，重要问题为 0。发布资产下载、校验和及 129 个公开文件已核验。这些受控验证不替代目标项目的真机、云端或真实交易验收，也未量化证明工程提速。
 

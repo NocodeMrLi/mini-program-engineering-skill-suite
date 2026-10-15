@@ -217,7 +217,7 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 ```
 
-以 v3.5.0 為例（從 Release 下載後）：
+以 v3.6.0 為例（從 Release 下載後）：
 
 ```bash
 tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
@@ -229,9 +229,9 @@ python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
 
 ## 目前版本
 
-3.6.0 候選補強多時點外部核驗、狀態與身分分離，以及破壞性操作從預覽到原子執行的範圍綁定；沿用既有流程，減少無必要確認、重傳與重測。GLM 評測及發布門禁進行中，結果見 [EVALUATIONS.md](EVALUATIONS.md) 與 Release。
+3.6.0 補強多時點外部核驗、狀態與身分分離，以及破壞性操作從預覽到原子執行的範圍綁定；沿用既有流程，減少無必要確認、重傳與重測。GLM 評測範圍及實際發布結果見 [EVALUATIONS.md](EVALUATIONS.md) 與 Release。
 
-目前原始碼版本：**3.5.0 (previous release)**；[v3.5.0 已正式發布，可下載公開包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。評測、簽章及重用範圍見 [EVALUATIONS.md](EVALUATIONS.md)，版本歷史見 [CHANGELOG.md](CHANGELOG.md)。
+目前原始碼版本：**3.6.0**；[v3.5.0 已正式發布，可下載公開包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0)。評測、簽章及重用範圍見 [EVALUATIONS.md](EVALUATIONS.md)，版本歷史見 [CHANGELOG.md](CHANGELOG.md)。
 
 v3.5.0 發布驗證：386/386 項確定性測試、最終提交 CI 9/9、8/8 個技術及協作場景通過；4 份升級成果經全文複查，重要問題為 0。發布資產下載、校驗和及 129 個公開檔案已核驗。這些受控驗證不替代目標專案的真機、雲端或真實交易驗收，也未量化證明工程提速。
 

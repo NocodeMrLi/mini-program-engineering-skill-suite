@@ -326,9 +326,9 @@ The command confirms package integrity only; it does not prove publisher identit
 
 ## Version
 
-Candidate 3.6.0 strengthens multi-time-point reconciliation, independent status and identity checks, and the binding between destructive previews and atomic writes. It preserves existing workflows and avoids unnecessary confirmations, uploads and repeated tests. GLM evaluation and release gates are in progress; see [EVALUATIONS.md](EVALUATIONS.md) and Release for the actual outcome.
+3.6.0 strengthens multi-time-point reconciliation, independent status and identity checks, and the binding between destructive previews and atomic writes. It preserves existing workflows and avoids unnecessary confirmations, uploads and repeated tests. For GLM evaluation scope and the actual release outcome, see [EVALUATIONS.md](EVALUATIONS.md) and Release for the actual outcome.
 
-Current source version: **3.5.0 (previous release)**. [v3.5.0 is published and its public package is available](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). See [EVALUATIONS.md](EVALUATIONS.md) for evaluation, signing and reuse scope, and [CHANGELOG.md](CHANGELOG.md) for version history.
+Current source version: **3.6.0**. [v3.5.0 is published and its public package is available](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.5.0). See [EVALUATIONS.md](EVALUATIONS.md) for evaluation, signing and reuse scope, and [CHANGELOG.md](CHANGELOG.md) for version history.
 
 v3.5.0 release verification passed 386/386 deterministic tests, 9/9 final-commit CI checks and 8/8 technical and collaboration scenarios. Full reviews of four upgraded artifacts found zero important issues. Downloaded release assets, checksums and 129 public files were verified. These controlled checks do not replace device, cloud or real-transaction acceptance in the target project, and do not quantify engineering speed gains.
 
