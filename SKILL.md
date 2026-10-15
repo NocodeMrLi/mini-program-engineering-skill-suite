@@ -72,8 +72,6 @@ metadata:
 
 ## 中途问题与连续执行
 
-已有多来源异步核验或外部状态接入时，按[云状态合同](skills/mini-program-architecture-skill/references/cloud-state-and-write-contracts.md)区分观测时点、结果状态与可信身份，并核[证据集合及回执适用性](skills/mini-program-verification-skill/references/evidence-admissibility.md)。已有获准删除/清除/不可逆迁移时，按同一云合同绑定预览、确认与原子写入范围；只读、单一原子来源或无相关功能的子项标N/A，不新增服务或用户步骤。
-
 用户提出中途问题时，先回答问题，再判断它是否改变原目标。若没有改变，恢复原计划与未完成步骤；若改变，更新计划并说明受影响阶段。不得把中途问题当成默默终止原任务的理由。
 
 ## 输出契约
@@ -139,4 +137,4 @@ metadata:
 - [资产谱系记录](skills/mini-program-ui-device-skill/assets/asset-lineage-record.md)：追踪原始/衍生资产、处理、目标槽位、文件指纹、批准和替换关系。
 - [证据可采信规则](skills/mini-program-verification-skill/references/evidence-admissibility.md)：判断证据来源、版本、完整性、适用结论和不能证明的内容。
 - [质量证据矩阵](skills/mini-program-verification-skill/assets/quality-evidence-matrix.md)：记录包体/分包、启动/首屏、运行错误和发布后观察窗。
-- 增强合同：[重定位与转向](skills/mini-program-project-intake-skill/references/relocation-and-pivot-audit.md)、[云状态与写入](skills/mini-program-architecture-skill/references/cloud-state-and-write-contracts.md)、[云资产交付](skills/mini-program-implementation-skill/references/cloud-asset-delivery-workflow.md)、[运行时状态与布局](skills/mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)、[分维度质量](skills/mini-program-verification-skill/references/dimensional-quality-contract.md)、[云发布与运维](skills/mini-program-release-skill/references/cloud-release-operations.md)。
+- 增强合同：[重定位与转向](skills/mini-program-project-intake-skill/references/relocation-and-pivot-audit.md)、[观测、身份与确认写入](skills/mini-program-architecture-skill/references/cloud-state-and-write-contracts.md)、[云资产交付](skills/mini-program-implementation-skill/references/cloud-asset-delivery-workflow.md)、[运行时状态与布局](skills/mini-program-ui-device-skill/references/runtime-state-and-layout-contracts.md)、[分维度质量](skills/mini-program-verification-skill/references/dimensional-quality-contract.md)、[云发布与运维](skills/mini-program-release-skill/references/cloud-release-operations.md)。
