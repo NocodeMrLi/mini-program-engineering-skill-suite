@@ -8,6 +8,11 @@
   "mode": "fresh",
   "model": "Actual models recorded per stage and per paired case: exact unaffected GLM5.3 evidence, whole artifact group actual-native-TUI/session-transient-zai-glm5.3flash/3completefiles/symmetriccoveragepeer, no isolatedCLI/gateway; native background-context limitation disclosed; core original53/Flash and finalnativeTUIFlash labels retained; native auxiliary title requests counted; Flash source review and all failed trials retained separately",
   "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "RG/VKoTMRScjhYV+UjAzClF1qZDaZQaZzCbdJ0LGO4yBs4DYfXHsAUZtgT9RL9ny6E4yjUMI6qnGQyo/wg0nKmXnrWEh+DfJoEkt4qM/2jruuHai/QanE7myGQBvyKZnh6p1GE5BrDqG4b6OdNY6oKFnVgoMhdvv5SwajL/V/TpufYwAzYz9872+N4Qap24/ZCOxOijgIOFeQaWEV1mVk/mlnEvpZADCEnkol/s+kNLo+aqRTASgc7APukRUuNuBWn/g93lKm1o0LpH494D+CnLWXaQONrQFDshrzebiqML9dcCbu9ruw3DEWeCE8sQYin0K4dlhPJSSCNKKE2ySxR+WG/+D761XvDS+59g8XtbDta/5OlLHAYLBrJHgClBJYKYGnjxbJE6k6/zNVfPkmQhW8bH3v5TcAqg4Rf90yW1yRGnpmHdkNCR+VtfECPxIuFRVMHbJg5+KmMPdvNWnLoyH5tMScE94kV9wFcgAHliwOyY9hvxEjRDCL71nmzcB"
+  },
   "stages": {
     "artifact-nondegradation": {
       "artifact_path": "v3.6.0-artifact-nondegradation.json",
