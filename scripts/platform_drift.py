@@ -120,8 +120,8 @@ def normalize_text(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip()
 
 
-def normalized_fingerprint(html_text: str) -> str:
-    """Hash the normalized visible text; never the raw HTML."""
+def normalized_visible_text(html_text: str) -> str:
+    """Use the same visible source for hashing and downstream extraction."""
     extractor = TextExtractor()
     try:
         extractor.feed(html_text)
@@ -129,7 +129,12 @@ def normalized_fingerprint(html_text: str) -> str:
     except html.parser.HTMLParseError:
         return ""
     chunks = extractor._article_chunks if extractor._has_article else extractor._chunks
-    visible = normalize_text(" ".join(chunks))
+    return normalize_text(" ".join(chunks))
+
+
+def normalized_fingerprint(html_text: str) -> str:
+    """Hash the normalized visible text; never the raw HTML."""
+    visible = normalized_visible_text(html_text)
     if not visible:
         return ""
     return hashlib.sha256(visible.encode("utf-8")).hexdigest()
@@ -393,7 +398,7 @@ def check_rule(
             "checked_at_utc": utc_now(),
         }
 
-    extraction, extract_error = l2_extract(url, verify_points, html_text)
+    extraction, extract_error = l2_extract(url, verify_points, normalized_visible_text(html_text))
     if extraction is None:
         return {
             "rule_id": rule_id,

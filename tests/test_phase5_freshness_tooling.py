@@ -89,6 +89,17 @@ class DriftNormalizationTests(unittest.TestCase):
         page = '<html><title>Expected title</title><body><article id="doc-content"><div data-island="devtools-download"></div></article><p>Feedback</p></body></html>'
         self.assertEqual(drift.normalized_fingerprint(page), '')
 
+    def test_l2_receives_canonical_body_after_long_navigation(self) -> None:
+        body = 'Operations Spec Verified privacy requirement.'
+        page = '<html><body class="has-mobile-sidebar"><div class="sidebar">' + 'Navigation ' * 15000 + '</div><article id="doc-content"><h1>Operations Spec</h1><p>Verified privacy requirement.</p></article><script>IGNORE BODY</script></body></html>'
+        rule = RULE_MAP["rules"][0]
+        extraction = {"verify_points": [{"point": rule["verify_points"][0], "current_statement": "Verified privacy requirement."}]}
+        with patch.object(drift, "fetch", return_value=(page, None)), patch.object(drift, "l2_extract", return_value=(extraction, None)) as extract:
+            result = drift.check_rule(rule, {}, RULE_MAP["allowed_domains"], False)
+        self.assertEqual(result["state"], "updated")
+        self.assertEqual(extract.call_args.args[2], body)
+        self.assertEqual(result["fingerprint"], drift.normalized_fingerprint('<p>' + body + '</p>'))
+
     def test_fingerprint_ignores_dynamic_noise_but_tracks_content(self) -> None:
         base = "<html><body><h1>Operations Spec</h1><p>Rule A: submit review before release.</p></body></html>"
         noisy = (
