@@ -17,13 +17,16 @@ Four-state verdict per rule: unchanged / updated / conflicting / unverifiable.
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import html.parser
+import io
 import json
 import re
 import sys
 import urllib.error
 import urllib.request
+import zlib
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Sequence
@@ -63,6 +66,9 @@ class TextExtractor(html.parser.HTMLParser):
         # pop a real opener it does not belong to.
         self._stack: list[tuple[str, bool]] = []
         self._chunks: list[str] = []
+        self._has_article = False
+        self._article_depth: int | None = None
+        self._article_chunks: list[str] = []
 
     def _in_noise(self) -> bool:
         return any(is_noise for _, is_noise in self._stack)
@@ -71,10 +77,17 @@ class TextExtractor(html.parser.HTMLParser):
         if tag in self.VOID_TAGS:
             return
         class_attr = dict(attrs).get("class") or ""
-        is_noise = tag in self.SKIP_TAGS or any(
-            marker in class_attr.lower() for marker in self.NOISE_CLASSES
+        is_noise = tag in self.SKIP_TAGS or (
+            tag not in {"html", "body"}
+            and any(marker in class_attr.lower() for marker in self.NOISE_CLASSES)
         )
         self._stack.append((tag, is_noise))
+        # New official docs expose the content separately from navigation,
+        # page titles and copy/feedback controls. An empty article is a
+        # dynamic shell, not a usable source fingerprint.
+        if tag == "article" and dict(attrs).get("id") == "doc-content":
+            self._has_article = True
+            self._article_depth = len(self._stack)
 
     def handle_endtag(self, tag: str) -> None:
         if tag in self.VOID_TAGS:
@@ -90,12 +103,16 @@ class TextExtractor(html.parser.HTMLParser):
         for index in range(len(self._stack) - 1, -1, -1):
             if self._stack[index][0] == tag:
                 del self._stack[index:]
+                if self._article_depth is not None and len(self._stack) < self._article_depth:
+                    self._article_depth = None
                 return
         # Not on the stack: stray closer, ignore entirely.
 
     def handle_data(self, data: str) -> None:
         if not self._in_noise() and data.strip():
             self._chunks.append(data.strip())
+            if self._article_depth is not None:
+                self._article_chunks.append(data.strip())
 
 
 def normalize_text(text: str) -> str:
@@ -111,7 +128,8 @@ def normalized_fingerprint(html_text: str) -> str:
         extractor.close()
     except html.parser.HTMLParseError:
         return ""
-    visible = normalize_text(" ".join(extractor._chunks))
+    chunks = extractor._article_chunks if extractor._has_article else extractor._chunks
+    visible = normalize_text(" ".join(chunks))
     if not visible:
         return ""
     return hashlib.sha256(visible.encode("utf-8")).hexdigest()
@@ -186,6 +204,7 @@ def fetch(url: str, allowed_domains: list[str]) -> tuple[str | None, str | None]
     try:
         with opener.open(request, timeout=REQUEST_TIMEOUT_SECONDS) as response:
             payload = response.read(MAX_PAGE_BYTES + 1)
+            encoding = response.headers.get("Content-Encoding", "").strip().lower()
     except RedirectBlocked as exc:
         # Must precede the URLError clause: RedirectBlocked IS a URLError, and
         # the generic clause would mask the allowlist reason.
@@ -198,6 +217,16 @@ def fetch(url: str, allowed_domains: list[str]) -> tuple[str | None, str | None]
         return None, f"fetch-failed:{type(exc).__name__}"
     if len(payload) > MAX_PAGE_BYTES:
         return None, "page-too-large"
+    if encoding == "gzip":
+        try:
+            with gzip.GzipFile(fileobj=io.BytesIO(payload)) as stream:
+                payload = stream.read(MAX_PAGE_BYTES + 1)
+        except (OSError, EOFError, zlib.error):
+            return None, "invalid-gzip-response"
+        if len(payload) > MAX_PAGE_BYTES:
+            return None, "page-too-large"
+    elif encoding not in {"", "identity"}:
+        return None, "unsupported-content-encoding"
     try:
         return payload.decode("utf-8", errors="replace"), None
     except UnicodeError:

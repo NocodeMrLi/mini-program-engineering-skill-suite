@@ -15,13 +15,13 @@
 
 ## 事实清单
 
-- 事实：小程序使用用户隐私接口时，须在平台配置《用户隐私保护指引》，相关接口可用性以平台申报与审核状态为准。
-  <!-- fact: privacy-guideline-required verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/ digest=549f0eb28b7409603b427e8f1da8af3bf4f4aa163cdfeee7d3cabe5fc0da0cf4 -->
-- 事实：运营规范主页正文仍分七大节（原则说明、具体运营规范、小游戏特别规范、投诉与处罚、当地法律监管、免责声明、动态文档）；「二、具体运营规范」仍有注册提交、基本信息、功能设置、主体、行为、信息内容、可用性与完整性、技术实现、UI、支付退款、隐私与数据等 19 个直接分节，其中「5. 行为规范」已扩展至 5.37。页面顶部的「常见拒绝情形」、服务条款、认证指引、类目与备案，以及导航中的小商店、交易类、短剧等均为独立入口，不应计入主页正文分节。与提审直接相关的条款包括 1.4（应按平台要求补充材料和修改，否则影响审核）、4.2（资质须真实合法有效，伪造可被拒审或追责）和 5.19（提审版本应与实际上线版本一致，不得绕开、规避或对抗审核监管）。
-  <!-- fact: operations-spec-scope verified=2026-09-27 source=https://developers.weixin.qq.com/miniprogram/product/ digest=97e453695a41d7af8638ee521ca2974750a71f92fa6b8b508eb071aaef5437cd -->
-- 事实：运营规范主页在「四、投诉与处罚规范」给出高层路径：平台可能提供申诉渠道，开发者整改后可通过该渠道重新提交发布审核；页面顶部另提供独立的「常见拒绝情形」入口。公开文档未说明某次提审驳回原因的账号级查询入口和具体后台操作步骤；具体原因、审核记录和重新提交操作仍应以登录后小程序后台的当前展示为准，属需登录确认的 manual 事实。
-  <!-- fact: review-rejection-flow verified=2026-09-27 source=https://developers.weixin.qq.com/miniprogram/product/ digest=97e453695a41d7af8638ee521ca2974750a71f92fa6b8b508eb071aaef5437cd -->
-- 事实：开发者工具的当前稳定版本与环境要求以官方下载页为准；项目配置与构建行为兼容性变化需按当前版本核对。
-  <!-- fact: toolchain-devtools verified=2026-08-30 source=https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html digest=694dd716b1ff1a8c4fe7ce70ec8d457edb6a09a15de27576e0bad13286c129e5 -->
+- 事实：小程序、插件涉及处理用户个人信息时，开发者须补充相应用户隐私保护指引。现网指引可在「账号设置—服务内容声明」完善，审核通过后生效；提审版本指引在「版本管理—提交代码审核」填写，审核通过且发布后覆盖现网版本。本页不完整列出隐私接口清单及授权撤回细则，涉及具体接口时仍需查对应官方文档与平台当前状态。
+  <!-- fact: privacy-guideline-required verified=2026-10-29 source=https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/ digest=b5748564b1a0ecbc64183ce437d79cbd3a527e4a75954cf425da515162493c38 -->
+- 事实：运营规范主页正文分七大节（原则及相关说明、具体运营规范、小游戏特别规范、投诉与处罚、遵守当地法律监管、免责声明、动态文档）。「二、具体运营规范」的直接分节现编号为 2.1–2.19，包含注册提交、基本信息、功能设置、主体、行为、信息内容、可用性和完整性、技术实现、UI、支付退款、隐私和数据等。注册提交与主体规范要求按平台要求提供材料和修改、保证资质真实合法有效；行为规范要求提审版本与实际上线版本一致，不得绕开、规避或对抗审核监管。页面导航与独立文档入口不计入正文分节；旧页面的条款编号不应直接作为当前定位依据。
+  <!-- fact: operations-spec-scope verified=2026-10-29 source=https://developers.weixin.qq.com/miniprogram/product/ digest=a19148674c15d3e2c745715fb5d7a540f6d2e800431075f51d3cacdc28789c19 -->
+- 事实：运营规范主页在「四、投诉与处罚规范」给出高层路径：平台可能提供申诉渠道，开发者整改后可通过该渠道重新提交发布审核；多次整改仍不符合要求等情形下，平台可能暂时或永久关闭申诉渠道。公开正文未说明某次提审驳回原因的账号级查询入口和具体后台操作步骤；具体原因、审核记录和重新提交操作仍应以登录后小程序后台的当前展示为准，属需登录确认的 manual 事实。
+  <!-- fact: review-rejection-flow verified=2026-10-29 source=https://developers.weixin.qq.com/miniprogram/product/ digest=a19148674c15d3e2c745715fb5d7a540f6d2e800431075f51d3cacdc28789c19 -->
+- 事实：官方下载页的动态组件提供「备份下载地址」入口，备份页正文列出 Stable、RC、Nightly 及其下载平台与环境说明，确定性监测采用该官方静态正文。当前稳定版本与项目兼容性仍须按具体版本核对；备份页同时保留「Windows 7 及以上」旧提示与「Stable 从 1.06 起不支持 Windows 7」说明，不应据旧提示宣称当前稳定版支持 Windows 7，也不能由页面内容推导出本项目的构建或真机兼容通过。
+  <!-- fact: toolchain-devtools verified=2026-10-29 source=https://developers.weixin.qq.com/miniprogram/dev/devtools/download_backup.html digest=3b72f9329184158f4d0ad1c24708f1fd3bc4ebaddfea0c245d04af55a099094b -->
 
-以上事实已于 2026-08-30 完成基线重录：3.1.5 提取器修复后首次以完整正文计算指纹（旧提取器因噪声栈泄漏只看到 6-21 字符的页面标题，原 digest 实为空壳指纹，监测不到正文变化）；同页双跑逐字一致。verified 为核验日期（UTC）。后续变化由周频 drift-watch 比对发现；过期或 `ttl=0` 类步骤执行前仍须查官方现行资料。
+2026-10-29 重新核对官方正文并录入基线：官网已采用 gzip 响应与新布局，读取器先受限解压，根节点布局状态不再触发整页噪声过滤；存在 `article#doc-content` 时只计算该正文的指纹，空动态组件不生成空壳指纹。工具链来源切到官方下载组件提供的静态备份入口。`verified` 为正文核验日期（UTC），不代表平台上传、审核、发布或项目兼容性通过；过期或 `ttl=0` 类步骤执行前仍须查官方现行资料。

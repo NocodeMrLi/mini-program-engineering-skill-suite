@@ -74,6 +74,21 @@ def with_page_server(handler) -> tempfile.TemporaryDirectory:
 
 
 class DriftNormalizationTests(unittest.TestCase):
+    def test_root_layout_state_does_not_hide_document_body(self) -> None:
+        page = '<html class="has-header"><body class="has-mobile-sidebar"><p>Rule A</p></body></html>'
+        self.assertEqual(drift.normalized_fingerprint(page), drift.normalized_fingerprint('<p>Rule A</p>'))
+        self.assertNotEqual(drift.normalized_fingerprint(page), drift.normalized_fingerprint(page.replace('Rule A', 'Rule B')))
+
+    def test_official_article_ignores_page_chrome_and_tracks_body(self) -> None:
+        page = '<html><head><title>Site title</title></head><body class="has-mobile-sidebar"><div>Copy for LLM</div><article id="doc-content"><p>Rule A</p></article><div>Feedback</div></body></html>'
+        self.assertEqual(drift.normalized_fingerprint(page), drift.normalized_fingerprint('<p>Rule A</p>'))
+        self.assertEqual(drift.normalized_fingerprint(page), drift.normalized_fingerprint(page.replace('Site title', 'Other title')))
+        self.assertNotEqual(drift.normalized_fingerprint(page), drift.normalized_fingerprint(page.replace('Rule A', 'Rule B')))
+
+    def test_dynamic_empty_article_never_produces_shell_fingerprint(self) -> None:
+        page = '<html><title>Expected title</title><body><article id="doc-content"><div data-island="devtools-download"></div></article><p>Feedback</p></body></html>'
+        self.assertEqual(drift.normalized_fingerprint(page), '')
+
     def test_fingerprint_ignores_dynamic_noise_but_tracks_content(self) -> None:
         base = "<html><body><h1>Operations Spec</h1><p>Rule A: submit review before release.</p></body></html>"
         noisy = (
@@ -101,6 +116,61 @@ class DriftNormalizationTests(unittest.TestCase):
 
 
 class DriftFetchTests(unittest.TestCase):
+    def _serve(self, payload: bytes, encoding: str):
+        import http.server
+        import threading
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self) -> None:
+                self.send_response(200)
+                self.send_header("Content-Encoding", encoding)
+                self.end_headers()
+                self.wfile.write(payload)
+
+            def log_message(self, *args) -> None:
+                pass
+
+        server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        self.addCleanup(server.server_close)
+        self.addCleanup(thread.join)
+        self.addCleanup(server.shutdown)
+        host = f"127.0.0.1:{server.server_address[1]}"
+        return f"http://{host}/rules", [host]
+
+    def test_gzip_response_reaches_title_and_fingerprint_checks(self) -> None:
+        import gzip
+
+        page = '<html><body class="has-mobile-sidebar"><article id="doc-content"><h1>Operations Spec</h1><p>Rule A</p></article></body></html>'
+        url, allowed = self._serve(gzip.compress(page.encode()), "GZip")
+        rule = dict(RULE_MAP["rules"][0], official={"url": url, "title": "Operations Spec"})
+        annotations = {"r": {"source": url, "digest": drift.normalized_fingerprint(page), "verified": "2026-10-29"}}
+        with patch.object(drift, "run_agent", side_effect=AssertionError("unchanged source must not call L2")):
+            result = drift.check_rule(rule, annotations, allowed, False)
+        self.assertEqual(result["state"], "unchanged")
+
+    def test_corrupt_or_truncated_gzip_fails_closed(self) -> None:
+        import gzip
+
+        for payload in (b"not-gzip", gzip.compress(b"Expected body")[:-6]):
+            with self.subTest(payload=payload):
+                url, allowed = self._serve(payload, "gzip")
+                self.assertEqual(drift.fetch(url, allowed), (None, "invalid-gzip-response"))
+
+    def test_decompressed_size_is_limited(self) -> None:
+        import gzip
+
+        payload = gzip.compress(b"x" * 4096)
+        url, allowed = self._serve(payload, "gzip")
+        self.assertLess(len(payload), 256)
+        with patch.object(drift, "MAX_PAGE_BYTES", 256):
+            self.assertEqual(drift.fetch(url, allowed), (None, "page-too-large"))
+
+    def test_unsupported_encoding_fails_closed(self) -> None:
+        url, allowed = self._serve(b"Expected body", "br")
+        self.assertEqual(drift.fetch(url, allowed), (None, "unsupported-content-encoding"))
+
     def test_domain_allowlist_enforced_fail_closed(self) -> None:
         html_text, error = drift.fetch("https://evil.example/product/", ["example-official.test"])
         self.assertIsNone(html_text)

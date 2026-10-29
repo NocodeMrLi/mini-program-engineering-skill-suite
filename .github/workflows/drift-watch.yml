@@ -69,37 +69,6 @@ jobs:
           mkdir -p "$RUNNER_TEMP/drift-watch"
           python3 scripts/drift_watch.py $args --no-llm --output "$RUNNER_TEMP/drift-watch/drift-report.json" --emit-issues
 
-      - name: Diagnose official response (temporary)
-        if: failure()
-        run: |
-          python3 - <<'PY'
-          import hashlib
-          import json
-          import re
-          import sys
-          import urllib.request
-          from pathlib import Path
-          sys.path.insert(0, 'scripts')
-          import platform_drift as drift
-          rules = json.loads(Path('platforms/wechat/rule-map.json').read_text())
-          for url in dict.fromkeys(r['official']['url'] for r in rules['rules']):
-              req = urllib.request.Request(url, headers={'User-Agent': drift.USER_AGENT})
-              opener = urllib.request.build_opener(drift.AllowlistRedirectHandler(rules['allowed_domains']))
-              try:
-                  with opener.open(req, timeout=30) as response:
-                      body = response.read(drift.MAX_PAGE_BYTES + 1)
-                      decoded = body.decode('utf-8', errors='replace')
-                      titles = re.findall(r'<title[^>]*>(.*?)</title>', decoded, re.I | re.S)
-                      print(json.dumps({'url': url, 'status': response.status,
-                          'type': response.headers.get('Content-Type'),
-                          'encoding': response.headers.get('Content-Encoding'),
-                          'length': len(body), 'sha256': hashlib.sha256(body).hexdigest(),
-                          'prefix_hex': body[:24].hex(), 'titles': titles[:1],
-                          'preview': decoded[:500]}, ensure_ascii=True))
-              except Exception as exc:
-                  print(json.dumps({'url': url, 'error': type(exc).__name__}))
-          PY
-
       - name: Upload drift report
         # Detection fails (rc=1) exactly when drift is actionable — that is
         # when the audit stage needs this artifact most. Always upload.
