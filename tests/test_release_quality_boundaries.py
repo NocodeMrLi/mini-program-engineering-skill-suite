@@ -38,6 +38,7 @@ def load_script(name: str):
 class _Response:
     def __init__(self, payload: bytes) -> None:
         self.payload = payload
+        self.headers = {}
 
     def __enter__(self):
         return self

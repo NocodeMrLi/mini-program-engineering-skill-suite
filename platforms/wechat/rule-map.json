@@ -54,9 +54,9 @@
       "step_class": "toolchain/build",
       "ttl_days": 90,
       "official": {
-        "url": "https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html",
-        "title": "微信开放文档",
-        "section": "版本与下载"
+        "url": "https://developers.weixin.qq.com/miniprogram/dev/devtools/download_backup.html",
+        "title": "微信开发者工具下载地址与更新日志",
+        "section": "官方下载页提供的备份入口：版本与环境说明"
       },
       "verify_points": [
         "当前稳定版与最低环境要求",
