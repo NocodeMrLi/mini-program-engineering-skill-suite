@@ -141,6 +141,8 @@ Aturan platform terus berubah, sehingga aturan yang di-hardcode ke dalam skill p
 
 Fakta platform dan peta aturan berada di direktori `platforms/`, kini mencakup WeChat, Alipay, dan Douyin. WeChat mendukung pemantauan fingerprint deterministik dengan deteksi drift otomatis mingguan; pusat dokumen Alipay dan Douyin bersifat client-rendered sehingga fingerprint tidak dapat mengamati perubahan konten dan keduanya dilabeli jujur sebagai `manual-only` — kesegaran bergantung pada pemeriksaan dokumen resmi saat runtime dan laporan pengguna, bukan berpura-pura deteksi otomatis. Platform di luar cakupan selalu diperiksa ke sumber resmi dan dibiarkan `unknown`, tidak pernah ditebak.
 
+Lihat [fakta platform WeChat](platforms/wechat/facts.md) untuk ringkasan aturan, tanggal verifikasi, dan sumber resmi yang tercatat. Periksa dokumentasi resmi terkini sebelum melakukan operasi platform.
+
 ---
 
 ## Cara Menggunakan

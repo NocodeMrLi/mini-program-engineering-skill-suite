@@ -129,6 +129,8 @@ Platform rules keep changing, so any rule hardcoded into a skill goes stale. The
 
 Platform facts and the rule map live in the `platforms/` directory, now covering WeChat, Alipay, and Douyin. WeChat supports deterministic fingerprint monitoring with weekly automated drift detection; the Alipay and Douyin doc centers are client-rendered, so deterministic fingerprints cannot observe content changes and they are honestly marked `manual-only` — freshness there relies on runtime checks against official docs and user reports rather than pretending to auto-detect. Platforms outside the map are always checked against official sources and kept `unknown`, never guessed.
 
+See [WeChat platform facts](platforms/wechat/facts.md) for recorded rule summaries, verification dates, and official sources. Check current official documentation before platform operations.
+
 ---
 
 ## Intended Use
