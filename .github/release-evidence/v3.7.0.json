@@ -1,21 +1,22 @@
 {
-  "schema_version": 2,
-  "mode": "fresh",
-  "candidate_tag": "v3.7.0",
   "candidate_commit": "1604239a7387542d0fff38c52573e90126949684",
-  "candidate_skill_behavior_sha256": "efdeb6c89215458e01566abfd1076337ccd4b38f852cadb57b19e400653d9df9",
   "candidate_evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "candidate_skill_behavior_sha256": "efdeb6c89215458e01566abfd1076337ccd4b38f852cadb57b19e400653d9df9",
+  "candidate_tag": "v3.7.0",
   "engine": "actual installed ZCode CLI fresh sessions; all required stages executed in this candidate cycle",
-  "model": "glm-5.3-flash; core actor Anthropic CodingPlan enabled/max and core judges OpenAI enabled/high; latest all8artifact reports, bothcasejudges and finalreviews officialOpenAI CodingPlan enabled/low32768, fixedsameprofiles forbotharms; original failures retained; weights revision unavailable",
   "generated_at_utc": "2026-11-11T10:02:30Z",
+  "mode": "fresh",
+  "model": "glm-5.3-flash; core actor Anthropic CodingPlan enabled/max and core judges OpenAI enabled/high; latest all8artifact reports, bothcasejudges and finalreviews officialOpenAI CodingPlan enabled/low32768, fixedsameprofiles forbotharms; original failures retained; weights revision unavailable",
+  "schema_version": 2,
+  "signature": {
+    "algorithm": "rsa-sha256",
+    "key_id": "release-evaluation-2026-08-31",
+    "value": "dXnzsGX9QLfSWsjR+62nT8G/pcuWwPVAxsPWPBXiW59xcXEmpbzCQLbywgOBONhDQdsTa2v4+cSWraWkCJfkgbUl4AJ13EAUvGo6E1d+wssFFG3cO3DUQZRYGudtnrth4wDi4N3RXNsOvwt05J1z7S8/qDsnXiAtKpgdcuTfGr/TBPGaeqUirITEmok68dyM4iqxe9I0HGf2GeGUJy8mPC4hZpYZLOgR4GUEZ07VaLEgFfpdu3lcxoG2l+XI2EVa8QOcEB+QASKH6UgFE7OkcU+rAzQJDoRcskyVq2/oqv+lS9p/2Yp7yfoT5f0ULiRaU4CgDAiwBm50czxk3RYYpVjl2o6gcAYU1s5dyGXA1gs3aZYjJ6XZDMpfhM8dnnwPApQK1ug/lu5xbziC/R2I+0wOMxUB3bl1h+b9Ee1cB2B7FhPMw3F23cJkB6w92yU/Iyf+Q8bYLgSIumCT4w9WjgV4eu+ysliWE+vEpU51RfCQZQoijjo+13nQf+aoZXdj"
+  },
   "stages": {
-    "routing-development": {
-      "artifact_path": "v3.7.0-routing-dev.json",
-      "artifact_sha256": "c3d6d6ec4ab40308cf3a12686d2d2db17b7ca50d257a26118e65b3aa1afb2ad5"
-    },
-    "routing-held-out": {
-      "artifact_path": "v3.7.0-routing-holdout.json",
-      "artifact_sha256": "0552e22cf2fa62648554a5116183ad2c51fc01cb59dc55ed0215d41fc85975fa"
+    "artifact-nondegradation": {
+      "artifact_path": "v3.7.0-artifact-nondegradation.json",
+      "artifact_sha256": "3ec4e9c6ef2acef1b3cceec50c7e459c0d11144b7822782fffb28bf9bd662cb5"
     },
     "behavior-development": {
       "artifact_path": "v3.7.0-behavior-dev.json",
@@ -25,6 +26,14 @@
       "artifact_path": "v3.7.0-behavior-holdout.json",
       "artifact_sha256": "18face0b4826c224ca26d631b27e465ed92dd3f6db4c3ea4ae3de61424671a3a"
     },
+    "final-signature": {
+      "artifact_path": "v3.7.0-final-signature.json",
+      "artifact_sha256": "6eeb687a1ddf6fb093b1c37d3a5e436d0a7878816c6278e197539680d3402657"
+    },
+    "independent-judgment": {
+      "artifact_path": "v3.7.0-independent-judgment.json",
+      "artifact_sha256": "dbf8761b08e999a01a4a797ee959b5c6bcc6551fada443fe698034ce8ed20475"
+    },
     "methodology-development": {
       "artifact_path": "v3.7.0-methodology-dev.json",
       "artifact_sha256": "cde8852aa16d2f4742b34aff3930c7e05e4ca2715fa23ab635a0c8425a6492a6"
@@ -33,17 +42,13 @@
       "artifact_path": "v3.7.0-methodology-holdout.json",
       "artifact_sha256": "fd5dd775421970ab4c2eb4c2589dee0ec8cc243e14da8e1dbe05eedf042c5cbc"
     },
-    "artifact-nondegradation": {
-      "artifact_path": "v3.7.0-artifact-nondegradation.json",
-      "artifact_sha256": "3ec4e9c6ef2acef1b3cceec50c7e459c0d11144b7822782fffb28bf9bd662cb5"
+    "routing-development": {
+      "artifact_path": "v3.7.0-routing-dev.json",
+      "artifact_sha256": "c3d6d6ec4ab40308cf3a12686d2d2db17b7ca50d257a26118e65b3aa1afb2ad5"
     },
-    "independent-judgment": {
-      "artifact_path": "v3.7.0-independent-judgment.json",
-      "artifact_sha256": "dbf8761b08e999a01a4a797ee959b5c6bcc6551fada443fe698034ce8ed20475"
-    },
-    "final-signature": {
-      "artifact_path": "v3.7.0-final-signature.json",
-      "artifact_sha256": "6eeb687a1ddf6fb093b1c37d3a5e436d0a7878816c6278e197539680d3402657"
+    "routing-held-out": {
+      "artifact_path": "v3.7.0-routing-holdout.json",
+      "artifact_sha256": "0552e22cf2fa62648554a5116183ad2c51fc01cb59dc55ed0215d41fc85975fa"
     }
   }
 }
