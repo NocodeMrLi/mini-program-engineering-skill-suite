@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.6.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.7.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-English-2563EB.svg" alt="Language: English">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
+  <img src="https://img.shields.io/badge/version-3.7.0-0EA5E9.svg" alt="Version: 3.7.0">
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 
 3.6.0 strengthens three decisions: distinguish update delays from real inconsistencies; verify identity, environment and complete scope alongside status; and keep destructive previews, confirmation and actual execution aligned. Preserve existing product workflows and user input on failure, investigate unknown outcomes before retrying, and avoid repeated user actions or unchanged retests.
 
-Source updates (unreleased): [ongoing feedback](skills/mini-program-project-intake-skill/references/intake-workflow.md) preserves prior confirmations and new unknowns by subitem; [form recovery](skills/mini-program-ui-device-skill/references/ui-device-workflow.md) checks error location, correction and retained input. These guidance updates are outside the published v3.6.0 package; actual UI and device behavior need verification in the target project.
+3.7.0 strengthens two existing workflows: [ongoing feedback](skills/mini-program-project-intake-skill/references/intake-workflow.md) preserves prior confirmations and new unknowns by subitem and reports the agreed scope; [form recovery](skills/mini-program-ui-device-skill/references/ui-device-workflow.md) checks error location, correction and retained input. Verify actual UI and device behavior in the target project.
 
 ---
 
@@ -249,7 +249,7 @@ For existing projects, start with read-only project intake before changing anyth
 Merging the repository or publishing a tag does not replace local skill files. Download and verify a public package from Releases, then run this inside the extracted directory:
 
 ```bash
-cd mini-program-engineering-suite-v3.6.0
+cd mini-program-engineering-suite-v3.7.0
 bash install.sh --target auto --force
 ```
 
@@ -313,9 +313,9 @@ shasum -a 256 -c SHA256SUMS
 Then extract the archive and verify the package manifest:
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
-python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.6.0
+tar -xzf mini-program-engineering-suite-v3.7.0.tar.gz
+python3 mini-program-engineering-suite-v3.7.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.7.0
 ```
 
 If you receive a package through another channel, use its `package-manifest.json` to recompute every file size and SHA-256 digest:
@@ -332,7 +332,7 @@ The command confirms package integrity only; it does not prove publisher identit
 
 3.6.0 strengthens multi-time-point reconciliation, independent status and identity checks, and the binding between destructive previews and atomic writes. It preserves existing workflows and avoids unnecessary confirmations, uploads and repeated tests. For GLM evaluation scope and the actual release outcome, see [EVALUATIONS.md](EVALUATIONS.md) and Release for the actual outcome.
 
-Current version: **3.6.0**. [v3.6.0 is published with its public package](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.6.0). This page describes current capabilities; see [CHANGELOG.md](CHANGELOG.md) for history and [EVALUATIONS.md](EVALUATIONS.md) for evaluation scope and evidence limits.
+Current version: **3.7.0**. See the [public package and release status](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.7.0), [CHANGELOG.md](CHANGELOG.md) for history, and [EVALUATIONS.md](EVALUATIONS.md) for evaluation scope and evidence limits.
 
 v3.6.0 release verification passed 386/386 deterministic tests, 9/9 final signed-commit CI checks and 12/12 technical and collaboration scenarios. Two cases with eight final reports achieved a mean artifact-score gain of 2.7375, with zero candidate critical errors or critical-dimension regressions. Two final independent quality judgments and trusted RSA signature verification passed. Checksums for all four release assets and all 129 public files match the tag export byte for byte. These controlled checks do not replace device, cloud or real-transaction acceptance in the target project, and do not quantify engineering speed gains.
 

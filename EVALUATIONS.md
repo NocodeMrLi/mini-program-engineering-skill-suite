@@ -10,6 +10,40 @@
 
 随后补强质量优先与用户可验收反馈合同，对支付接入和无界面工程两种原创场景作定向只读审查，未发现质量门削弱或强加 UI/文档的问题。先前 317 项全量回归通过；最新文本补强另做 15 项合同/分发/评测器回归及 22 项 Tier 1，不重复未受影响的全部模型场景。以上为前期合同验证；完整候选评测另见下方 3.3.0 摘要，未量化证明真实工程效率改善。
 
+## v3.7.0：升级06
+
+两轮项目适配审查后，仅补强两项既有指导：反馈按子项继承原确认与报告范围，有效原确认只标复用，不重复走查；表单错误在提交位置可见或一次定位，并按既有规则清除真正改正后的对应旧错、保留合法草稿。写入判断以项目已确认合同和实际确认身份为准，通用建议不得充当项目事实。未增加产品机制、台账或真实平台操作。另修复发布基线选择：忽略非语义版本快照tag，仍按可达历史选择正式版本；两项回归先失败后通过。
+
+本地396项测试、Tier1 22项、六语言README、结构与敏感扫描、129文件双份确定性导出及独立接收检查通过。实际入口为本机ZCode CLI 3.11.2-21 / runtime 0.16.5，模型GLM-5.3-Flash，启用思考。临时隔离配置、存储和上下文，原配置与程序未改；执行工具、插件及记忆关闭。生成与判定按角色分别固定配置，两臂角色配置、任务、时间及调用上限相同。公开证据封套落盘后另核196个候选文件、全部扫描且0发现；下表186为源码冻结阶段的扫描测量。
+
+六个核心阶段均在本次3.7候选周期实际执行：两批路由各32/32，行为及方法论四组升级版均1.0且非退化。四组前期正式成品比较未过，原报告与评分保留：首次推断项目已有去重规则；第二次把待核现象先列缺陷后称待核；第三次仍增加已确认事项的走查与泛化边界配合，并暴露表单用例“按已有合同”未给出具体规则的歧义。源码补强整份报告的证据一致性，并消除“每项展开路径”与有效原确认直接复用的冲突；只为新增或受影响项展开步骤，真实阻塞及必要质量门保留。第四组平均增益6.7667达标，但一份候选将滚动参数写入与实际几何命中混为同层证据，关键维度仍退化1；补明参数状态、同口径测量或渲染命中及真机表现分别取证，预期对应证据层级。未重抽原有效分数。
+
+最终新组向两臂同时补明原用例缺失的已确认写入规则，保持实际确认归属证据未知，区分合同存在与本轮归属。反馈任务不变；目标维度、rubric及平均增益1.0门槛不变。生成与评分统一为Flash、思考开启/low、32768上限，该组全部8份报告重新生成；最后一次测量证据修订后，再生成全部4份受影响候选报告，4份原生基线的8个完整阶段输入、配置与控制逐字核对一致后保留。只有本次3.7周期合格原件被复用，没有混入3.6发布证据；新判定比较新候选与冻结基线，不重抽未变候选报告分数。每份固定为初稿加一次必做自查，双方同任务、角色配置、时间及调用上限；原生基线无套件上下文，候选读取6份完整合同。30次核心调用的完整提示词、schema与夹具仍逐字一致，经指纹证明保留本轮合格原件，零新增调用；不借用3.6发布证据。
+
+最终成品门PASS：2案例、8报告，每臂每案例2次，平均目标增益12.5000≥1.0，候选关键错误0、关键维度退化0。目标维度与阈值始终不变；新判定只评分源码修正后的新候选成品，未重抽原有效失败的分数。两次新上下文的独立质量判断分别通过，不替代可信RSA证据签名或发布验收。
+
+正式候选阶段实际GLM请求105次。历史组含一次1302限流零输出拒绝，相同输入和配置人工续派成功；原失败与耗时计入当组共同3次派发/1800秒执行封套，SDK自动重试0、人工续派另计1，未声称运行工具代理专用恢复封套。另有两次600秒表单判定超时，均有推理流但无完整评分；Anthropic入口16000上限补试耗尽全部额度于推理，CLI继续请求被本地单次调用上限拒绝，不是服务端限流。原件保留后改为官方支持的思考开启/low补齐缺失评分，不重抽有效分数。此前六核心阶段的生成与判定分别为Anthropic enabled/max16000及OpenAI enabled/high32768；最终新组全部生成与判定均为官方OpenAI入口enabled/low32768。最终选入8份成品对应18次实际请求（8次新候选生成、8次本轮合格基线原件及2次零生成拒绝），SDK自动重试0、人工续派2；阶段600秒/单次派发、每份两次内容阶段，共同上限3次/1800秒；当前两份反馈自查遇1302零生成拒绝后，同输入同配置各人工续派一次成功，原件与所有调用计入这两份报告的共同上限。
+
+全阶段自设调用上限从64经66、76、96、104调整为106，用于故障收口、真实合同修正及对称用例澄清后的必要新测，不清零账本、不改变目标维度或增益门槛。此前源码开发验证38次另账保留，未混入最终成品评分；本轮Claude/DeepSeek调用0。准确货币费用、真实工程提速未测。
+
+核心使用现有冻结用例，非全新未见数据；成品输入为原创页面片段与预设合成文字轨迹，模型无执行工具，没有实际运行小程序Page、开发者工具、设备、云端或真实交易。这些结果只支持本批合同判断与修复建议，不证明真机或用户验收，不能与历史版本分数直接比较。可信声明见`.github/release-evidence/v3.7.0.json`；RSA签名、最终CI、tag、不可变[Release](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.7.0)和工件接收分别核验。更新包不自动替换本机已安装副本。
+
+| 门禁 | 结论 | 关键指标 | 审计元数据 |
+| --- | --- | --- | --- |
+| tier1 结构、预算与资源引用 | PASS | checks 22; skills 10 | generated_at_utc=2026-11-11T09:53:20Z; engine=local |
+| tier2 路由评测（development） | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-11-11T06:47:14Z; engine=agent; model=zcode:glm-5.3-flash / installedCLI3.11.2-21 runtime0.16.5; fresh isolated contexts, actual per-call provenance; prompt_sha256=aafa5f7d5655; schema_sha256=270ad09d74ce |
+| tier2 路由评测（held-out） | PASS | accuracy 1.00 (32/32); 最低 0.90 | generated_at_utc=2026-11-11T06:46:34Z; engine=agent; model=zcode:glm-5.3-flash / installedCLI3.11.2-21 runtime0.16.5; fresh isolated contexts, actual per-call provenance; prompt_sha256=d1c39a79eba9; schema_sha256=e09c2427d29e |
+| tier3 行为评测（development） | PASS | skill 1.00; baseline 1.00; non-regression true; judgments 6 (PASS 6) | generated_at_utc=2026-11-11T07:04:35Z; engine=agent; model=zcode:glm-5.3-flash / installedCLI3.11.2-21 runtime0.16.5; fresh isolated contexts, actual per-call provenance; prompt_sha256=cb794ff46b99; schema_sha256=720380e2c911 |
+| tier3 行为评测（held-out） | PASS | skill 1.00; baseline 1.00; non-regression true; judgments 6 (PASS 6) | generated_at_utc=2026-11-11T07:00:38Z; engine=agent; model=zcode:glm-5.3-flash / installedCLI3.11.2-21 runtime0.16.5; fresh isolated contexts, actual per-call provenance; prompt_sha256=9a651e7b5a8c; schema_sha256=c2b570af60c3 |
+| tier3 方法论评测（development） | PASS | skill 1.00; baseline 0.00; non-regression true; judgments 6 (FAIL 3, PASS 3) | generated_at_utc=2026-11-11T07:19:00Z; engine=agent; model=zcode:glm-5.3-flash / installedCLI3.11.2-21 runtime0.16.5; fresh isolated contexts, actual per-call provenance; prompt_sha256=c930a1f114b7; schema_sha256=69f3202da950 |
+| tier3 方法论评测（held-out） | PASS | skill 1.00; baseline 0.00; non-regression true; judgments 6 (FAIL 3, PASS 3) | generated_at_utc=2026-11-11T07:22:32Z; engine=agent; model=zcode:glm-5.3-flash / installedCLI3.11.2-21 runtime0.16.5; fresh isolated contexts, actual per-call provenance; prompt_sha256=69114699545a; schema_sha256=beb9a608d15d |
+| tier4 匿名代表项目产物非退化 | PASS | cases 2; runs 8; mean-target-gain 12.50; critical-errors 0; critical-regressions 0 | generated_at_utc=2026-11-11T10:01:41Z; engine=actual installed ZCodeCLI3.11.2-21/runtime0.16.5; current3.7 candidate cycle; model=glm-5.3-flash; model_version=glm-5.3-flash / installed ZCodeCLI3.11.2-21 runtime0.16.5; provider alias, weights revision unavailable |
+| 结构校验 | PASS | skills 9 | n/a |
+| 敏感信息扫描 | PASS | findings 0; scanned 186/186 | n/a |
+| 公共包清单复验 | PASS | files 129 | n/a |
+| 独立判定 | PASS | n/a | generated_at_utc=2026-11-11T10:02:03Z; engine=actual installed ZCodeCLI3.11.2-21/runtime0.16.5; isolated fresh context; model=glm-5.3-flash; prompt_sha256=89d6e6cbca6d |
+| 独立终审签署 | PASS | n/a | generated_at_utc=2026-11-11T10:02:30Z; engine=actual installed ZCodeCLI3.11.2-21/runtime0.16.5; isolated fresh context; model=glm-5.3-flash; prompt_sha256=abec151d3a30 |
+
 ## v3.6.0：升级05
 
 两轮项目适配审查后，三项增量进入7份既有合同：多时点观测分类、完整重取和持久预算；状态与可信身份、判断集合分别绑定；破坏性操作的完整可信预览、对象及相关版本确认和原子执行。按项目已有且获准的能力触发，不适用项N/A。12项技术及协作专项同时核反例、正常使用、避免重复确认和无必要的上传、复测或负责人配合。
@@ -128,6 +162,7 @@ python3 scripts/summarize_evaluations.py \
 
 | 版本 | 日期 | 摘要 | 说明 |
 | --- | --- | --- | --- |
+| 3.7.0 | 2026-11-11 | 九阶段fresh评测PASS；正式工件以tag/Release为准 | Flash；396测试、Tier1 22、路由各32/32、四组升级版1.0非退化、2案例8报告平均增益12.5000、关键错误及退化0；原失败保留，受影响成品重建，其余本轮完整输入一致后保留。 |
 | 3.4.0 | 2026-10-11 | 九阶段 fresh 评测 PASS；正式发布以 tag/Release 工件为准 | GLM-5.3；Tier 1 22/22，路由两批 32/32，行为/方法论四组升级版均 3/3、非退化；Tier 4 两个独立匿名项目、8 份产物，平均增益 3.435，升级版关键错误与退化均 0；317 项确定性测试。 |
 | 3.3.0 | 2026-10-08 | 九阶段 fresh 评测 PASS；正式发布以 tag/Release 工件为准 | GLM-5.3；Tier 1 22/22，路由两批 32/32；行为/方法论四组升级版均 3/3、非退化；Tier 4 两个独立匿名项目、8 份产物，平均增益 1.310，升级版关键错误与退化均 0；317 项确定性测试。 |
 | 3.2.0 | 2026-09-29 | 候选九阶段门禁 PASS；正式发布以 tag/Release 工件为准 | Tier 1 22/22；Tier 2 两批 32/32；Tier 3 四组升级版均 3/3 且非退化；Tier 4 两个独立匿名合成项目、8 份产物，零关键错误/退化，平均增益 4.665。受影响的 Tier 3 单例精准重跑，未变的基线按控制条件复用；不包含受保护来源项目。 |

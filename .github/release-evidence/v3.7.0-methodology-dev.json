@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "stage": "methodology-development",
+  "candidate_tag": "v3.7.0",
+  "candidate_commit": "1604239a7387542d0fff38c52573e90126949684",
+  "skill_behavior_sha256": "efdeb6c89215458e01566abfd1076337ccd4b38f852cadb57b19e400653d9df9",
+  "evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "engine": "actual installed ZCodeCLI3.11.2-21/runtime0.16.5; fresh isolated Flash evaluations",
+  "model": "glm-5.3-flash; provider alias, exact weights revision unavailable",
+  "generated_at_utc": "2026-11-11T10:02:30Z",
+  "source_report_sha256": "921a31b12c72d81595b0966ecbed8a249e3e47d9735c814ffe1641c30ac7a61b",
+  "source_generated_at_utc": "2026-11-11T07:19:00Z",
+  "verdict": "PASS",
+  "case_count_per_mode": 3,
+  "skill_pass_rate": 1.0,
+  "baseline_pass_rate": 0.0,
+  "non_regression": true,
+  "not_proven": 0
+}

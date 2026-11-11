@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "stage": "final-signature",
+  "candidate_tag": "v3.7.0",
+  "candidate_commit": "1604239a7387542d0fff38c52573e90126949684",
+  "skill_behavior_sha256": "efdeb6c89215458e01566abfd1076337ccd4b38f852cadb57b19e400653d9df9",
+  "evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "engine": "actual installed ZCodeCLI3.11.2-21/runtime0.16.5; fresh isolated Flash evaluations",
+  "model": "glm-5.3-flash; provider alias, exact weights revision unavailable",
+  "generated_at_utc": "2026-11-11T10:02:30Z",
+  "source_report_sha256": "bdd3a1eb0bb24b50d30326e083238ee2be7cfc74b2ad27e3a673240095f47bf9",
+  "source_generated_at_utc": "2026-11-11T10:02:30Z",
+  "verdict": "PASS"
+}
