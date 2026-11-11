@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.6.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.7.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-日本語-DC2626.svg" alt="Language: 日本語">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
+  <img src="https://img.shields.io/badge/version-3.7.0-0EA5E9.svg" alt="Version: 3.7.0">
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@
 
 > 注意：プラットフォームファクト層は現在 WeChat・Alipay・Douyin の 3 プラットフォームをカバーしています（検出能力は正直に区分、下記「プラットフォーム規則の鮮度保持」参照）。LINE MINI App、Telegram Mini Apps などのその他のエコシステムにも考え方を転用できますが、各プラットフォームの規則に合わせた追加適配は必要です。
 
-ソースの更新（未公開）：[継続的なフィードバック](skills/mini-program-project-intake-skill/references/intake-workflow.md)では確認済み部分と新たな未確認部分を分け、[フォームの修正](skills/mini-program-ui-device-skill/references/ui-device-workflow.md)ではエラーの場所、修正、入力保持を確認します。この指針の補強は公開済み v3.6.0 パッケージには含まれません。実際の画面と端末の動作は対象プロジェクトで検証が必要です。
+3.7.0 は既存の二つのワークフローを補強します。[継続的なフィードバック](skills/mini-program-project-intake-skill/references/intake-workflow.md)では確認済みの範囲と新たな不明点を子項目ごとに保持し、合意した範囲を報告します。[フォームの修正](skills/mini-program-ui-device-skill/references/ui-device-workflow.md)では送信失敗後のエラー位置、修正、入力の保持を確認します。実際のUIと端末動作は対象プロジェクトで検証してください。
 
 ---
 
@@ -182,7 +182,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 リポジトリのマージや tag の公開はローカルのスキルを更新しません。Releases の公開パッケージを取得・検証し、展開したディレクトリで実行します：
 
 ```bash
-cd mini-program-engineering-suite-v3.6.0
+cd mini-program-engineering-suite-v3.7.0
 bash install.sh --target auto --force
 ```
 
@@ -225,12 +225,12 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-v3.6.0 の例（Release からダウンロード後）：
+v3.7.0 の例（Release からダウンロード後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
-python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.6.0
+tar -xzf mini-program-engineering-suite-v3.7.0.tar.gz
+python3 mini-program-engineering-suite-v3.7.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.7.0
 ```
 
 ---
@@ -239,7 +239,7 @@ python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
 
 3.6.0 では、複数時点の照合、状態と本人性の独立検証、破壊的操作のプレビューとアトミック実行の範囲一致を補強します。既存の操作を尊重し、不要な再確認・アップロード・再テストを減らします。GLM 評価範囲と実際の公開結果は [EVALUATIONS.md](EVALUATIONS.md) と Release を参照してください。
 
-現在のバージョン：**3.6.0**。[v3.6.0 は正式公開済みで、公開パッケージをダウンロードできます](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.6.0)。本ページは現在の機能を説明します。履歴は [CHANGELOG.md](CHANGELOG.md)、評価範囲と証拠の限界は [EVALUATIONS.md](EVALUATIONS.md) を参照してください。
+現在のバージョン：**3.7.0**。[公開パッケージとリリース状況](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.7.0)、履歴は [CHANGELOG.md](CHANGELOG.md)、評価範囲と証拠の限界は [EVALUATIONS.md](EVALUATIONS.md) を参照してください。
 
 v3.6.0 の公開検証では、確定的テスト386/386、署名済み最終コミットのCI9/9、技術・協業シナリオ12/12が合格しました。2事例・最終報告8件の成果物比較は平均2.7375点改善し、候補の重大エラーと重要評価軸の退行はいずれも0でした。2回の最終独立品質判定と信頼されたRSA署名検証も合格しました。公開資産4点のチェックサムと公開ファイル129件はtagからのエクスポートとバイト単位で一致します。この管理された検証は対象プロジェクトの実機・クラウド・実取引の受入検証を代替せず、開発速度の向上を定量的に証明するものでもありません。
 

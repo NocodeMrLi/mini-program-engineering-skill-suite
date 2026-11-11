@@ -279,6 +279,22 @@ class GateFailurePathTests(unittest.TestCase):
 
 
 class ReleaseHistoryTests(unittest.TestCase):
+    def test_snapshot_tag_does_not_replace_release_baseline(self) -> None:
+        recommender = load_recommender()
+        with tempfile.TemporaryDirectory() as td:
+            repo = build_tagged_repo(Path(td))
+            git(repo, "tag", "-a", "upgrade-review", "v1.0.0", "-m", "Source snapshot")
+            result = recommender.recommend(repo, min_data_changes=1, candidate_tag="v1.1.0")
+        self.assertEqual(result["baseline_tag"], "v1.0.0")
+        self.assertEqual(result["commit_count"], 1)
+
+    def test_snapshot_at_head_does_not_hide_release_changes(self) -> None:
+        recommender = load_recommender()
+        with tempfile.TemporaryDirectory() as td:
+            repo = build_tagged_repo(Path(td))
+            git(repo, "tag", "-a", "upgrade-review", "-m", "Source snapshot")
+            self.assertEqual(recommender.last_tag(repo), "v1.1.0")
+
     def test_full_history_candidate_uses_previous_tag_as_baseline(self) -> None:
         recommender = load_recommender()
         with tempfile.TemporaryDirectory() as td:

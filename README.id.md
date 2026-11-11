@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.6.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.7.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-Bahasa%20Indonesia-16A34A.svg" alt="Language: Bahasa Indonesia">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
+  <img src="https://img.shields.io/badge/version-3.7.0-0EA5E9.svg" alt="Version: 3.7.0">
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@ Nama Tionghoa: **小程序开发工程技能套件**.
 
 > Catatan: lapisan fakta platform kini mencakup WeChat, Alipay, dan Douyin (kemampuan deteksi dilabeli jujur — lihat "Kesegaran Aturan Platform" di bawah). Untuk LINE MINI App, Telegram Mini Apps, atau ekosistem mini app lain, prinsip suite ini dapat dijadikan referensi, tetapi aturan platform tetap perlu diadaptasi secara terpisah.
 
-Pembaruan sumber (belum dirilis): [umpan balik berkelanjutan](skills/mini-program-project-intake-skill/references/intake-workflow.md) memisahkan bagian yang sudah dikonfirmasi dari masalah baru yang belum diketahui; [pemulihan formulir](skills/mini-program-ui-device-skill/references/ui-device-workflow.md) memeriksa lokasi kesalahan, perbaikan, dan input yang dipertahankan. Panduan ini belum termasuk dalam paket v3.6.0 yang telah dirilis; perilaku UI dan perangkat perlu diverifikasi di proyek tujuan.
+3.7.0 memperkuat dua alur yang sudah ada: [umpan balik berkelanjutan](skills/mini-program-project-intake-skill/references/intake-workflow.md) mempertahankan konfirmasi lama dan hal baru yang belum diketahui per subitem sesuai cakupan yang disepakati; [pemulihan formulir](skills/mini-program-ui-device-skill/references/ui-device-workflow.md) memeriksa lokasi kesalahan, koreksi, dan input yang tersimpan. Verifikasi UI dan perilaku perangkat di proyek tujuan.
 
 ---
 
@@ -182,7 +182,7 @@ Setelah instalasi, buka sesi Agent baru dan jalankan:
 Merge repository atau penerbitan tag tidak mengganti file skill lokal. Unduh dan verifikasi paket publik dari Releases, lalu jalankan di direktori hasil ekstraksi:
 
 ```bash
-cd mini-program-engineering-suite-v3.6.0
+cd mini-program-engineering-suite-v3.7.0
 bash install.sh --target auto --force
 ```
 
@@ -225,12 +225,12 @@ Untuk memeriksa package yang diterima:
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-Contoh v3.6.0 (setelah mengunduh dari Release):
+Contoh v3.7.0 (setelah mengunduh dari Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
-python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.6.0
+tar -xzf mini-program-engineering-suite-v3.7.0.tar.gz
+python3 mini-program-engineering-suite-v3.7.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.7.0
 ```
 
 ---
@@ -239,7 +239,7 @@ python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
 
 3.6.0 memperkuat rekonsiliasi lintas waktu, pemeriksaan status dan identitas secara terpisah, serta pengikatan cakupan pratinjau tindakan destruktif dengan penulisan atomik. Alur kerja lama dipertahankan tanpa konfirmasi, unggahan atau tes ulang yang tidak perlu. Untuk cakupan evaluasi GLM dan hasil rilis aktual, lihat [EVALUATIONS.md](EVALUATIONS.md) dan Release.
 
-Versi saat ini: **3.6.0**. [v3.6.0 sudah dirilis dengan paket publik yang dapat diunduh](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.6.0). Halaman ini menjelaskan kemampuan saat ini; riwayat ada di [CHANGELOG.md](CHANGELOG.md), sedangkan cakupan evaluasi dan batas bukti ada di [EVALUATIONS.md](EVALUATIONS.md).
+Versi saat ini: **3.7.0**. Lihat [paket publik dan status rilis](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.7.0), [CHANGELOG.md](CHANGELOG.md) untuk riwayat, serta [EVALUATIONS.md](EVALUATIONS.md) untuk cakupan evaluasi dan batas bukti.
 
 Verifikasi rilis v3.6.0 lulus 386/386 tes deterministik, 9/9 pemeriksaan CI pada commit akhir yang ditandatangani dan 12/12 skenario teknis serta kolaborasi. Dua kasus dengan delapan laporan akhir menghasilkan kenaikan skor artefak rata-rata 2.7375, tanpa kesalahan kritis kandidat atau penurunan dimensi penting. Dua penilaian kualitas independen akhir dan verifikasi tanda tangan RSA tepercaya juga lulus. Checksum keempat aset rilis dan seluruh 129 file publik sama persis per byte dengan ekspor tag. Pemeriksaan ini tidak menggantikan penerimaan perangkat nyata, cloud atau transaksi nyata pada proyek tujuan, dan tidak mengukur peningkatan kecepatan rekayasa.
 

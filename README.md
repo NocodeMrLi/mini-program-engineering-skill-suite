@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.6.0" alt="小程序开发工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.7.0" alt="小程序开发工程技能套件 封面" width="100%">
 </p>
 
 # 小程序开发工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-中文-EA580C.svg" alt="Language: 中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
+  <img src="https://img.shields.io/badge/version-3.7.0-0EA5E9.svg" alt="Version: 3.7.0">
 </p>
 
 <p align="center">
@@ -32,7 +32,7 @@
 
 3.6.0 重点补强三件事：数据不一致时分清更新时间差与真实异常；核对状态时同时确认身份、环境和完整范围；删除、清理等操作让预览、确认与实际执行保持一致。沿用已有产品流程，失败保留输入，未知结果先查证，减少用户重复操作和无变化复测。
 
-源码更新（尚未发布）：[连续反馈](skills/mini-program-project-intake-skill/references/intake-workflow.md)按子项保留原确认与新增未知；[表单纠错](skills/mini-program-ui-device-skill/references/ui-device-workflow.md)核对失败后能定位、改正并保留输入。这些指导补强不在已发布的 v3.6.0 包内，实际界面与设备效果须在目标项目验证。
+3.7.0 补强两条既有工作流：[连续反馈](skills/mini-program-project-intake-skill/references/intake-workflow.md)按子项保留原确认与新增未知，并按约定范围收口；[表单纠错](skills/mini-program-ui-device-skill/references/ui-device-workflow.md)核对失败后能定位、改正并保留输入。实际界面与设备效果须在目标项目验证。
 
 ---
 
@@ -262,7 +262,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 仓库合并或发布 tag 不会自动替换本机技能文件。从 Releases 下载并验证公开包后，在解压目录执行：
 
 ```bash
-cd mini-program-engineering-suite-v3.6.0
+cd mini-program-engineering-suite-v3.7.0
 bash install.sh --target auto --force
 ```
 
@@ -326,9 +326,9 @@ shasum -a 256 -c SHA256SUMS
 然后解压并复验包内清单：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
-python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.6.0
+tar -xzf mini-program-engineering-suite-v3.7.0.tar.gz
+python3 mini-program-engineering-suite-v3.7.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.7.0
 ```
 
 如果你拿到的是其他渠道提供的包，也可以通过包内 `package-manifest.json` 重新计算每个文件的大小和 SHA-256 摘要：
@@ -345,7 +345,7 @@ python3 <包目录>/scripts/verify_public_package.py <包目录>
 
 3.6.0 补强多时点外部核验、状态与身份分离，以及破坏性操作从预览到原子执行的范围绑定；沿用用户已有流程，减少无必要确认、重传和重复测试。GLM 测评范围与实际发布结果见 [EVALUATIONS.md](EVALUATIONS.md) 和 Release。
 
-当前版本：**3.6.0**；[v3.6.0 已正式发布，可下载公开包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.6.0)。本页介绍当前能力；版本历史见 [CHANGELOG.md](CHANGELOG.md)，测评与证据边界见 [EVALUATIONS.md](EVALUATIONS.md)。
+当前版本：**3.7.0**；[公开包与发布状态](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.7.0)。版本历史见 [CHANGELOG.md](CHANGELOG.md)，测评与证据边界见 [EVALUATIONS.md](EVALUATIONS.md)。
 
 v3.6.0 发布验证：386/386 项确定性测试、最终签名提交 CI 9/9、12/12 个技术及协作场景通过；两个案例共 8 份最终报告的成品对比平均提升 2.7375，候选关键错误及关键维度退化均为 0。两次最终独立质量判断、可信 RSA 验签通过；四个发布附件的校验和及 129 个公开文件与 tag 导出逐字节一致。这些受控验证不替代目标项目的真机、云端或真实交易验收，也未量化证明工程提速。
 

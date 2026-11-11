@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.6.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
+  <img src="assets/readme-cover.webp?v=3.7.0" alt="Mini Program Engineering Skill Suite cover" width="100%">
 </p>
 
 # Mini Program Engineering Skill Suite
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-ไทย-F97316.svg" alt="Language: ไทย">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
+  <img src="https://img.shields.io/badge/version-3.7.0-0EA5E9.svg" alt="Version: 3.7.0">
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@
 
 > หมายเหตุ: ชั้นข้อเท็จจริงของแพลตฟอร์มครอบคลุม WeChat, Alipay และ Douyin แล้ว (ความสามารถในการตรวจจับระบุอย่างตรงไปตรงมา ดู "ความสดของกฎแพลตฟอร์ม" ด้านล่าง) สำหรับ LINE MINI App, Telegram Mini Apps หรือระบบอื่น ๆ สามารถนำแนวคิดไปปรับใช้ได้ แต่ยังต้องปรับกฎแพลตฟอร์มแยกต่างหาก
 
-การปรับปรุงซอร์ส (ยังไม่เผยแพร่): [ข้อเสนอแนะต่อเนื่อง](skills/mini-program-project-intake-skill/references/intake-workflow.md) แยกส่วนที่ยืนยันแล้วออกจากประเด็นใหม่ที่ยังไม่ทราบผล ส่วน [การแก้ข้อผิดพลาดในฟอร์ม](skills/mini-program-ui-device-skill/references/ui-device-workflow.md) ตรวจการหาช่องที่ผิด การแก้ไข และการเก็บข้อมูลที่กรอกไว้ แนวทางนี้ยังไม่อยู่ในแพ็กเกจ v3.6.0 ที่เผยแพร่แล้ว ต้องตรวจ UI และอุปกรณ์จริงในโครงการเป้าหมาย
+3.7.0 เสริมขั้นตอนเดิมสองด้าน: [ข้อเสนอแนะต่อเนื่อง](skills/mini-program-project-intake-skill/references/intake-workflow.md) เก็บผลยืนยันเดิมและประเด็นใหม่ที่ยังไม่ทราบแยกตามรายการย่อย พร้อมรายงานตามขอบเขตที่ตกลงไว้; [การแก้ไขแบบฟอร์ม](skills/mini-program-ui-device-skill/references/ui-device-workflow.md) ตรวจสอบตำแหน่งข้อผิดพลาด การแก้ไข และการเก็บข้อมูลที่กรอกไว้ ต้องตรวจสอบ UI และอุปกรณ์จริงในโครงการเป้าหมาย
 
 ---
 
@@ -182,7 +182,7 @@ git clone https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git
 การ merge repository หรือเผยแพร่ tag ไม่ได้แทนที่ไฟล์ skill ในเครื่อง ดาวน์โหลดและตรวจ package จาก Releases แล้วรันใน directory ที่แตกไฟล์:
 
 ```bash
-cd mini-program-engineering-suite-v3.6.0
+cd mini-program-engineering-suite-v3.7.0
 bash install.sh --target auto --force
 ```
 
@@ -225,12 +225,12 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <package-dir>/scripts/verify_public_package.py <package-dir>
 ```
 
-ตัวอย่าง v3.6.0 (หลังดาวน์โหลดจาก Release):
+ตัวอย่าง v3.7.0 (หลังดาวน์โหลดจาก Release):
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
-python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.6.0
+tar -xzf mini-program-engineering-suite-v3.7.0.tar.gz
+python3 mini-program-engineering-suite-v3.7.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.7.0
 ```
 
 ---
@@ -239,7 +239,7 @@ python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
 
 รุ่น 3.6.0 เพิ่มความชัดเจนในการตรวจข้อมูลต่างเวลา การแยกสถานะออกจากตัวตน และการผูกขอบเขตที่ยืนยันก่อนลบเข้ากับการเขียนแบบอะตอมมิก โดยคงขั้นตอนเดิมและลดการยืนยัน อัปโหลด และทดสอบซ้ำที่ไม่จำเป็น ดูขอบเขตการประเมิน GLM และผลการเผยแพร่จริงที่ [EVALUATIONS.md](EVALUATIONS.md) และ Release。
 
-เวอร์ชันปัจจุบัน: **3.6.0** [v3.6.0 เผยแพร่แล้วและดาวน์โหลดแพ็กเกจสาธารณะได้](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.6.0) หน้านี้อธิบายความสามารถปัจจุบัน ดูประวัติรุ่นที่ [CHANGELOG.md](CHANGELOG.md) และขอบเขตการประเมินกับหลักฐานที่ [EVALUATIONS.md](EVALUATIONS.md)
+เวอร์ชันปัจจุบัน: **3.7.0** ดู [แพ็กเกจสาธารณะและสถานะการเผยแพร่](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.7.0) ประวัติรุ่นที่ [CHANGELOG.md](CHANGELOG.md) และขอบเขตการประเมินกับหลักฐานที่ [EVALUATIONS.md](EVALUATIONS.md)
 
 การตรวจรุ่น v3.6.0 ผ่านการทดสอบแบบกำหนดแน่นอน 386/386 รายการ CI ของ commit สุดท้ายที่มีลายมือชื่อ 9/9 และสถานการณ์ด้านเทคนิคกับการทำงานร่วมกัน 12/12 การเปรียบเทียบสองกรณีรวมรายงานสุดท้าย 8 ฉบับได้คะแนนดีขึ้นเฉลี่ย 2.7375 โดยรุ่นใหม่มีข้อผิดพลาดร้ายแรงและการถดถอยของมิติสำคัญ 0 ผ่านการตัดสินคุณภาพอิสระสุดท้ายสองครั้งและตรวจลายมือชื่อ RSA แล้ว checksum ของไฟล์เผยแพร่ทั้ง 4 รายการและไฟล์สาธารณะ 129 ไฟล์ตรงกับการส่งออกจาก tag ทุกไบต์ การตรวจนี้ไม่แทนการตรวจรับบนอุปกรณ์จริง คลาวด์หรือธุรกรรมจริงในโครงการเป้าหมาย และไม่ได้วัดความเร็วการพัฒนาที่เพิ่มขึ้น
 

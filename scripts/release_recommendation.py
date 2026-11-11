@@ -209,7 +209,13 @@ def last_tag(root: Path, before: str | None = None) -> str | None:
     candidate tag and a plain describe would return the candidate itself
     (the P0 bypass: candidate..HEAD = empty -> HOLD -> gate skipped).
     """
+    # Source snapshots are not release baselines. Match only known semantic
+    # release tags so an annotated review tag cannot hide behavioral changes.
+    release_tags = release_tags_sorted(root)
+    if not release_tags:
+        return None
     args = ["git", "-C", str(root), "describe", "--tags", "--abbrev=0"]
+    args.extend(f"--match={tag}" for tag in release_tags)
     if before is not None:
         args.append(before)
     result = subprocess.run(args, capture_output=True, check=False, text=True)

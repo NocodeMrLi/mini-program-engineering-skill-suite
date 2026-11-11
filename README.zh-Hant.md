@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme-cover.webp?v=3.6.0" alt="小程式開發工程技能套件 封面" width="100%">
+  <img src="assets/readme-cover.webp?v=3.7.0" alt="小程式開發工程技能套件 封面" width="100%">
 </p>
 
 # 小程式開發工程技能套件
@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/runtime-Python%203.9%2B-3776AB.svg" alt="Runtime: Python 3.9+">
   <img src="https://img.shields.io/badge/lang-%E7%B9%81%E9%AB%94%E4%B8%AD%E6%96%87-7C3AED.svg" alt="Language: 繁體中文">
   <img src="https://img.shields.io/badge/status-Active%20Development-22C55E.svg" alt="Status: Active Development">
-  <img src="https://img.shields.io/badge/version-3.6.0-0EA5E9.svg" alt="Version: 3.6.0">
+  <img src="https://img.shields.io/badge/version-3.7.0-0EA5E9.svg" alt="Version: 3.7.0">
 </p>
 
 <p align="center">
@@ -34,7 +34,7 @@
 
 > 說明：平台事實層現已覆蓋微信、支付寶、抖音三個平台（檢測能力如實分級，見下文「平台規則保鮮」）。LINE MINI App、Telegram Mini Apps 等其他生態可借鑑本套件方法，但仍需針對平台規則另行適配。
 
-原始碼更新（尚未發布）：[連續回饋](skills/mini-program-project-intake-skill/references/intake-workflow.md)按子項保留原確認與新增未知；[表單糾錯](skills/mini-program-ui-device-skill/references/ui-device-workflow.md)核對失敗後能定位、改正並保留輸入。這些指引補強不在已發布的 v3.6.0 套件內，實際介面與裝置效果須在目標專案驗證。
+3.7.0 補強兩條既有工作流：[連續回饋](skills/mini-program-project-intake-skill/references/intake-workflow.md)按子項保留原確認與新增未知，並按約定範圍收口；[表單糾錯](skills/mini-program-ui-device-skill/references/ui-device-workflow.md)核對失敗後能定位、改正並保留輸入。實際介面與裝置效果須在目標專案驗證。
 
 ---
 
@@ -178,7 +178,7 @@ https://github.com/NocodeMrLi/mini-program-engineering-skill-suite.git 幫我安
 倉庫合併或發布 tag 不會自動替換本機技能檔案。從 Releases 下載並驗證公開包後，在解壓目錄執行：
 
 ```bash
-cd mini-program-engineering-suite-v3.6.0
+cd mini-program-engineering-suite-v3.7.0
 bash install.sh --target auto --force
 ```
 
@@ -221,12 +221,12 @@ python3 scripts/scan_sensitive_content.py . --format json
 python3 <包目錄>/scripts/verify_public_package.py <包目錄>
 ```
 
-以 v3.6.0 為例（從 Release 下載後）：
+以 v3.7.0 為例（從 Release 下載後）：
 
 ```bash
-tar -xzf mini-program-engineering-suite-v3.6.0.tar.gz
-python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
-  mini-program-engineering-suite-v3.6.0
+tar -xzf mini-program-engineering-suite-v3.7.0.tar.gz
+python3 mini-program-engineering-suite-v3.7.0/scripts/verify_public_package.py \
+  mini-program-engineering-suite-v3.7.0
 ```
 
 ---
@@ -235,7 +235,7 @@ python3 mini-program-engineering-suite-v3.6.0/scripts/verify_public_package.py \
 
 3.6.0 補強多時點外部核驗、狀態與身分分離，以及破壞性操作從預覽到原子執行的範圍綁定；沿用既有流程，減少無必要確認、重傳與重測。GLM 評測範圍及實際發布結果見 [EVALUATIONS.md](EVALUATIONS.md) 與 Release。
 
-目前版本：**3.6.0**；[v3.6.0 已正式發布，可下載公開包](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.6.0)。本頁介紹目前能力；版本歷史見 [CHANGELOG.md](CHANGELOG.md)，評測與證據邊界見 [EVALUATIONS.md](EVALUATIONS.md)。
+目前版本：**3.7.0**；[公開包與發布狀態](https://github.com/NocodeMrLi/mini-program-engineering-skill-suite/releases/tag/v3.7.0)。版本歷史見 [CHANGELOG.md](CHANGELOG.md)，評測與證據邊界見 [EVALUATIONS.md](EVALUATIONS.md)。
 
 v3.6.0 發布驗證：386/386 項確定性測試、最終簽章提交 CI 9/9、12/12 個技術及協作場景通過；兩個案例共 8 份最終報告的成品比較平均提升 2.7375，候選關鍵錯誤及關鍵維度退化均為 0。兩次最終獨立品質判斷、可信 RSA 驗章通過；四個發布附件的校驗和及 129 個公開檔案與 tag 匯出逐位元組一致。這些受控驗證不替代目標專案的真機、雲端或真實交易驗收，也未量化證明工程提速。
 
