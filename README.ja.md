@@ -34,6 +34,8 @@
 
 > 注意：プラットフォームファクト層は現在 WeChat・Alipay・Douyin の 3 プラットフォームをカバーしています（検出能力は正直に区分、下記「プラットフォーム規則の鮮度保持」参照）。LINE MINI App、Telegram Mini Apps などのその他のエコシステムにも考え方を転用できますが、各プラットフォームの規則に合わせた追加適配は必要です。
 
+ソースの更新（未公開）：[継続的なフィードバック](skills/mini-program-project-intake-skill/references/intake-workflow.md)では確認済み部分と新たな未確認部分を分け、[フォームの修正](skills/mini-program-ui-device-skill/references/ui-device-workflow.md)ではエラーの場所、修正、入力保持を確認します。この指針の補強は公開済み v3.6.0 パッケージには含まれません。実際の画面と端末の動作は対象プロジェクトで検証が必要です。
+
 ---
 
 ## ハイライト

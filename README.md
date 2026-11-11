@@ -32,6 +32,8 @@
 
 3.6.0 重点补强三件事：数据不一致时分清更新时间差与真实异常；核对状态时同时确认身份、环境和完整范围；删除、清理等操作让预览、确认与实际执行保持一致。沿用已有产品流程，失败保留输入，未知结果先查证，减少用户重复操作和无变化复测。
 
+源码更新（尚未发布）：[连续反馈](skills/mini-program-project-intake-skill/references/intake-workflow.md)按子项保留原确认与新增未知；[表单纠错](skills/mini-program-ui-device-skill/references/ui-device-workflow.md)核对失败后能定位、改正并保留输入。这些指导补强不在已发布的 v3.6.0 包内，实际界面与设备效果须在目标项目验证。
+
 ---
 
 ## 核心亮点

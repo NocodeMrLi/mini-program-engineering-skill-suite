@@ -34,6 +34,8 @@
 
 > 說明：平台事實層現已覆蓋微信、支付寶、抖音三個平台（檢測能力如實分級，見下文「平台規則保鮮」）。LINE MINI App、Telegram Mini Apps 等其他生態可借鑑本套件方法，但仍需針對平台規則另行適配。
 
+原始碼更新（尚未發布）：[連續回饋](skills/mini-program-project-intake-skill/references/intake-workflow.md)按子項保留原確認與新增未知；[表單糾錯](skills/mini-program-ui-device-skill/references/ui-device-workflow.md)核對失敗後能定位、改正並保留輸入。這些指引補強不在已發布的 v3.6.0 套件內，實際介面與裝置效果須在目標專案驗證。
+
 ---
 
 ## 核心亮點
