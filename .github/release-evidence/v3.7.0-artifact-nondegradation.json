@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "stage": "artifact-nondegradation",
+  "candidate_tag": "v3.7.0",
+  "candidate_commit": "1604239a7387542d0fff38c52573e90126949684",
+  "skill_behavior_sha256": "efdeb6c89215458e01566abfd1076337ccd4b38f852cadb57b19e400653d9df9",
+  "evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "engine": "actual installed ZCodeCLI3.11.2-21/runtime0.16.5; fresh isolated Flash evaluations",
+  "model": "glm-5.3-flash; provider alias, exact weights revision unavailable",
+  "generated_at_utc": "2026-11-11T10:02:30Z",
+  "source_report_sha256": "2cb6af94c8630e70d3d5434241906ec70a949e10647f7dab79ee46c9078d04ee",
+  "source_generated_at_utc": "2026-11-11T10:01:41Z",
+  "verdict": "PASS",
+  "case_count": 2,
+  "run_count": 8,
+  "minimum_runs_per_arm": 2,
+  "minimum_case_count": 2,
+  "mean_target_gain": 12.5,
+  "minimum_mean_target_gain": 1.0,
+  "critical_error_count": 0,
+  "critical_regression_count": 0,
+  "problems": []
+}

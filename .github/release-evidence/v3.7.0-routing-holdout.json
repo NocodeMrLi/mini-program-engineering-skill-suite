@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "stage": "routing-held-out",
+  "candidate_tag": "v3.7.0",
+  "candidate_commit": "1604239a7387542d0fff38c52573e90126949684",
+  "skill_behavior_sha256": "efdeb6c89215458e01566abfd1076337ccd4b38f852cadb57b19e400653d9df9",
+  "evaluation_harness_sha256": "23af62b7dc59856ef99b98176dab21136832e58a8278407d47636282e19b1567",
+  "engine": "actual installed ZCodeCLI3.11.2-21/runtime0.16.5; fresh isolated Flash evaluations",
+  "model": "glm-5.3-flash; provider alias, exact weights revision unavailable",
+  "generated_at_utc": "2026-11-11T10:02:30Z",
+  "source_report_sha256": "e922dae9f773b12348497a1a35c1d6d66ca3ad88e0f55d7452b026aca4e025ec",
+  "source_generated_at_utc": "2026-11-11T06:46:34Z",
+  "verdict": "PASS",
+  "case_count": 32,
+  "correct": 32,
+  "accuracy": 1.0,
+  "minimum": 0.9
+}
