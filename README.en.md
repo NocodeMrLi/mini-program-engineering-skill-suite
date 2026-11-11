@@ -32,6 +32,8 @@
 
 3.6.0 strengthens three decisions: distinguish update delays from real inconsistencies; verify identity, environment and complete scope alongside status; and keep destructive previews, confirmation and actual execution aligned. Preserve existing product workflows and user input on failure, investigate unknown outcomes before retrying, and avoid repeated user actions or unchanged retests.
 
+Source updates (unreleased): [ongoing feedback](skills/mini-program-project-intake-skill/references/intake-workflow.md) preserves prior confirmations and new unknowns by subitem; [form recovery](skills/mini-program-ui-device-skill/references/ui-device-workflow.md) checks error location, correction and retained input. These guidance updates are outside the published v3.6.0 package; actual UI and device behavior need verification in the target project.
+
 ---
 
 ## Highlights

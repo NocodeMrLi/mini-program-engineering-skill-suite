@@ -34,6 +34,8 @@ Nama Tionghoa: **小程序开发工程技能套件**.
 
 > Catatan: lapisan fakta platform kini mencakup WeChat, Alipay, dan Douyin (kemampuan deteksi dilabeli jujur — lihat "Kesegaran Aturan Platform" di bawah). Untuk LINE MINI App, Telegram Mini Apps, atau ekosistem mini app lain, prinsip suite ini dapat dijadikan referensi, tetapi aturan platform tetap perlu diadaptasi secara terpisah.
 
+Pembaruan sumber (belum dirilis): [umpan balik berkelanjutan](skills/mini-program-project-intake-skill/references/intake-workflow.md) memisahkan bagian yang sudah dikonfirmasi dari masalah baru yang belum diketahui; [pemulihan formulir](skills/mini-program-ui-device-skill/references/ui-device-workflow.md) memeriksa lokasi kesalahan, perbaikan, dan input yang dipertahankan. Panduan ini belum termasuk dalam paket v3.6.0 yang telah dirilis; perilaku UI dan perangkat perlu diverifikasi di proyek tujuan.
+
 ---
 
 ## Sorotan Utama
